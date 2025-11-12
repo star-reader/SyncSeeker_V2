@@ -8,12 +8,12 @@ export default defineConfig(({ mode }) => {
   const signature = env.VITE_LICENSE_SIGNATURE
   const publicKeyPem = env.VITE_PUBLIC_KEY_PEM
   if (!token || !signature || !publicKeyPem) {
-    throw new Error('License env missing: set VITE_LICENSE_TOKEN, VITE_LICENSE_SIGNATURE, VITE_PUBLIC_KEY_PEM')
+    throw new Error('License env missing')
   }
   const v = createVerify('RSA-SHA256')
   v.update(token)
   v.end()
-  const pub = publicKeyPem.includes('\\n') ? publicKeyPem.replace(/\\n/g, '\n') : publicKeyPem
+  const pub = publicKeyPem.replace(/\\n/g, '\n')
   const ok = v.verify(pub, signature, 'base64')
   if (!ok) {
     throw new Error('License verification failed')
