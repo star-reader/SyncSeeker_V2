@@ -3,6 +3,7 @@ import { Search as SearchIcon, SettingTwo, Moon, SunOne } from '@icon-park/react
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
 import styles from './TopNavBar.module.scss'
+import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 
 export default function TopNavBar() {
   const [dark, setDark] = useState(false)
@@ -18,17 +19,22 @@ export default function TopNavBar() {
   }, [])
 
   useEffect(() => {
-    const el = document.getElementById('root')
-    if (el) el.setAttribute('theme', dark ? 'dark' : 'light')
-    localStorage.setItem('theme', dark ? 'dark' : 'light')
-    pubsub.publish('theme-changed', dark ? 'dark' : 'light')
-  }, [dark])
+    pubsub.subscribe('theme-change', (_, data: string) => {
+        setDark(data === 'dark')
+        useSetCurrentTheme(data)
+    })
+  })
+
+  const handleThemeChange = (theme: string) => {
+    setDark(theme === 'dark')
+    pubsub.publish('theme-change', theme)
+  }
 
   return (
     <div className={styles.navbar}>
       <div className={styles.inner}>
         <div className={styles.logo}>
-          <img src={navfulllogo} alt="logo_Syncseeker" style={{ height: 48 }} />
+          <img src={navfulllogo} alt="logo_Syncseeker" style={{ height: 40 }} />
         </div>
 
         <div className={styles.searchBox}>
@@ -42,7 +48,7 @@ export default function TopNavBar() {
         </div>
 
         <div className={styles.actions}>
-          <button className={styles.iconButton} onClick={() => setDark(v => !v)} aria-label="toggle-theme">
+          <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
             {dark ? <SunOne size={18} /> : <Moon size={18} />}
           </button>
           <button className={styles.iconButton} aria-label="settings">
