@@ -1,16 +1,13 @@
-import Icon, { ALL_ICON_KEYS } from '@icon-park/react/es/all'
-import { Airplane } from '@icon-park/react'
+
 import styles from './PilotList.module.scss'
 import type { OnlinePilot } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import IconByName from '../common/IconByName'
 
-function IconByName({ name, size = 16 }: { name: string, size?: number }) {
-  const type = name as any
-  return ALL_ICON_KEYS.includes(type) ? <Icon type={type} size={size} /> : <Airplane size={size} />
-}
+ 
 
 interface PilotDetailOverlayProps {
   open: boolean

@@ -1,19 +1,13 @@
 import { useMemo, useState } from 'react'
-import Icon, { ALL_ICON_KEYS } from '@icon-park/react/es/all'
-import { Airplane } from '@icon-park/react'
 import styles from './PilotList.module.scss'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import type { OnlinePilot } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
 import PilotDetailOverlay from './PilotDetailOverlay'
+import IconByName from '../common/IconByName'
 
 const EMPTY_FLIGHTS: OnlinePilot[] = []
-
-function IconByName({ name, size = 16 }: { name: string, size?: number }) {
-  const type = name as any
-  return ALL_ICON_KEYS.includes(type) ? <Icon type={type} size={size} /> : <Airplane size={size} />
-}
 
 export default () => {
   const flights = useOnlineDataStore(s => s.onlineData?.flights ?? EMPTY_FLIGHTS)

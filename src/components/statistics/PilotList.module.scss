@@ -194,6 +194,7 @@
   cursor: default;
   max-height: calc(100vh - 64px);
   overflow: auto;
+  user-select: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -223,6 +224,7 @@
   background: var(--sky-fill-color);
   color: var(--sky-text-color-primary);
   cursor: pointer;
+  user-select: none;
 }
 
 .modalBody {
