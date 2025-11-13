@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Search as SearchIcon, SettingTwo, Moon, SunOne } from '@icon-park/react'
+import { Search as SearchIcon, SettingTwo, Moon, SunOne, More } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
 // import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
@@ -50,7 +50,7 @@ export default function TopNavBar() {
         <div className={`${styles.navbar} navbar-container`}>
             <div className={styles.inner}>
               <div className={styles.logo}>
-                <img src={navfulllogo} alt="logo_Syncseeker" style={{ height: 40 }} />
+                <img src={navfulllogo} alt="logo_Syncseeker"/>
               </div>
 
               <div className={styles.searchBox}>
@@ -69,6 +69,9 @@ export default function TopNavBar() {
                 </button>
                 <button className={styles.iconButton} aria-label="settings">
                   <SettingTwo size={18} />
+                </button>
+                <button className={styles.iconButton} aria-label="more">
+                  <More size={18} />
                 </button>
               </div>
             </div>

@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 18px;
   transition-duration: 0.3s;
   background: transparent;
 }
@@ -37,6 +37,10 @@
   display: flex;
   align-items: center;
   gap: 20px;
+
+  img {
+    height: 40px;
+  }
 }
 
 .searchBox {
@@ -55,7 +59,7 @@
   padding: 0 12px 0 40px;
   outline: none;
   color: var(--sky-text-color-primary);
-  background: color-mix(in srgb, var(--sky-fill-color) 55%, transparent);
+  background: color-mix(in srgb, var(--sky-fill-color) 58%, transparent);
   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
   box-shadow: 0 1px 2px color-mix(in srgb, var(--sky-color-black) 8%, transparent);
   caret-color: var(--sky-color-primary);
@@ -102,6 +106,16 @@
 }
 
 @media (max-width: 640px) {
-  .brand { display: none; }
-  .searchBox { flex: 1 1 160px; }
+  .navbar {
+    padding: 0 6px;
+  }
+  .inner {
+    gap: 4px;
+  }
+  .searchBox { 
+    flex: 1 1 160px; 
+  }
+  .logo img {
+    height: 30px;
+  }
 }
