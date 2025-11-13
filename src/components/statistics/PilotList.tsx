@@ -6,6 +6,7 @@ import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import type { OnlinePilot } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
+import PilotDetailOverlay from './PilotDetailOverlay'
 
 const EMPTY_FLIGHTS: OnlinePilot[] = []
 
@@ -14,7 +15,7 @@ function IconByName({ name, size = 16 }: { name: string, size?: number }) {
   return ALL_ICON_KEYS.includes(type) ? <Icon type={type} size={size} /> : <Airplane size={size} />
 }
 
-export default function PilotList() {
+export default () => {
   const flights = useOnlineDataStore(s => s.onlineData?.flights ?? EMPTY_FLIGHTS)
   const [openId, setOpenId] = useState<string | null>(null)
 
@@ -51,52 +52,7 @@ export default function PilotList() {
         </div>
 
         {/* 详情框 */}
-        <div className={styles.overlay} data-open={selected ? 'true' : 'false'} onClick={() => setOpenId(null)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{selected?.callsign || ''}</div>
-              <button className={styles.closeBtn} onClick={() => setOpenId(null)}>×</button>
-            </div>
-            {selected && (
-              <div className={styles.modalBody}>
-                <div className={styles.item}>
-                  <div className={styles.label}>机组</div>
-                  <div className={styles.value}>{selected.name} · {selected.cid}</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>状态</div>
-                  <div className={styles.tags}>
-                    <span className={`${styles.status} ${styles[`status--${getPilotStatusOfTag(selected)}`]}`}>{getPilotStatusOf(selected)}</span>
-                  </div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>航班</div>
-                  <div className={styles.value}>{selected.flight_plan?.departure || '-'} → {selected.flight_plan?.arrival || '-'}</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>机型</div>
-                  <div className={styles.value}>{selected.flight_plan?.aircraft || 'N/A'}</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>高度</div>
-                  <div className={styles.value}>{Math.round(selected.altitude)} ft</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>地速</div>
-                  <div className={styles.value}>{Math.round(selected.groundspeed)} kt</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>航路</div>
-                  <div className={styles.value}>{selected.flight_plan?.route || '-'}</div>
-                </div>
-                <div className={styles.item}>
-                  <div className={styles.label}>备注</div>
-                  <div className={styles.value}>{selected.flight_plan?.remarks || '-'}</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <PilotDetailOverlay open={!!selected} pilot={selected} onClose={() => setOpenId(null)} />
       </div>
     </div>
   )
