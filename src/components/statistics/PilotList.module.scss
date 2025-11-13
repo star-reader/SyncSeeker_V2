@@ -125,8 +125,8 @@
 }
 
 .status--ground {
-  color: var(--sky-text-color-regular);
-  background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+  color: var(--sky-color-light-warning);
+  background: color-mix(in srgb, var(--sky-color-light-warning) 13%, transparent);
 }
 
 .action {
@@ -155,9 +155,10 @@
 }
 
 .overlay {
-  position: absolute;
+  position: fixed;
   width: 100vw;
-  height: calc(100vh - 56px);
+  height: 100vh;
+  height: 100dvh;
   left: 0;
   top: 0;
   inset: 0;
@@ -169,8 +170,10 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity .18s ease, visibility .18s ease;
-  z-index: 1200;
+  z-index: 9999;
   overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .overlay[data-open="true"] {
@@ -179,7 +182,7 @@
 }
 
 .modal {
-  width: 100%;
+  width: min(760px, calc(100vw - 48px));
   max-width: 760px;
   border-radius: 16px;
   border: 1px solid var(--sky-border-color);
@@ -189,6 +192,9 @@
   opacity: 0;
   transition: transform .18s ease, opacity .18s ease;
   cursor: default;
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .overlay[data-open="true"] .modal {
@@ -338,9 +344,68 @@
   color: var(--sky-text-color-primary);
 }
 
+.codeBlock {
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
+  border-radius: 12px;
+}
+
+.codeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--sky-border-color);
+}
+
+.codeTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sky-text-color-secondary);
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
+  background: color-mix(in srgb, var(--sky-fill-color) 75%, transparent);
+  color: var(--sky-text-color-primary);
+  cursor: pointer;
+}
+
+.codeContent {
+  margin: 0;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--sky-text-color-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 760px) {
   .hero { font-size: 22px; }
   .kvItem { flex-basis: 100%; }
+  .detailHeader { flex-direction: column; }
+  .modal { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+}
+
+@media (max-width: 480px) {
+  .modalHeader { padding: 12px; }
+  .modalTitle { font-size: 16px; }
+  .detailHeader { padding: 12px; gap: 10px; }
+  .badge { font-size: 11px; padding: 5px 8px; }
+  .metrics { gap: 8px; }
+  .metric { padding: 8px 10px; font-size: 12px; }
+  .kvItem { padding: 8px 10px; }
+  .codeHeader { padding: 8px 10px; }
+  .copyBtn { height: 26px; padding: 0 8px; }
+  .codeContent { font-size: 11px; padding: 10px; }
 }
 
 .item {
@@ -388,6 +453,6 @@
   .action { justify-self: start; }
   .modalBody { grid-template-columns: 1fr; }
   .modal {
-    width: calc(100% - 60px);
+    width: 100%;
   }
 }

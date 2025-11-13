@@ -28,9 +28,15 @@ export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
   getAtisList: () => {
     return get().onlineData?.atis || []
   },
-  setOnlineData: (data: OnlineData) => set({ onlineData: {
-    flights: data.flights?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
-    controllers: data.controllers?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
-    atis: data.atis?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
-  } }),
+  setOnlineData: (data: OnlineData) => {
+    if (data && data.flights) {
+      set({
+        onlineData: {
+          flights: data.flights?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+          controllers: data.controllers?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+          atis: data.atis?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+        }
+      })
+    }
+  }
 }))
