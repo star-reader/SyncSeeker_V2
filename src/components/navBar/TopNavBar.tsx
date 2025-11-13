@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Search as SearchIcon, SettingTwo, Moon, SunOne } from '@icon-park/react'
+import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
 import styles from './TopNavBar.module.scss'
 
@@ -20,6 +21,7 @@ export default function TopNavBar() {
     const el = document.getElementById('root')
     if (el) el.setAttribute('theme', dark ? 'dark' : 'light')
     localStorage.setItem('theme', dark ? 'dark' : 'light')
+    pubsub.publish('theme-changed', dark ? 'dark' : 'light')
   }, [dark])
 
   return (
