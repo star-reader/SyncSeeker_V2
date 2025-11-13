@@ -57,7 +57,7 @@ export default function TopNavBar() {
     }
   }, [])
 
-  const handleSelect = (key: 'map' | 'crew' | 'atc' | 'board') => {
+  const handleSelect = (key: string) => {
     setMenuOpen(false)
     pubsub.publish('menu-select', key)
   }
@@ -109,13 +109,13 @@ export default function TopNavBar() {
                     </span>
                     <span className={styles.menuLabel}>连飞地图</span>
                   </button> */}
-                  <button className={styles.menuItem} onClick={() => handleSelect('crew')}>
+                  <button className={styles.menuItem} onClick={() => handleSelect('pilot')}>
                     <span className={styles.menuIcon}>
                       <ListTop size={18} />
                     </span>
                     <span className={styles.menuLabel}>在线机组列表</span>
                   </button>
-                  <button className={styles.menuItem} onClick={() => handleSelect('atc')}>
+                  <button className={styles.menuItem} onClick={() => handleSelect('controller')}>
                     <span className={styles.menuIcon}>
                       <RadarThree size={18} />
                     </span>

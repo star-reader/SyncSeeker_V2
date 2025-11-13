@@ -31,7 +31,25 @@
   color: var(--sky-text-color-primary);
   margin: 22px 0;
   padding-left: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .returnBtn {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sky-text-color-primary);
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
+    background: color-mix(in srgb, var(--sky-bg-color-overlay) 60%, transparent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 }
+
+
 
 .list {
   display: grid;

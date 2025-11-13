@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import styles from './PilotList.module.scss'
+import pubsub from 'pubsub-js'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import type { OnlineController } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
@@ -16,10 +17,21 @@ export default () => {
 
   const selected = useMemo(() => list.find(c => c.session_id === openId || c.cid === openId) || null, [list, openId])
 
+
+  const handleReturnBtnClick = () => {
+    pubsub.publish('return-to-map', 'controller')
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.inner}>
-        <div className={styles.heading}>管制员列表</div>
+        <div className={styles.heading}>
+          <div className={styles.title}>管制员列表</div>
+          <div className={styles.returnBtn} onClick={handleReturnBtnClick}>
+            <IconByName name="ArrowLeft" />
+            返回地图
+          </div>
+        </div>
         {!list.length && (
           <div className={styles.empty}>暂无在线管制</div>
         )}
