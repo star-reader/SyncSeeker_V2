@@ -17,7 +17,8 @@
     "pubsub-js": "^1.9.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "scss": "^0.2.4"
+    "scss": "^0.2.4",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

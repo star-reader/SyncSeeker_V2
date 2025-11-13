@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Search as SearchIcon, SettingTwo, Moon, SunOne, 
-    MapDraw, ListTop, RadarThree, Airplane, More } from '@icon-park/react'
+  ListTop, RadarThree, Airplane, More } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
 // import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
@@ -81,7 +81,7 @@ export default function TopNavBar() {
                 <img src={navfulllogo} alt="logo_Syncseeker"/>
               </div>
 
-              <div className={styles.searchBox}>
+              {/* <div className={styles.searchBox}>
                 <SearchIcon className={styles.searchIcon} size={18} />
                 <input
                   className={styles.input}
@@ -89,7 +89,7 @@ export default function TopNavBar() {
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                 />
-              </div>
+              </div> */}
 
               <div className={styles.actions}>
                 <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
@@ -102,12 +102,13 @@ export default function TopNavBar() {
                   <More size={18} />
                 </button>
                 <div ref={menuRef} className={styles.menu} data-open={menuOpen ? 'true' : 'false'}>
-                  <button className={styles.menuItem} onClick={() => handleSelect('map')}>
+                  {/* 这个会用“返回地图”替换，所以取消显示“连飞地图”选项 */}
+                  {/* <button className={styles.menuItem} onClick={() => handleSelect('map')}>
                     <span className={styles.menuIcon}>
                       <MapDraw size={18} />
                     </span>
                     <span className={styles.menuLabel}>连飞地图</span>
-                  </button>
+                  </button> */}
                   <button className={styles.menuItem} onClick={() => handleSelect('crew')}>
                     <span className={styles.menuIcon}>
                       <ListTop size={18} />
