@@ -90,6 +90,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .iconButton {
@@ -105,6 +106,68 @@
   cursor: pointer;
 }
 
+.menu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  min-width: 180px;
+  border: 1px solid var(--sky-border-color);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--sky-bg-color-base) 82%, transparent);
+  -webkit-backdrop-filter: saturate(120%) blur(12px);
+  backdrop-filter: saturate(120%) blur(12px);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--sky-color-black) 14%, transparent);
+  padding: 8px;
+  display: grid;
+  grid-auto-rows: 40px;
+  gap: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
+  z-index: 1100;
+}
+
+.menu[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--sky-text-color-primary);
+  background: color-mix(in srgb, var(--sky-fill-color) 55%, transparent);
+  border: 0;
+  outline: none;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: color-mix(in srgb, var(--sky-fill-color) 95%, transparent);
+}
+
+.menuIcon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--sky-color-primary) 12%, transparent);
+  color: var(--sky-color-primary);
+}
+
+.menuLabel {
+  flex: 1;
+  font-size: 14px;
+}
+
 @media (max-width: 640px) {
   .navbar {
     padding: 0 6px;
@@ -117,5 +180,11 @@
   }
   .logo img {
     height: 30px;
+  }
+  .menu {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    top: 56px;
   }
 }

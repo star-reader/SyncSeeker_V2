@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@icon-park/react": "^1.4.2",
+    "axios": "^1.13.2",
     "liquid-web": "^1.1.1",
     "mapbox-gl": "^3.16.0",
     "pubsub-js": "^1.9.5",

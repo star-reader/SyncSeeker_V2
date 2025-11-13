@@ -23,9 +23,9 @@ export default function BasicMap() {
             }
         })
         map = mapRef.current
+        initMapCoord()
         addMapControls()
         bindMapEventListener()
-        initMapCoord()
         return () => {
             mapRef.current?.remove()
             mapRef.current = null
