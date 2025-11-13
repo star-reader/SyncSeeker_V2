@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-import type { OnlineData, OnlinePilot, OnlineController } from '../../types/fsd';
+import type { OnlineData, OnlinePilot, OnlineController } from '../types/fsd';
 
 interface OnlineDataStore {
   onlineData: OnlineData | null
-  getOnlineData: () => OnlineData
+  getOnlineData: () => OnlineData | null
   getPilotById: (id: string) => OnlinePilot | undefined
   getControllerById: (id: string) => OnlineController | undefined,
   getAtisList: () => OnlineController[],
@@ -15,18 +15,22 @@ export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
   getOnlineData: () => {
     const data = get().onlineData
     if (!data) {
-      throw new Error('Online data is not set')
+      return null
     }
     return data
   },
   getPilotById: (id: string) => {
-    return get().onlineData?.flights.find(item => item.session_id === id || item.cid === id)
+    return get().onlineData?.flights?.find(item => item.session_id === id || item.cid === id)
   },
   getControllerById: (id: string) => {
-    return get().onlineData?.controllers.find(item => item.session_id === id || item.cid === id)
+    return get().onlineData?.controllers?.find(item => item.session_id === id || item.cid === id)
   },
   getAtisList: () => {
     return get().onlineData?.atis || []
   },
-  setOnlineData: (data: OnlineData) => set({ onlineData: data }),
+  setOnlineData: (data: OnlineData) => set({ onlineData: {
+    flights: data.flights?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+    controllers: data.controllers?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+    atis: data.atis?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
+  } }),
 }))

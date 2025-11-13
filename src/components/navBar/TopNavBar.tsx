@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Search as SearchIcon, SettingTwo, Moon, SunOne, 
+import { SettingTwo, Moon, SunOne, 
   ListTop, RadarThree, Airplane, More } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
@@ -9,7 +9,7 @@ import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 
 export default function TopNavBar() {
   const [dark, setDark] = useState(false)
-  const [query, setQuery] = useState('')
+  // const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const moreBtnRef = useRef<HTMLButtonElement | null>(null)
