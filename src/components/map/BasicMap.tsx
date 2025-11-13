@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react"
 import mapboxgl from 'mapbox-gl'
+import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
+import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -10,9 +12,15 @@ export default function BasicMap() {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
         mapRef.current = new mapboxgl.Map({
             container: 'map-container',
-            style: 'mapbox://styles/mapbox/streets-v12',
+            style: 'mapbox://styles/mapbox/standard',
             center: [120.128029, 30.267153],
-            zoom: 6
+            zoom: 6,
+            config: {
+                basemap: {
+                    lightPreset: useGetCurrentTheme() === 'dark' ? 'night' : 'day',
+                    showPointOfInterestLabels: false,
+                }
+            }
         })
         map = mapRef.current
         addMapControls()
@@ -22,6 +30,16 @@ export default function BasicMap() {
             mapRef.current?.remove()
             mapRef.current = null
         }
+    }, [])
+
+    useEffect(() => {
+        pubsub.subscribe('theme-change', (_, theme: string) => {
+            if (theme === 'dark') {
+                map.setConfigProperty('basemap', 'lightPreset', 'night');
+            } else {
+                map.setConfigProperty('basemap', 'lightPreset', 'day');
+            }
+        })
     }, [])
 
     const initMapCoord = () => {
@@ -48,10 +66,10 @@ export default function BasicMap() {
             unit: 'metric'
         })
         map.addControl(scale, 'bottom-right')
-        map.addControl(new mapboxgl.AttributionControl({
-            compact: true,
-            customAttribution: 'SKYline SyncSeeker Beta | 仅限模拟飞行使用 | 禁止用于实际飞行'
-        }))
+        // map.addControl(new mapboxgl.AttributionControl({
+        //     compact: true,
+        //     customAttribution: 'SKYline SyncSeeker Beta | 仅限模拟飞行使用 | 禁止用于实际飞行'
+        // }))
     }
 
     const bindMapEventListener = () => {

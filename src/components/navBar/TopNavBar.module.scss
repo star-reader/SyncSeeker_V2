@@ -10,10 +10,18 @@
   justify-content: center;
   padding: 0 12px;
   transition-duration: 0.3s;
-  border-bottom: 1px solid var(--sky-border-color);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
+  background: transparent;
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--sky-bg-color-base) 35%, transparent);
   -webkit-backdrop-filter: saturate(120%) blur(10px);
   backdrop-filter: saturate(120%) blur(10px);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .inner {
@@ -43,11 +51,11 @@
   width: 100%;
   height: 36px;
   border-radius: 9999px;
-  border: 1px solid var(--sky-border-color-light);
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 30%, transparent);
   padding: 0 12px 0 40px;
   outline: none;
   color: var(--sky-text-color-primary);
-  background: color-mix(in srgb, var(--sky-fill-color) 85%, transparent);
+  background: color-mix(in srgb, var(--sky-fill-color) 55%, transparent);
   transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
   box-shadow: 0 1px 2px color-mix(in srgb, var(--sky-color-black) 8%, transparent);
   caret-color: var(--sky-color-primary);
@@ -63,7 +71,7 @@
 
 .input:focus {
   border-color: var(--sky-color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sky-color-primary) 25%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sky-color-primary) 55%, transparent);
 }
 
 .searchIcon {
@@ -87,8 +95,8 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--sky-border-color);
-  background: var(--sky-fill-color);
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 30%, transparent);
+  background: color-mix(in srgb, var(--sky-fill-color) 75%, transparent);
   color: var(--sky-text-color-primary);
   cursor: pointer;
 }

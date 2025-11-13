@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Search as SearchIcon, SettingTwo, Moon, SunOne } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
+import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
 import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 
@@ -19,11 +20,14 @@ export default function TopNavBar() {
   }, [])
 
   useEffect(() => {
-    pubsub.subscribe('theme-change', (_, data: string) => {
-        setDark(data === 'dark')
-        useSetCurrentTheme(data)
+    const token = pubsub.subscribe('theme-change', (_, data: string) => {
+      setDark(data === 'dark')
+      useSetCurrentTheme(data)
     })
-  })
+    return () => {
+      pubsub.unsubscribe(token)
+    }
+  }, [])
 
   const handleThemeChange = (theme: string) => {
     setDark(theme === 'dark')
@@ -31,31 +35,44 @@ export default function TopNavBar() {
   }
 
   return (
-    <div className={styles.navbar}>
-      <div className={styles.inner}>
-        <div className={styles.logo}>
-          <img src={navfulllogo} alt="logo_Syncseeker" style={{ height: 40 }} />
-        </div>
+    <LiquidGlassWrapper
+      borderRadius="12px"
+      className="navbar-container"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '12px 24px',
+        zIndex: 1000
+      }}
+    >
+        <div className={`${styles.navbar} navbar-container`}>
+            <div className={styles.inner}>
+              <div className={styles.logo}>
+                <img src={navfulllogo} alt="logo_Syncseeker" style={{ height: 40 }} />
+              </div>
 
-        <div className={styles.searchBox}>
-          <SearchIcon className={styles.searchIcon} size={18} />
-          <input
-            className={styles.input}
-            placeholder="搜索"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-          />
-        </div>
+              <div className={styles.searchBox}>
+                <SearchIcon className={styles.searchIcon} size={18} />
+                <input
+                  className={styles.input}
+                  placeholder="搜索"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                />
+              </div>
 
-        <div className={styles.actions}>
-          <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
-            {dark ? <SunOne size={18} /> : <Moon size={18} />}
-          </button>
-          <button className={styles.iconButton} aria-label="settings">
-            <SettingTwo size={18} />
-          </button>
+              <div className={styles.actions}>
+                <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
+                  {dark ? <SunOne size={18} /> : <Moon size={18} />}
+                </button>
+                <button className={styles.iconButton} aria-label="settings">
+                  <SettingTwo size={18} />
+                </button>
+              </div>
+            </div>
         </div>
-      </div>
-    </div>
+    </LiquidGlassWrapper>
   )
 }
