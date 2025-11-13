@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Search as SearchIcon, SettingTwo, Moon, SunOne } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
-import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
+// import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
 import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 
@@ -35,18 +35,18 @@ export default function TopNavBar() {
   }
 
   return (
-    <LiquidGlassWrapper
-      borderRadius="12px"
-      className="navbar-container"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        padding: '12px 24px',
-        zIndex: 1000
-      }}
-    >
+    // <LiquidGlassWrapper
+    //   borderRadius="12px"
+    //   className="navbar-container"
+    //   style={{
+    //     position: 'fixed',
+    //     top: 0,
+    //     left: 0,
+    //     right: 0,
+    //     padding: '12px 24px',
+    //     zIndex: 1000
+    //   }}
+    // >
         <div className={`${styles.navbar} navbar-container`}>
             <div className={styles.inner}>
               <div className={styles.logo}>
@@ -73,6 +73,6 @@ export default function TopNavBar() {
               </div>
             </div>
         </div>
-    </LiquidGlassWrapper>
+    // </LiquidGlassWrapper>
   )
 }
