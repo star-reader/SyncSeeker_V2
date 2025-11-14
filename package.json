@@ -18,6 +18,7 @@
     "axios": "^1.13.2",
     "liquid-web": "^1.1.1",
     "mapbox-gl": "^3.16.0",
+    "mui-color-input": "^7.0.0",
     "pubsub-js": "^1.9.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

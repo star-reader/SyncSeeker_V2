@@ -96,7 +96,7 @@ export default function TopNavBar() {
                 <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
                   {dark ? <SunOne size={18} /> : <Moon size={18} />}
                 </button>
-                <button className={styles.iconButton} aria-label="settings">
+                <button className={styles.iconButton} aria-label="settings" onClick={() => handleSelect('settings')}>
                   <SettingTwo size={18} />
                 </button>
                 <button ref={moreBtnRef} className={styles.iconButton} aria-label="more" onClick={() => setMenuOpen(v => !v)}>

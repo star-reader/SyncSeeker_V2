@@ -6,6 +6,7 @@ import TopNavBar from './components/navBar/TopNavBar'
 import ControllerList from './components/statistics/ControllerList'
 import pollingData from './apis/pollingData'
 import PilotList from './components/statistics/PilotList'
+import SettingsPanel from './components/settings/SettingsPanel'
 import { EVENTS } from './configs/constants'
 
 export default function App() {
@@ -35,10 +36,11 @@ export default function App() {
         <>
             <TopNavBar />
             <BasicMap />
-            <>
-                {openedMenu === 'pilot' && <PilotList />}
-                {openedMenu === 'controller' && <ControllerList />}
-            </>
+        <>
+            {openedMenu === 'pilot' && <PilotList />}
+            {openedMenu === 'controller' && <ControllerList />}
+            {openedMenu === 'settings' && <SettingsPanel />}
+        </>
         </>
     )
 }

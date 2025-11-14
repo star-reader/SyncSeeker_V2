@@ -3,6 +3,7 @@ export const EVENTS = {
   THEME_CHANGE: 'theme-change',
   MENU_SELECT: 'menu-select',
   RETURN_TO_MAP: 'return-to-map',
+  PILOT_SCHEMA_CHANGE: 'pilot-schema-change',
 }
 
 export const MAP_IDS = {

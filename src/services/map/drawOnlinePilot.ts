@@ -3,6 +3,7 @@ import type { OnlinePilot, OnlineData } from '../../types/fsd'
 import addDynamicLayer from './addDynamicLayer'
 import asyncLoadAssets from './asyncLoadAssets'
 import { MAP_IDS, EVENTS } from '../../configs/constants'
+import { useGetUserColor } from '../../hooks/theme/useTheme'
 import { getAircraftAssetByType } from '../../utils/aircraft.ts'
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
@@ -14,7 +15,6 @@ const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
     }
     for (let item of pilotList) {
         const isEmergency = [7700, 7600, 7500].includes(item.transponder);
-        const color = isEmergency ? '#DC143C' : '#008080';
 
         geojson.features.push({
             'type': 'Feature',
@@ -24,7 +24,6 @@ const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
             },
             'properties': {
                 'icon': getPilotIcon(item.flight_plan?.aircraft),
-                'color': color,
                 'emergency': isEmergency ? 'true' : 'false',
                 ...item
             }
@@ -37,6 +36,7 @@ const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
         'data': geojson
     }
 
+    const userColors = useGetUserColor()
     const layer: mapboxgl.LayerSpecification = {
         id: MAP_IDS.PILOT_LIST_LAYER,
         type:'symbol',
@@ -112,18 +112,18 @@ const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
             'text-pitch-alignment':"viewport",
             'text-rotation-alignment':'viewport'
         },
-        paint:{
-            "icon-color":[
-                'case',
-                ['==',['get','emergency'],'true'],
-                'red',
-                '#EF8B33'
-            ],
-            'text-color': ['get','color'],
-            'text-halo-width':0,
-            'text-halo-color':'white'
+            paint:{
+                "icon-color":[
+                    'case',
+                    ['==',['get','emergency'],'true'],
+                    'red',
+                    userColors.icon
+                ],
+                'text-color': userColors.label,
+                'text-halo-width':0,
+                'text-halo-color':'white'
+            }
         }
-    }
 
     addDynamicLayer(map, MAP_IDS.PILOT_LIST_SOURCE, source, layer, geojson)
 }

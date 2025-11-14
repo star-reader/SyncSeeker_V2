@@ -6,6 +6,7 @@ import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
 import drawOnlinePilot from "../../services/map/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
 import { EVENTS } from "../../configs/constants"
+import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -94,6 +95,7 @@ export default function BasicMap() {
             // await asyncLoadAssets(map)
             drawOnlinePilot(map)
             useMouse(map)
+            updateMapWithUserSetting(map)
         })
 
         map.on('click', (e) => {
