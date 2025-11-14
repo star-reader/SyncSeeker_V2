@@ -5,8 +5,9 @@ import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
 import drawOnlinePilot from "../../services/map/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
-import { EVENTS } from "../../configs/constants"
+import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
+import type { OnlinePilot } from "../../types/fsd"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -103,6 +104,11 @@ export default function BasicMap() {
             for (let i of layers) {
                 if (!i.layer || !i.layer.id) continue
                 // 预留其他
+                if (i.layer.id === MAP_IDS.PILOT_LIST_LAYER && i.properties){
+                    const props: any = i.properties
+                    const id = props.session_id || props.cid
+                    if (id) pubsub.publish(EVENTS.PILOT_ICON_CLICK, id)
+                }
             }
         })
     }

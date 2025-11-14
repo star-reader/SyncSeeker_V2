@@ -4,6 +4,7 @@ export const EVENTS = {
   MENU_SELECT: 'menu-select',
   RETURN_TO_MAP: 'return-to-map',
   PILOT_SCHEMA_CHANGE: 'pilot-schema-change',
+  PILOT_ICON_CLICK: 'pilot-icon-click'
 }
 
 export const MAP_IDS = {
