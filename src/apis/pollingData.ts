@@ -3,12 +3,13 @@ import { apiEndpointsGo } from "../configs/apiConfig"
 import { useOnlineDataStore } from "../stores/useOnlineDataStore"
 import type { OnlineData } from "../types/fsd"
 
-const fetchOnlineData = (): Promise<OnlineData | null> => {
-    return axios.get(apiEndpointsGo.getOnlineList).then(res => {
+const fetchOnlineData = async (): Promise<OnlineData | null> => {
+    try {
+        const res = await axios.get(apiEndpointsGo.getOnlineList)
         return res.data
-    }).catch(_ => {
+    } catch (_) {
         return null
-    })
+    }
 }
 
 const pollingDataInterval = (callback: (data: OnlineData) => void, thisArg: any) => {

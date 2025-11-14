@@ -1,8 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'
-import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
-import type { OnlineController } from '../../types/fsd'
+import type { OnlineController, OnlineData } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import ControllerDetailOverlay from './ControllerDetailOverlay'
 import IconByName from '../common/IconByName'
@@ -10,7 +9,7 @@ import IconByName from '../common/IconByName'
 const EMPTY_CONTROLLERS: OnlineController[] = []
 
 export default () => {
-  const controllers = useOnlineDataStore(s => s.onlineData?.controllers ?? EMPTY_CONTROLLERS)
+  const [controllers, setControllers] = useState<OnlineController[]>(EMPTY_CONTROLLERS)
   const [openId, setOpenId] = useState<string | null>(null)
 
   const list = useMemo(() => controllers, [controllers])
@@ -21,6 +20,15 @@ export default () => {
   const handleReturnBtnClick = () => {
     pubsub.publish('return-to-map', 'controller')
   }
+
+  useEffect(() => {
+    pubsub.subscribe('online-data-update', (_, data: OnlineData) => {
+      setControllers(data.controllers?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1) || EMPTY_CONTROLLERS)
+    })
+    return () => {
+      pubsub.unsubscribe('online-data-update')
+    }
+  }, [])
 
   return (
     <div className={styles.container}>

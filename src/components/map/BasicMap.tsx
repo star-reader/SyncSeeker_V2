@@ -3,6 +3,8 @@ import mapboxgl from 'mapbox-gl'
 import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
+import drawOnlinePilot from "../../services/map/drawOnlinePilot"
+import useMouse from "../../hooks/maps/useMouse"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -32,6 +34,7 @@ export default function BasicMap() {
         }
     }, [])
 
+    // pubsub监听事件
     useEffect(() => {
         pubsub.subscribe('theme-change', (_, theme: string) => {
             if (theme === 'dark') {
@@ -66,10 +69,6 @@ export default function BasicMap() {
             unit: 'metric'
         })
         map.addControl(scale, 'bottom-right')
-        // map.addControl(new mapboxgl.AttributionControl({
-        //     compact: true,
-        //     customAttribution: 'SKYline SyncSeeker Beta | 仅限模拟飞行使用 | 禁止用于实际飞行'
-        // }))
     }
 
     const bindMapEventListener = () => {
@@ -82,7 +81,10 @@ export default function BasicMap() {
             localStorage.setItem('map-center', map.getCenter().toString())
         })
         map.once('style.load', async () => {
-            // 现在还没
+            // asyncLoadAssets改在drawOnlinePilot中进行
+            // await asyncLoadAssets(map)
+            drawOnlinePilot(map)
+            useMouse(map)
         })
 
         map.on('click', (e) => {
