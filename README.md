@@ -11,9 +11,10 @@ V2版本在Mapbox 3D基础上全面重构，正式发布后将会是SKYline Flyl
 
 <img src="./public/logos/sync-seeker-logo.png" style="width: 330px" />
 
-
-
 > [!WARNING]
 >
 > 本项目处于活跃开发阶段，尚未发布 Nightly 与 Beta 构建；相关资源暂不可见。待核心功能稳定并通过集成测试后，将合并至 main 分支并发布正式 Release。
 > This project is under active development; no Nightly or Beta builds are available yet. Once the core features are stable and pass integration tests, they will be merged into main and tagged as a formal release.
+
+
+本项目将于SKY-Aware同步开发，SKY-Aware作为更个性化的跨平台原生连飞服务器追踪系统，提供更个性化的服务。二者均将在正式构建后开源。
