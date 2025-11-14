@@ -6,6 +6,7 @@ import TopNavBar from './components/navBar/TopNavBar'
 import ControllerList from './components/statistics/ControllerList'
 import pollingData from './apis/pollingData'
 import PilotList from './components/statistics/PilotList'
+import { EVENTS } from './configs/constants'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -18,12 +19,16 @@ export default function App() {
     }, [])
 
     useEffect(() => {
-        pubsub.subscribe('menu-select', (_, data) => {
+        const token1 = pubsub.subscribe(EVENTS.MENU_SELECT, (_, data) => {
             setOpenedMenu(data)
         })
-        pubsub.subscribe('return-to-map', () => {
+        const token2 = pubsub.subscribe(EVENTS.RETURN_TO_MAP, () => {
             setOpenedMenu('')
         })
+        return () => {
+            pubsub.unsubscribe(token1)
+            pubsub.unsubscribe(token2)
+        }
     })
 
     return (

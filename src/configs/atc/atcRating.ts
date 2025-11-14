@@ -17,11 +17,11 @@ export default (rating: number): string => {
         case 7:
             return 'Controller 3'
         case 8:
-            return 'Insructor 1'
+            return 'Instructor 1'
         case 9:
-            return 'Insructor 2'
+            return 'Instructor 2'
         case 10:
-            return 'Insructor 3'
+            return 'Instructor 3'
         case 11:
             return 'Supervisor'
         case 12:

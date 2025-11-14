@@ -1,11 +1,13 @@
 import { useMemo, useState, useEffect } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'
-import type { OnlineData, OnlinePilot } from '../../types/fsd'
+import type { OnlinePilot } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
 import PilotDetailOverlay from './PilotDetailOverlay'
 import IconByName from '../common/IconByName'
+import { EVENTS } from '../../configs/constants'
+import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 
 const EMPTY_FLIGHTS: OnlinePilot[] = []
 
@@ -18,15 +20,16 @@ export default () => {
   const selected = useMemo(() => list.find(f => f.session_id === openId || f.cid === openId) || null, [list, openId])
 
   const handleReturnBtnClick = () => {
-    pubsub.publish('return-to-map', 'pilot')
+    pubsub.publish(EVENTS.RETURN_TO_MAP, 'pilot')
   }
 
   useEffect(() => {
-    pubsub.subscribe('online-data-update', (_, data: OnlineData) => {
-      setFlights(data.flights?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1) || EMPTY_FLIGHTS)
+    const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
+      setFlights(useOnlineDataStore.getState().getFlights())
     })
+    setFlights(useOnlineDataStore.getState().getFlights())
     return () => {
-      pubsub.unsubscribe('online-data-update')
+      pubsub.unsubscribe(token)
     }
   }, [])
 

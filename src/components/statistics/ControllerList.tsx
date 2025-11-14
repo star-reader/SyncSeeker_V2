@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'
-import type { OnlineController, OnlineData } from '../../types/fsd'
+import type { OnlineController } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
 import ControllerDetailOverlay from './ControllerDetailOverlay'
 import IconByName from '../common/IconByName'
+import { EVENTS } from '../../configs/constants'
+import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 
 const EMPTY_CONTROLLERS: OnlineController[] = []
 
@@ -18,15 +20,16 @@ export default () => {
 
 
   const handleReturnBtnClick = () => {
-    pubsub.publish('return-to-map', 'controller')
+    pubsub.publish(EVENTS.RETURN_TO_MAP, 'controller')
   }
 
   useEffect(() => {
-    pubsub.subscribe('online-data-update', (_, data: OnlineData) => {
-      setControllers(data.controllers?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1) || EMPTY_CONTROLLERS)
+    const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
+      setControllers(useOnlineDataStore.getState().getControllers())
     })
+    setControllers(useOnlineDataStore.getState().getControllers())
     return () => {
-      pubsub.unsubscribe('online-data-update')
+      pubsub.unsubscribe(token)
     }
   }, [])
 

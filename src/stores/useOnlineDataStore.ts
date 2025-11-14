@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import pubsub from 'pubsub-js'
+import { EVENTS } from '../configs/constants'
 import type { OnlineData, OnlinePilot, OnlineController } from '../types/fsd';
 
 interface OnlineDataStore {
@@ -9,6 +10,9 @@ interface OnlineDataStore {
   getControllerById: (id: string) => OnlineController | undefined,
   getAtisList: () => OnlineController[],
   setOnlineData: (data: OnlineData) => void,
+  getFlights: () => OnlinePilot[],
+  getControllers: () => OnlineController[],
+  getAtis: () => OnlineController[],
 }
 
 export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
@@ -29,6 +33,15 @@ export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
   getAtisList: () => {
     return get().onlineData?.atis || []
   },
+  getFlights: () => {
+    return get().onlineData?.flights || []
+  },
+  getControllers: () => {
+    return get().onlineData?.controllers || []
+  },
+  getAtis: () => {
+    return get().onlineData?.atis || []
+  },
   setOnlineData: (data: OnlineData) => {
     if (data && data.flights) {
       set({
@@ -38,9 +51,7 @@ export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
           atis: data.atis?.sort((a, b) => b.logon_time > a.logon_time ? 1 : -1),
         }
       })
-      // bugfix / Jerry 用pubsub-js发布事件，方便其他组件用
-      // 这样就可以不单纯依赖于 useOnlineDataStore(s => s.onlineData?.flights ?? EMPTY_FLIGHTS) 这样的结构
-      pubsub.publish('online-data-update', data)
+      pubsub.publish(EVENTS.ONLINE_DATA_UPDATE, data)
     }
   }
 }))

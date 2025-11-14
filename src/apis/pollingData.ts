@@ -12,23 +12,34 @@ const fetchOnlineData = async (): Promise<OnlineData | null> => {
     }
 }
 
-const pollingDataInterval = (callback: (data: OnlineData) => void, thisArg: any) => {
-    fetchOnlineData().then(data => {
-        if (data) {
-            callback.call(thisArg, data)
-        }
-    })
-}
-
-
-// @description 调用接口轮询获取在线数据，然后通过store塞进去，这是个定时轮训任务，都会执行的
 export default () => {
     const setOnlineData = (data: OnlineData) => {
         useOnlineDataStore.getState().setOnlineData(data)
     }
-    pollingDataInterval(setOnlineData, null)
-    const timer = setInterval(() => {
-        pollingDataInterval(setOnlineData, null)
-    }, 5000)
-    return () => clearInterval(timer)
+    let inFlight = false
+    let errorCount = 0
+    let stopped = false
+    let delay = 5000
+    const run = async () => {
+        if (stopped || inFlight) return
+        inFlight = true
+        try {
+            const data = await fetchOnlineData()
+            if (data) {
+                setOnlineData(data)
+                errorCount = 0
+                delay = 5000
+            } else {
+                errorCount += 1
+                delay = Math.min(30000, 5000 * Math.pow(2, errorCount))
+            }
+        } finally {
+            inFlight = false
+            if (!stopped) setTimeout(run, delay)
+        }
+    }
+    run()
+    return () => {
+        stopped = true
+    }
 }

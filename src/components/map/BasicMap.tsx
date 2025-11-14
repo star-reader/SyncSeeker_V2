@@ -5,10 +5,10 @@ import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
 import drawOnlinePilot from "../../services/map/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
+import { EVENTS } from "../../configs/constants"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
-    let map: mapboxgl.Map
 
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
@@ -24,7 +24,6 @@ export default function BasicMap() {
                 }
             }
         })
-        map = mapRef.current
         initMapCoord()
         addMapControls()
         bindMapEventListener()
@@ -36,49 +35,59 @@ export default function BasicMap() {
 
     // pubsub监听事件
     useEffect(() => {
-        pubsub.subscribe('theme-change', (_, theme: string) => {
+        const themeToken = pubsub.subscribe(EVENTS.THEME_CHANGE, (_, theme: string) => {
             if (theme === 'dark') {
-                map.setConfigProperty('basemap', 'lightPreset', 'night');
+                mapRef.current?.setConfigProperty('basemap', 'lightPreset', 'night');
             } else {
-                map.setConfigProperty('basemap', 'lightPreset', 'day');
+                mapRef.current?.setConfigProperty('basemap', 'lightPreset', 'day');
             }
         })
+        return () => {
+            pubsub.unsubscribe(themeToken)
+        }
     }, [])
 
     const initMapCoord = () => {
-        const zoom: string | null = localStorage.getItem('map-zoom')
-        const center: string | null = localStorage.getItem('map-center')
-        if (zoom) {
-            map.setZoom(parseFloat(zoom))
+        const zoomStr = localStorage.getItem('map-zoom')
+        const centerStr = localStorage.getItem('map-center')
+        if (zoomStr) {
+            try {
+                const z = JSON.parse(zoomStr)
+                if (typeof z === 'number' && !Number.isNaN(z)) mapRef.current?.setZoom(z)
+            } catch {}
         } else {
-            localStorage.setItem('map-zoom', map.getZoom().toString())
+            const z = mapRef.current?.getZoom()
+            if (typeof z === 'number') localStorage.setItem('map-zoom', JSON.stringify(z))
         }
-        if (center) {
-            let lng: number = parseFloat(center.split('LngLat(')[1].split(',')[0].trim())
-            let lat: number = parseFloat(center.split(',')[1].split(')')[0].trim())
-            map.setCenter([lng, lat])
+        if (centerStr) {
+            try {
+                const arr = JSON.parse(centerStr)
+                if (Array.isArray(arr) && arr.length === 2) mapRef.current?.setCenter([arr[0], arr[1]])
+            } catch {}
         } else {
-            localStorage.setItem('map-center', map.getCenter().toString())
+            const c = mapRef.current?.getCenter().toArray() || [120.128029, 30.267153]
+            localStorage.setItem('map-center', JSON.stringify(c))
         }
     }
 
     const addMapControls = () => {
-        if (!map) return
+        if (!mapRef.current) return
         const scale = new mapboxgl.ScaleControl({
             maxWidth: 100,
             unit: 'metric'
         })
-        map.addControl(scale, 'bottom-right')
+        mapRef.current.addControl(scale, 'bottom-right')
     }
 
     const bindMapEventListener = () => {
-        if (!map) return
+        if (!mapRef.current) return
+        const map = mapRef.current
         map.on('zoomend', () => {
-            localStorage.setItem('map-zoom', map.getZoom().toString())
-            localStorage.setItem('map-center', map.getCenter().toString())
+            localStorage.setItem('map-zoom', JSON.stringify(map.getZoom()))
+            localStorage.setItem('map-center', JSON.stringify(map.getCenter().toArray()))
         })
         map.on('dragend', () => {
-            localStorage.setItem('map-center', map.getCenter().toString())
+            localStorage.setItem('map-center', JSON.stringify(map.getCenter().toArray()))
         })
         map.once('style.load', async () => {
             // asyncLoadAssets改在drawOnlinePilot中进行

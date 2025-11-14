@@ -1,8 +1,10 @@
+import { MAP_IDS } from '../../configs/constants'
+
 export default (map: mapboxgl.Map) => {
     if (!map) return
 
     const layers = [
-        'pilot-list-data'
+        MAP_IDS.PILOT_LIST_LAYER
     ]
 
     for (let layer of layers) {

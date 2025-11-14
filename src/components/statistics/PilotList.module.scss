@@ -54,7 +54,7 @@
 .list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
   padding-bottom: 40px;
   padding-left: 10px;
 }
@@ -63,14 +63,14 @@
   display: grid;
   grid-template-columns: 1.2fr 2fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding-left: 20px;
   width: calc(100% - 40px);
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
   background: color-mix(in srgb, var(--sky-fill-color) 60%, transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--sky-color-black) 6%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--sky-color-black) 8%, transparent);
   transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
   cursor: pointer;
 }
@@ -116,35 +116,43 @@
   border-radius: 9999px;
   font-size: 12px;
   color: var(--sky-text-color-primary);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 90%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
 }
 
 .status {
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 35%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--sky-color-black) 6%, transparent);
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease;
 }
 
 .status--departing {
   color: var(--sky-color-primary);
-  background: color-mix(in srgb, var(--sky-color-primary) 13%, transparent);
+  background: color-mix(in srgb, var(--sky-color-primary) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sky-color-primary) 40%, transparent);
 }
 
 .status--cruising {
   color: var(--sky-color-success);
-  background: color-mix(in srgb, var(--sky-color-success) 13%, transparent);
+  background: color-mix(in srgb, var(--sky-color-success) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sky-color-success) 40%, transparent);
 }
 
 .status--arriving {
   color: var(--sky-color-warning);
-  background: color-mix(in srgb, var(--sky-color-warning) 13%, transparent);
+  background: color-mix(in srgb, var(--sky-color-warning) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sky-color-warning) 40%, transparent);
 }
 
 .status--ground {
   color: var(--sky-color-light-warning);
-  background: color-mix(in srgb, var(--sky-color-light-warning) 13%, transparent);
+  background: color-mix(in srgb, var(--sky-color-light-warning) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sky-color-light-warning) 40%, transparent);
 }
 
 .action {

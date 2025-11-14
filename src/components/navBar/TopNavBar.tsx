@@ -6,6 +6,7 @@ import navfulllogo from '../../assets/logo/nav-full-logo.png'
 // import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
 import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
+import { EVENTS } from '../../configs/constants'
 
 export default function TopNavBar() {
   const [dark, setDark] = useState(false)
@@ -24,7 +25,7 @@ export default function TopNavBar() {
   }, [])
 
   useEffect(() => {
-    const token = pubsub.subscribe('theme-change', (_, data: string) => {
+    const token = pubsub.subscribe(EVENTS.THEME_CHANGE, (_, data: string) => {
       setDark(data === 'dark')
       useSetCurrentTheme(data)
     })
@@ -35,7 +36,7 @@ export default function TopNavBar() {
 
   const handleThemeChange = (theme: string) => {
     setDark(theme === 'dark')
-    pubsub.publish('theme-change', theme)
+    pubsub.publish(EVENTS.THEME_CHANGE, theme)
   }
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function TopNavBar() {
 
   const handleSelect = (key: string) => {
     setMenuOpen(false)
-    pubsub.publish('menu-select', key)
+    pubsub.publish(EVENTS.MENU_SELECT, key)
   }
 
   return (
