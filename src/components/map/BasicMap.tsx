@@ -7,7 +7,6 @@ import drawOnlinePilot from "../../services/map/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
 import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
-import type { OnlinePilot } from "../../types/fsd"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)

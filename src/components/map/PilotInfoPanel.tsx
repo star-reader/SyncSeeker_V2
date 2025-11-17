@@ -59,8 +59,8 @@ export default function PilotInfoPanel() {
         <div className={`${styles.status} ${styles[`status--${statusTag}`]}`}>{status || ''}</div>
         <button className={styles.closeBtn} onClick={handleClose}><IconByName name="Close" /></button>
       </div>
-      <div className={styles.banner}>{pilot?.flight_plan?.aircraft || 'Aircraft'}</div>
       <div className={styles.body}>
+        <div className={styles.banner}>{pilot?.flight_plan?.aircraft || 'Aircraft'}</div>
         <>
           <div className={styles.routeCard}>
             <div className={styles.routeRow}>
@@ -91,9 +91,9 @@ export default function PilotInfoPanel() {
           <div className={styles.panelCard}>
             <div className={styles.panelTitle}><IconByName name="SpeedOne" /> 实时数据</div>
             <div className={styles.statsRow}>
-              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="SortAmountDown" /> 高度</div><div className={styles.statValue}>{pilot ? Math.round(pilot.altitude) : 0} ft</div></div>
-              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="Speed" /> 地速</div><div className={styles.statValue}>{pilot ? Math.round(pilot.groundspeed) : 0} kt</div></div>
-              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="Compass" /> 航向</div><div className={styles.statValue}>{pilot ? Math.round(pilot.heading) : 0}°</div></div>
+              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="SortAmountDown" /> 高度</div><div className={styles.statValue}>{pilot ? Math.round(pilot.altitude) : 0}<span className={styles.unit}> ft</span></div></div>
+              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="Speed" /> 地速</div><div className={styles.statValue}>{pilot ? Math.round(pilot.groundspeed) : 0}<span className={styles.unit}> kt</span></div></div>
+              <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="Compass" /> 航向</div><div className={styles.statValue}>{pilot ? Math.round(pilot.heading) : 0}<span className={styles.unit}> °</span></div></div>
               <div className={styles.statItem}><div className={styles.statLabel}><IconByName name="BroadcastOne" /> 应答机</div><div className={styles.statValue}>{pilot?.transponder || 0}</div></div>
             </div>
           </div>
