@@ -11,7 +11,7 @@ class SyncSeekerDB {
 
     /**
      * 初始化数据库
-     * 创建或连接到 sky-aware 数据库，如果不存在则创建三个表：airlines、airports、navdata
+     * 创建或连接到 sync-seeker 数据库，如果不存在则创建三个表：airlines、airports、navdata
      * @returns {Promise<void>} 无返回值，成功时 resolve，失败时 reject
      * @throws {Error} 当数据库打开失败时抛出错误
      */
@@ -261,6 +261,22 @@ class SyncSeekerDB {
      */
     async getVersion(type: 'airlines' | 'airports' | 'navdata'): Promise<string | null> {
         return this.getData<string>(type, 'version')
+    }
+
+    /**
+     * 获取全局导航数据版本信息
+     * @returns {Promise<NavDataVersion | null>} 返回版本对象
+     */
+    async getNavDataVersion(): Promise<NavDataVersion | null> {
+        return this.getData<NavDataVersion>('navdata', 'meta_version')
+    }
+
+    /**
+     * 设置全局导航数据版本信息
+     * @param {NavDataVersion} version - 版本对象
+     */
+    async setNavDataVersion(version: NavDataVersion): Promise<void> {
+        await this.setData('navdata', 'meta_version', version)
     }
 
     // 预留的导航数据方法

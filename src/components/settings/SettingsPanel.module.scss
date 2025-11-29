@@ -63,6 +63,36 @@
   gap: 12px;
 }
 
+.dataStatus {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+    border-radius: 12px;
+    border: 1px solid var(--sky-border-color);
+}
+
+.statusInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.statusIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.statusText {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sky-text-color-primary);
+}
+
 @media (max-width: 680px) {
   .overlay {
     place-items: end center;

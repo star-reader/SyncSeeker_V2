@@ -21,3 +21,10 @@ interface IndexedDBFIRs {
   name: string;
   geojson: GeoJSON.FeatureCollection;
 }
+
+interface NavDataVersion {
+  bundle_id: number;
+  airac_code: string;
+  version_id: string;
+  update_date: string;
+}
