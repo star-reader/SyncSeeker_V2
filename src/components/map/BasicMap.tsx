@@ -16,6 +16,8 @@ import drawOnlinePilot from "../../services/map/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
 import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
+import asyncLoadControllerAssets from "../../services/map/asyncLoadControllerAssets"
+import drawSelectedPilotRoute from "../../services/map/drawSelectedPilotRoute"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -102,7 +104,9 @@ export default function BasicMap() {
         map.once('style.load', async () => {
             // asyncLoadAssets改在drawOnlinePilot中进行
             // await asyncLoadAssets(map)
+            await asyncLoadControllerAssets(map)    
             drawOnlinePilot(map)
+            drawSelectedPilotRoute(map)
             useMouse(map)
             updateMapWithUserSetting(map)
         })

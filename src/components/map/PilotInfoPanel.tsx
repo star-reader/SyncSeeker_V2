@@ -107,6 +107,7 @@ export default function PilotInfoPanel() {
   const handleClose = () => {
     setOpen(false)
     setId(null)
+    pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
   }
 
   const handleCopyRoute = () => {
