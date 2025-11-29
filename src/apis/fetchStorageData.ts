@@ -47,10 +47,10 @@ export const fetchAndStoreNavData = async (): Promise<boolean> => {
 
         // 4. 并行请求数据文件
         const [airportsRes, airlinesRes, firsRes, appRes] = await Promise.all([
-            axios.get<IndexedDBAirports[]>(`${baseUrl}/airports.json`),
-            axios.get<IndexedDBAirlines[]>(`${baseUrl}/airlines.json`),
-            axios.get<IndexedDBFIRs[]>(`${baseUrl}/firs.json`),
-            axios.get<IndexedDBFIRs[]>(`${baseUrl}/app.json`)
+            axios.get<IndexedDBAirports[]>(`${baseUrl}/airports.json?remote_version=${remoteVersion.bundle_id}`),
+            axios.get<IndexedDBAirlines[]>(`${baseUrl}/airlines.json?remote_version=${remoteVersion.bundle_id}`),
+            axios.get<IndexedDBFIRs[]>(`${baseUrl}/firs.json?remote_version=${remoteVersion.bundle_id}`),
+            axios.get<IndexedDBFIRs[]>(`${baseUrl}/app.json?remote_version=${remoteVersion.bundle_id}`)
         ])
 
         // 存储机场数据
