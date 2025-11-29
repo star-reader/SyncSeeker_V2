@@ -1,489 +1,385 @@
 .container {
   position: fixed;
-  top: 56px;
-  right: 0;
-  width: min(520px, 40vw);
-  max-height: min(76vh, 820px);
-  height: auto;
+  top: 72px; /* Moved down to avoid nav overlap */
+  right: 20px;
+  width: 360px;
+  max-height: calc(100vh - 92px);
   background: color-mix(in srgb, var(--sky-bg-color-base) 90%, transparent);
-  backdrop-filter: blur(16px);
-  border-left: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
-  box-shadow: -14px 0 28px color-mix(in srgb, var(--sky-color-black) 14%, transparent);
-  z-index: 1000;
-  transform: translateX(100%);
-  transition: transform .22s ease;
-}
-.container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(1200px 600px at 80% 20%, color-mix(in srgb, var(--sky-color-primary) 6%, transparent), transparent 60%);
-  pointer-events: none;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px; /* Reduced radius */
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
+  box-shadow: 
+    0 4px 24px color-mix(in srgb, var(--sky-color-black) 8%, transparent),
+    0 1px 2px color-mix(in srgb, var(--sky-color-black) 4%, transparent);
+  z-index: 900; /* Lower than navbar (usually 1000) */
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateX(120%);
 }
 
 .container[data-open="true"] {
   transform: translateX(0);
 }
 
+/* Header */
 .header {
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--sky-border-color);
+  padding: 16px 20px 12px;
 }
 
 .title {
-  display: grid;
-  grid-auto-flow: row;
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; /* Allow flex shrink */
+  flex: 1;
 }
 
 .callsign {
-  font-size: clamp(20px, 2.6vw, 24px);
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
   color: var(--sky-text-color-primary);
 }
 
-.name {
-  font-size: 12px;
-  color: var(--sky-text-color-secondary);
-}
-
 .submeta {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .subchip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 9999px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--sky-text-color-secondary);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
-  max-width: 45%;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.subchip svg { width: 14px; height: 14px; flex: 0 0 14px; }
+.subchip svg { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
 
 .status {
-  margin-left: auto;
-  padding: 6px 12px;
-  border-radius: 9999px;
+  padding: 4px 10px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 35%, transparent);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--sky-color-black) 8%, transparent);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
-.status--departing {
-  color: var(--sky-color-primary);
-  background: color-mix(in srgb, var(--sky-color-primary) 18%, transparent);
-  border-color: color-mix(in srgb, var(--sky-color-primary) 40%, transparent);
-}
+.status--departing { color: #0984e3; background: rgba(9, 132, 227, 0.1); }
+.status--cruising { color: #00b894; background: rgba(0, 184, 148, 0.1); }
+.status--arriving { color: #e17055; background: rgba(225, 112, 85, 0.1); }
+.status--ground { color: #636e72; background: rgba(99, 110, 114, 0.1); }
 
-.status--cruising {
-  color: var(--sky-color-success);
-  background: color-mix(in srgb, var(--sky-color-success) 18%, transparent);
-  border-color: color-mix(in srgb, var(--sky-color-success) 40%, transparent);
-}
-
-.status--arriving {
-  color: var(--sky-color-warning);
-  background: color-mix(in srgb, var(--sky-color-warning) 18%, transparent);
-  border-color: color-mix(in srgb, var(--sky-color-warning) 40%, transparent);
-}
-
-.status--ground {
-  color: var(--sky-color-light-warning);
-  background: color-mix(in srgb, var(--sky-color-light-warning) 18%, transparent);
-  border-color: color-mix(in srgb, var(--sky-color-light-warning) 40%, transparent);
-}
-
-.banner {
-  height: 140px;
-  margin: 10px 16px 0;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
-  background: radial-gradient(600px 300px at 80% 20%, color-mix(in srgb, var(--sky-color-primary) 10%, transparent), transparent 60%), color-mix(in srgb, var(--sky-fill-color) 86%, transparent);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--sky-color-black) 12%, transparent);
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--sky-text-color-primary) 5%, transparent);
+  color: var(--sky-text-color-primary);
   display: grid;
   place-items: center;
-  color: var(--sky-text-color-secondary);
-  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
 }
-.body {
-  padding: 12px 16px 18px;
-  display: grid;
-  gap: 14px;
-  overflow: auto;
-  max-height: calc(76vh - 190px);
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  scrollbar-gutter: stable both-edges;
+.closeBtn:hover {
+  background: color-mix(in srgb, var(--sky-text-color-primary) 10%, transparent);
 }
 
+/* Body */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overscroll-behavior: contain;
+}
+.body::-webkit-scrollbar { display: none; }
+
+/* Route Card */
 .routeCard {
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 92%, transparent);
-  border-radius: 18px;
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--sky-color-black) 12%, transparent);
-  padding: 12px 16px 14px;
-  display: grid;
-  gap: 8px;
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .routeRow {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 12px;
-  justify-items: center;
 }
-.routeRow > * { min-width: 0; }
+
+.routeCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.routeLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sky-text-color-secondary);
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
 
 .airportBig {
-  font-size: clamp(28px, 4vw, 36px);
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: 1px;
+  font-size: 36px;
+  font-weight: 800;
   color: var(--sky-text-color-primary);
-  text-align: center;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .routeArrow {
-  display: inline-flex;
+  color: var(--sky-border-color);
+  display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--sky-color-primary);
-  font-weight: 800;
+  justify-content: center;
 }
+.routeArrow svg { width: 20px; height: 20px; opacity: 0.6; }
 
+/* Track Bar */
 .trackBar {
   height: 4px;
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--sky-color-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--sky-text-color-primary) 8%, transparent);
+  border-radius: 999px;
+  position: relative;
+  margin: 0 8px;
 }
 
-.panelCard {
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 94%, transparent);
-  border-radius: 16px;
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--sky-color-black) 10%, transparent);
-  padding: 12px 14px;
+.trackProgress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 50%; /* Dynamic width would go here */
+  background: var(--sky-color-primary);
+  border-radius: 999px;
+}
+
+.trackPlane {
+  position: absolute;
+  top: 50%;
+  left: 50%; /* Dynamic position */
+  transform: translate(-50%, -50%) rotate(90deg);
+  background: var(--sky-bg-color-base);
+  color: var(--sky-color-primary);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   display: grid;
-  gap: 10px;
-  overflow: hidden;
+  place-items: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.trackPlane svg { width: 12px; height: 12px; }
+
+/* Panel Cards */
+.panelCard {
+  background: color-mix(in srgb, var(--sky-bg-color-base) 30%, transparent);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
 }
 
 .panelTitle {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--sky-text-color-secondary);
-  position: relative;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-.panelTitle svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.panelTitle svg { width: 14px; height: 14px; opacity: 0.7; }
 
-.panelTitle::before {
-  content: "";
-  width: 6px;
-  height: 14px;
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--sky-color-primary) 60%, transparent);
-}
-
+/* Stats Grid */
 .statsRow {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
 .statItem {
-  display: grid;
-  grid-auto-flow: row;
+  display: flex;
+  flex-direction: column;
   gap: 4px;
+  align-items: center;
+  text-align: center;
+  padding: 10px 4px;
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 40%, transparent);
   border-radius: 10px;
-  padding: 8px 10px;
-  background: color-mix(in srgb, var(--sky-fill-color) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
 }
 
 .statLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--sky-text-color-secondary);
+  opacity: 0.8;
+  white-space: nowrap;
 }
-.statLabel svg { width: 16px; height: 16px; flex: 0 0 16px; }
-.statLabel svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.statLabel svg { display: none; } 
 
 .statValue {
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--sky-text-color-primary);
-}
-.unit {
-  margin-left: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--sky-text-color-secondary);
-}
-.unit {
-  margin-left: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--sky-text-color-secondary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
+.unit {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sky-text-color-secondary);
+  margin-top: 1px;
+}
+
+/* Key-Value Grid */
 .gridTwo {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px 12px;
+  gap: 12px 16px;
 }
 
 .kvLine {
-  display: grid;
-  grid-template-columns: minmax(96px, 120px) 1fr;
-  align-items: center;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .kvLabel {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--sky-text-color-secondary);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .kvValueLine {
   font-size: 14px;
-  font-weight: 800;
-  color: var(--sky-text-color-primary);
-  word-break: normal;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-.tabBar {
-  display: flex;
-  gap: 8px;
-  padding: 10px 16px 0;
-}
-
-.tabItem {
-  padding: 8px 12px;
-  border-radius: 9999px;
-  font-size: 12px;
   font-weight: 700;
-  color: var(--sky-text-color-secondary);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
-  cursor: pointer;
-}
-
-.tabItem[data-active="true"] {
   color: var(--sky-text-color-primary);
-  background: color-mix(in srgb, var(--sky-fill-color) 80%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.routeHero {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 0 2px;
-}
-
-.airport {
-  font-size: 38px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  color: var(--sky-text-color-primary);
-}
-
-.arrow {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--sky-text-color-secondary);
-}
-
-.section {
-  display: grid;
-  gap: 10px;
-}
-
-.sectionTitle {
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--sky-text-color-secondary);
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 12px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--sky-text-color-primary);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 94%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--sky-color-black) 8%, transparent);
-}
-
-.kvList {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.kvItem {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
-  background: color-mix(in srgb, var(--sky-fill-color) 72%, transparent);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--sky-color-black) 6%, transparent);
-}
-
-.kvKey {
-  font-size: 12px;
-  color: var(--sky-text-color-secondary);
-}
-
-.kvValue {
-  margin-top: 4px;
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--sky-text-color-primary);
-}
-
-.closeBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
-  background: color-mix(in srgb, var(--sky-fill-color) 85%, transparent);
-  color: var(--sky-text-color-primary);
-  cursor: pointer;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--sky-color-black) 10%, transparent);
-}
-
-.cardGroup {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.card {
-  display: grid;
-  grid-auto-flow: row;
-  align-items: center;
-  gap: 8px;
-  border-radius: 16px;
-  padding: 12px 12px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 95%, transparent);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--sky-color-black) 10%, transparent);
-}
-
-.cardTitle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--sky-text-color-secondary);
-}
-
-.cardValue {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--sky-text-color-primary);
-}
-
+/* Code Block */
 .codeBlock {
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 45%, transparent);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
-  border-radius: 14px;
+  margin-top: 12px;
+  background: color-mix(in srgb, var(--sky-color-black) 3%, transparent);
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .codeHeader {
+  padding: 6px 10px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--sky-border-color);
+  align-items: center;
+  background: color-mix(in srgb, var(--sky-color-black) 2%, transparent);
 }
 
 .codeTitle {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 700;
   color: var(--sky-text-color-secondary);
 }
 
-.codeContent {
-  padding: 12px 12px 16px;
-  font-size: 12px;
-  color: var(--sky-text-color-primary);
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  max-height: 160px;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 .copyBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
-  background: color-mix(in srgb, var(--sky-fill-color) 75%, transparent);
-  color: var(--sky-text-color-primary);
+  background: transparent;
+  border: none;
+  color: var(--sky-color-primary);
+  font-size: 10px;
+  font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.copyBtn:hover {
+  background: color-mix(in srgb, var(--sky-color-primary) 10%, transparent);
+}
+.copyBtn svg { width: 12px; height: 12px; }
+
+.codeContent {
+  padding: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--sky-text-color-primary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 120px;
+  overflow-y: auto;
 }
 
+/* Mobile Responsive */
 @media (max-width: 680px) {
   .container {
+    top: auto;
+    bottom: 0;
     left: 0;
     right: 0;
-    width: 100vw;
-    height: auto;
-    bottom: 0;
-    top: auto;
-    border-left: none;
-    border-top: 1px solid var(--sky-border-color);
-    box-shadow: 0 -12px 24px color-mix(in srgb, var(--sky-color-black) 10%, transparent);
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 24px 24px 0 0;
     transform: translateY(100%);
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
+    background: var(--sky-bg-color-base); /* Opaque on mobile for better performance/look */
   }
+  
   .container[data-open="true"] {
     transform: translateY(0);
   }
-  .body {
-    max-height: 64vh;
-  }
-  .cardGroup { grid-template-columns: 1fr 1fr; }
-  .statsRow { grid-template-columns: 1fr 1fr; }
-  .gridTwo { grid-template-columns: 1fr; }
+
   .airportBig { font-size: 32px; }
+  
+  .statsRow {
+    grid-template-columns: 1fr 1fr 1fr 1fr; /* Keep 4 cols on mobile if possible, or 2 if too small */
+  }
+}
+
+@media (max-width: 380px) {
+  .statsRow {
+    grid-template-columns: 1fr 1fr;
+  }
 }
