@@ -1,3 +1,12 @@
+/**
+ * LiquidGlassWrapper Component
+ * 
+ * 液态玻璃特效包装组件。
+ * 使用 liquid-web 库为子元素添加具有物理流动感的毛玻璃背景效果。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import type { ReactNode } from 'react';
 import { LiquidWeb } from 'liquid-web/react';
 
@@ -21,17 +30,16 @@ interface LiquidGlassWrapperProps {
 }
 /**
  * LiquidGlassWrapper
- * ------------------
  *
+ * 封装 LiquidWeb 的高阶组件。
+ * 
  * Props:
- * - children (ReactNode)          – Content to be wrapped
- * - className (string, optional)  – Additional CSS classes
- * - style (CSSProperties, optional) – Inline styles merged with container
- * - options (LiquidWebOptions, optional) – Override any distortion settings
- * - onClick (() => void, optional) – Fired when the wrapper is clicked
- * - onMouseEnter (() => void, optional) – Fired on mouse enter
- * - onMouseLeave (() => void, optional) – Fired on mouse leave
- * - borderRadius (string, optional) – CSS border-radius for the container
+ * - children (ReactNode)          – 内容
+ * - className (string, optional)  – 容器类名
+ * - style (CSSProperties, optional) – 内联样式
+ * - options (LiquidWebOptions, optional) – 特效参数（scale, blur, etc.）
+ * - onClick (() => void, optional) – 点击事件
+ * - borderRadius (string, optional) – 圆角设置
  *
  * Usage:
  * <LiquidGlassWrapper

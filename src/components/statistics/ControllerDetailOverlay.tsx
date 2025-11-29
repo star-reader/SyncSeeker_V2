@@ -1,3 +1,12 @@
+/**
+ * ControllerDetailOverlay Component
+ * 
+ * 管制员详情弹窗组件。
+ * 展示管制员详细信息，包括频率、ATIS、评级等。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import styles from './PilotList.module.scss'
 import type { OnlineController } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'

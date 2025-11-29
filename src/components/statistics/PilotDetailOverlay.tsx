@@ -1,4 +1,13 @@
 
+/**
+ * PilotDetailOverlay Component
+ * 
+ * 飞行员详情弹窗组件。
+ * 在移动端或列表模式下，点击飞行员条目显示的详细信息模态框。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import styles from './PilotList.module.scss'
 import type { OnlinePilot } from '../../types/fsd'
 import onlineTime from '../../utils/onlineTime'
@@ -7,7 +16,6 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import IconByName from '../common/IconByName'
 
- 
 
 interface PilotDetailOverlayProps {
   open: boolean

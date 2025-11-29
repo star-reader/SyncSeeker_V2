@@ -1,3 +1,12 @@
+/**
+ * ControllerList Component
+ * 
+ * 管制员列表展示组件。
+ * 显示当前在线的管制员信息（频率、评级、设施类型等）。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useEffect, useMemo, useState } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'

@@ -1,3 +1,11 @@
+/**
+ * updateMapWithUserSetting Service
+ * 
+ * 响应用户设置的变更，实时更新地图图层样式。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 // todo /jerry 完成更新事件和组件
 // 用户在设置页面更新，对应key-value(json)，如"pilotSchema": {"day": "#bfa777", "night": "#8b7355"}会在localstorage储存
 // 同时发布pubsub-js事件
@@ -7,6 +15,15 @@ import pubsub from 'pubsub-js'
 import { EVENTS, MAP_IDS } from '../../configs/constants'
 import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema } from '../../hooks/theme/useTheme'
 
+/**
+ * 监听设置变化并更新地图
+ * 
+ * 订阅 PILOT_SCHEMA_CHANGE 和 THEME_CHANGE 事件，
+ * 动态调用 map.setPaintProperty 修改图层颜色。
+ * 
+ * @param map Mapbox 实例
+ * @returns 清理函数（取消订阅）
+ */
 export default (map: mapboxgl.Map) => {
     const apply = (schema?: PilotSchema) => {
         const theme = useGetCurrentTheme()

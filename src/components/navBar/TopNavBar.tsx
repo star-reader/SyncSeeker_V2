@@ -1,3 +1,12 @@
+/**
+ * TopNavBar Component
+ * 
+ * 顶部导航栏组件。
+ * 包含 Logo、主题切换、设置按钮以及功能菜单（机组列表、管制列表等）。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useEffect, useRef, useState } from 'react'
 import { SettingTwo, Moon, SunOne, 
   ListTop, RadarThree, Airplane, More } from '@icon-park/react'
@@ -8,6 +17,15 @@ import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 import { EVENTS } from '../../configs/constants'
 
+/**
+ * 导航栏
+ * 
+ * 功能：
+ * - 响应式布局，适配不同屏幕尺寸。
+ * - 主题切换 (Light/Dark)。
+ * - 弹出式菜单 (Menu) 用于导航至不同功能模块。
+ * - 全局事件发布 (EVENTS.MENU_SELECT, EVENTS.THEME_CHANGE)。
+ */
 export default function TopNavBar() {
   const [dark, setDark] = useState(false)
   // const [query, setQuery] = useState('')

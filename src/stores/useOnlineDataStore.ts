@@ -1,3 +1,11 @@
+/**
+ * useOnlineDataStore
+ * 
+ * 基于 Zustand 的全局状态管理，用于存储和分发 FSD 实时连飞数据。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { create } from 'zustand'
 import pubsub from 'pubsub-js'
 import { EVENTS } from '../configs/constants'
@@ -15,6 +23,11 @@ interface OnlineDataStore {
   getAtis: () => OnlineController[],
 }
 
+/**
+ * 全局在线数据 Store
+ * 提供数据的获取（Getters）和更新（Setter）方法
+ * 更新数据时会触发 EVENTS.ONLINE_DATA_UPDATE 事件
+ */
 export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
   onlineData: null,
   getOnlineData: () => {

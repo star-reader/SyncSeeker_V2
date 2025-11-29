@@ -1,3 +1,12 @@
+/**
+ * PilotInfoPanel Component
+ * 
+ * 地图右侧的飞行员详细信息面板。
+ * 点击地图上的飞机图标时滑出，显示飞行计划、实时数据、航路等信息。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useEffect, useMemo, useState } from 'react'
 import pubsub from 'pubsub-js'
 import styles from './PilotInfoPanel.module.scss'
@@ -8,6 +17,14 @@ import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatu
 import onlineTime from '../../utils/onlineTime'
 import type { OnlinePilot } from '../../types/fsd'
 
+/**
+ * 飞行员信息面板组件
+ * 
+ * 交互：
+ * - 订阅 EVENTS.PILOT_ICON_CLICK 事件以打开面板并设置当前选中的飞行员 ID。
+ * - 自动从 Store 中获取最新的飞行员数据。
+ * - 支持复制航路、关闭面板等操作。
+ */
 export default function PilotInfoPanel() {
   const [open, setOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)

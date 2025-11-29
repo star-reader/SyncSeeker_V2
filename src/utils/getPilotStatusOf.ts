@@ -1,7 +1,22 @@
+/**
+ * getPilotStatusOf Utils
+ * 
+ * 计算飞行员当前的飞行阶段状态。
+ * 结合地速、高度及垂直速度进行判断。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import type { OnlinePilot } from "../types/fsd";
 
 const lastSamples = new Map<string, { t: number, alt: number, gs: number }>()
 
+
+/**
+ * 解析计划高度
+ * @param a 原始高度字符串
+ * @returns 高度数值（英尺）
+ */
 function parsePlannedAltitude(a?: string): number | null {
     if (!a) return null
     const s = a.toUpperCase()
@@ -12,6 +27,10 @@ function parsePlannedAltitude(a?: string): number | null {
     return n
 }
 
+/**
+ * 计算垂直速度 (ft/min)
+ * @param p 飞行员数据
+ */
 function getVerticalSpeedFtMin(p: OnlinePilot): number | null {
     const key = p.session_id || p.cid
     const now = Date.now()
@@ -23,6 +42,11 @@ function getVerticalSpeedFtMin(p: OnlinePilot): number | null {
     return diff / dt * 60
 }
 
+/**
+ * 获取飞行状态描述
+ * @param p 飞行员数据
+ * @returns 中文状态描述 (如：停机位, 滑行中, 起飞, 爬升, 巡航中, 下降)
+ */
 function getStatus(p: OnlinePilot): string {
     const vs = getVerticalSpeedFtMin(p)
     const planned = parsePlannedAltitude(p.flight_plan?.altitude)
@@ -53,6 +77,11 @@ function getStatus(p: OnlinePilot): string {
 
 export default getStatus
 
+/**
+ * 获取飞行状态对应的 UI 标签 ID
+ * @param p 飞行员数据
+ * @returns 状态标签 ID (ground, departing, cruising, arriving)
+ */
 export const getPilotStatusOfTag = (p: OnlinePilot) => {
     const status = getStatus(p)
     if (status === '停机位' || status === '滑行中') return 'ground'

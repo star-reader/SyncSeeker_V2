@@ -1,3 +1,11 @@
+/**
+ * addDynamicLayer Service
+ * 
+ * Mapbox 图层动态添加与更新封装。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 export default (
     map: mapboxgl.Map, 
     id: string,

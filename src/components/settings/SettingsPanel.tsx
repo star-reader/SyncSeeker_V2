@@ -1,3 +1,11 @@
+/**
+ * SettingsPanel Component
+ * 
+ * 设置面板组件
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useEffect, useMemo, useState } from 'react'
 import pubsub from 'pubsub-js'
 import { Button, Divider, Typography } from '@mui/material'

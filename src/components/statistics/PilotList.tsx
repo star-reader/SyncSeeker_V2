@@ -1,3 +1,12 @@
+/**
+ * PilotList Component
+ * 
+ * 飞行员列表展示组件。
+ * 显示当前在线的所有机组人员摘要信息，支持点击查看详情。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useMemo, useState, useEffect } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'

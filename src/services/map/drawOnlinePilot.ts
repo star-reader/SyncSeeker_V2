@@ -1,3 +1,11 @@
+/**
+ * drawOnlinePilot Service
+ * 
+ * 核心业务服务，负责在地图上绘制在线飞行员。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import pubsub from 'pubsub-js'
 import type { OnlinePilot, OnlineData } from '../../types/fsd'
 import addDynamicLayer from './addDynamicLayer'
@@ -8,6 +16,18 @@ import { getAircraftAssetByType } from '../../utils/aircraft.ts'
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
 
+/**
+ * 将飞行员列表绘制到地图上
+ * 
+ * 处理逻辑：
+ * - 转换 GeoJSON
+ * - 设置图标与颜色（紧急状态处理）
+ * - 配置图层样式（缩放插值、文字布局）
+ * - 调用 addDynamicLayer
+ * 
+ * @param map Mapbox 实例
+ * @param pilotList 在线飞行员列表
+ */
 const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
     const geojson: GeoJSON.FeatureCollection<GeoJSON.Point> = {
         'type': 'FeatureCollection',
@@ -128,6 +148,10 @@ const drawPilotOnMap = (map: mapboxgl.Map, pilotList: OnlinePilot[]) => {
     addDynamicLayer(map, MAP_IDS.PILOT_LIST_SOURCE, source, layer, geojson)
 }
 
+/**
+ * 初始化绘制服务
+ * 加载资源并订阅数据更新
+ */
 export default async (map: mapboxgl.Map) => {
     let pilotList: OnlinePilot[] = []
     try {

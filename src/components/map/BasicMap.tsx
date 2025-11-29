@@ -1,3 +1,12 @@
+/**
+ * BasicMap Component
+ * 
+ * 基础地图组件，基于 Mapbox GL JS。
+ * 负责地图的初始化、生命周期管理、事件绑定以及图层渲染服务的挂载。
+ * 
+ * @author Jerry Jin
+ * @date 2025-11-29
+ */
 import { useEffect, useRef } from "react"
 import mapboxgl from 'mapbox-gl'
 import pubsub from 'pubsub-js'
