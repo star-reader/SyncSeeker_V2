@@ -161,6 +161,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+.airportName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sky-text-color-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  margin-top: 4px;
+}
+
 .routeArrow {
   color: var(--sky-border-color);
   display: flex;

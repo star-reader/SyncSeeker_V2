@@ -16,6 +16,7 @@ import IconByName from '../common/IconByName'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
 import onlineTime from '../../utils/onlineTime'
 import type { OnlinePilot } from '../../types/fsd'
+import syncSeekerDB from '../../services/localDB/indexedDB'
 
 /**
  * 飞行员信息面板组件
@@ -29,6 +30,10 @@ export default function PilotInfoPanel() {
   const [open, setOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
   const onlineData = useOnlineDataStore(s => s.onlineData)
+  
+  const [airline, setAirline] = useState<IndexedDBAirlines | null>(null)
+  const [depAirport, setDepAirport] = useState<IndexedDBAirports | null>(null)
+  const [arrAirport, setArrAirport] = useState<IndexedDBAirports | null>(null)
 
   useEffect(() => {
     const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: string) => {
@@ -42,6 +47,48 @@ export default function PilotInfoPanel() {
     if (!id) return null
     return useOnlineDataStore.getState().getPilotById(id) || null
   }, [id, onlineData])
+
+  useEffect(() => {
+    if (!pilot) {
+        setAirline(null)
+        setDepAirport(null)
+        setArrAirport(null)
+        return
+    }
+
+    const fetchData = async () => {
+        try {
+            // Ensure DB is initialized
+            await syncSeekerDB.init().catch(() => {})
+            
+            // Airline
+            const callsign = pilot.callsign
+            const airlineCodeMatch = callsign.match(/^[A-Z]{3}/)
+            if (airlineCodeMatch) {
+                const code = airlineCodeMatch[0]
+                syncSeekerDB.getAirlineByIcao(code).then(setAirline).catch(() => setAirline(null))
+            } else {
+                setAirline(null)
+            }
+
+            // Airports
+            if (pilot.flight_plan) {
+                 const { departure, arrival } = pilot.flight_plan
+                 if(departure) syncSeekerDB.getAirportByIcao(departure).then(setDepAirport).catch(() => setDepAirport(null))
+                 else setDepAirport(null)
+                 
+                 if(arrival) syncSeekerDB.getAirportByIcao(arrival).then(setArrAirport).catch(() => setArrAirport(null))
+                 else setArrAirport(null)
+            } else {
+                setDepAirport(null)
+                setArrAirport(null)
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+    fetchData()
+  }, [pilot?.callsign, pilot?.flight_plan?.departure, pilot?.flight_plan?.arrival])
 
   const status = pilot ? getPilotStatusOf(pilot) : ''
   const statusTag = pilot ? getPilotStatusOfTag(pilot) : 'ground'
@@ -77,6 +124,7 @@ export default function PilotInfoPanel() {
           <div className={styles.submeta}>
             <div className={styles.subchip}><IconByName name="IdCard" /> {pilot?.cid || '-'}</div>
             <div className={styles.subchip}><IconByName name="User" /> {pilot?.name || ''}</div>
+            {airline && <div className={styles.subchip} title={airline.name}><IconByName name="ApplicationOne" /> {airline.name}</div>}
             <div className={styles.subchip} title="Aircraft Type"><IconByName name="Airplane" /> {aircraft}</div>
           </div>
         </div>
@@ -92,11 +140,13 @@ export default function PilotInfoPanel() {
             <div className={styles.routeCol}>
               <div className={styles.routeLabel}>DEPARTURE</div>
               <div className={styles.airportBig}>{dep}</div>
+              {depAirport && <div className={styles.airportName} title={depAirport.name}>{depAirport.name}</div>}
             </div>
             <div className={styles.routeArrow}><IconByName name="FlightAirflow" /></div>
             <div className={styles.routeCol}>
               <div className={styles.routeLabel}>ARRIVAL</div>
               <div className={styles.airportBig}>{arr}</div>
+              {arrAirport && <div className={styles.airportName} title={arrAirport.name}>{arrAirport.name}</div>}
             </div>
           </div>
           <div className={styles.trackBar}>
