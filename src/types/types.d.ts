@@ -28,3 +28,23 @@ interface NavDataVersion {
   version_id: string;
   update_date: string;
 }
+
+interface TargetPilotData {
+    "callsign": string,
+    "departure": string,
+    "arrival": string,
+    "cid": string,
+    "realname": string,
+    "aircraft": string,
+    "lnglat":number[],  //e.g. [121.826,43.909]
+    "tracks": Array<number[]>, //历史航迹数组，包含lnglat[]格式
+    "heading": number,
+    "altitude": number,
+    "speed": string,
+    "altitudeArray": number[], // 与时间、速度对应的高度数据，如[32100, 32108, 32200]
+    "speedArray": number[] // 与高度对应的速度数据，如[345, 346, 344]
+    "squawk": string,
+    "route": string,
+    "onlineTime"?: number,
+    "date"?: string
+}
