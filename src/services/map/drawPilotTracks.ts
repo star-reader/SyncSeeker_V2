@@ -12,7 +12,7 @@ let is3DEnabled = false
 let currentPilotData: TargetPilotData | null = null
 
 const normalizePilotData = (data: any): TargetPilotData => {
-    // 1. API返回的格式是[{Lat: number, Lon: number}, ...]，转成[[lng, lat], ...]
+    // 1. API返回的tracks数组，格式是[{Lat: number, Lon: number}, ...]，转成[[lng, lat], ...]
     let tracks: number[][] = []
     if (Array.isArray(data.tracks)) {
         tracks = data.tracks.map((t: any) => {
@@ -62,7 +62,6 @@ const normalizePilotData = (data: any): TargetPilotData => {
 }
 
 export default (map: mapboxgl.Map) => {
-    
     const fetchAndDraw = async () => {
         if (!currentCallsign) return
         try {
@@ -70,16 +69,12 @@ export default (map: mapboxgl.Map) => {
             const res = await axios.get(url)
             if (!currentCallsign) return
             let data: TargetPilotData = res.data
-            
             data = normalizePilotData(data)
-            
             currentPilotData = data
-
             if (!data.tracks || data.tracks.length === 0) {
                 removeLayers(map)
                 return
             }
-            
             // 2D
             update2DLayer(map, data)
             // 3D
@@ -88,14 +83,13 @@ export default (map: mapboxgl.Map) => {
             } else {
                 remove3DLayer(map)
             }
-
         } catch (e) {
             console.error('Failed to fetch pilot track', e)
         }
     }
 
     pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, id: string) => {
-        // Stop previous
+        // 删除之前的查询
         if (intervalId) clearInterval(intervalId)
         removeLayers(map)
         

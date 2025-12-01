@@ -15,13 +15,13 @@ import addDynamicLayer from './addDynamicLayer'
 import getGreatCircleRoute from '../../utils/getGreatCircleRoute'
 import fix180Crossing from '../../utils/fix180Crossing'
 
-let currentSelectedPilotId: string | null = null;
+let currentSelectedPilotId: string | null = null
 
 /**
  * 绘制选中飞行员的航线
  */
 const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
-    currentSelectedPilotId = pilotId;
+    currentSelectedPilotId = pilotId
 
     // 如果没有ID，清空图层
     if (!pilotId) {

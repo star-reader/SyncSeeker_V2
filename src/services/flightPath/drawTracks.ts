@@ -19,7 +19,7 @@ interface geoLine {
 }
 
 const isValidNext = (index: number, arr: any[]) => {
-    return index >= arr.length -1 ? false : true
+    return index >= arr.length -1
 }
 
 export default (target: TargetPilotData) => {
@@ -29,10 +29,7 @@ export default (target: TargetPilotData) => {
     }
 
     if (!target.tracks || target.tracks.length === 0) return geoJSON_line
-
-    // Fix 180 degree crossing for 2D tracks as well
     const tracks = fix180Crossing(target.tracks)
-
     for (let i = 0; i < tracks.length ; i++){
         let item = tracks[i]
         geoJSON_line.features.push({

@@ -1,5 +1,5 @@
 
-import mapboxgl from "mapbox-gl";
+import mapboxgl from "mapbox-gl"
 import * as THREE from 'three'
 import generateColor from './thresholdColorGenerator'
 import fix180Crossing from '../../utils/fix180Crossing'
@@ -21,8 +21,6 @@ export default (target: TargetPilotData) => {
             scene = new THREE.Scene()
             
             if (!target.tracks || target.tracks.length < 2) return
-
-            // Pre-process tracks to handle 180 degree crossing continuously
             const tracks = fix180Crossing(target.tracks)
 
             // 1. 坐标转换
@@ -44,12 +42,8 @@ export default (target: TargetPilotData) => {
                 const lng = tracks[i][0]
                 const lat = tracks[i][1]
                 let alt = target.altitudeArray ? (target.altitudeArray[i] || 0) : 0
-
-                // Sanity check for altitude: Clamp to 0-100,000 feet (approx 30km)
-                // This prevents outliers from shooting into space
                 alt = Math.max(0, Math.min(alt, 100000))
-
-                // Skip invalid coordinates (0,0 is likely invalid for flight data unless it's a drone at null island)
+                // 取消不正确的位置连接 (0,0 is likely invalid for flight data unless it's a drone at null island)
                 if (Math.abs(lng) < 0.0001 && Math.abs(lat) < 0.0001) continue
 
                 const mc = mapboxgl.MercatorCoordinate.fromLngLat(
@@ -57,7 +51,6 @@ export default (target: TargetPilotData) => {
                     alt * 0.3048 // 英尺转米
                 )
                 
-                // Handle Antimeridian crossing (Longitude unwrapping)
                 if (i > 0) {
                     const diffX = mc.x - previousRawX
                     if (diffX < -0.5) {
@@ -87,11 +80,10 @@ export default (target: TargetPilotData) => {
             const curve = new THREE.CatmullRomCurve3(points)
             curve.curveType = 'centripetal' 
             curve.tension = 0.5
-
             const segments = (points.length - 1) * 10
             const curvePoints = curve.getSpacedPoints(segments)
             
-            // 辅助：计算高度
+            // 计算高度
             const pointLengths: number[] = [0]
             let totalLen = 0
             for(let i=1; i<points.length; i++) {
@@ -109,15 +101,10 @@ export default (target: TargetPilotData) => {
                 return altitudes[altitudes.length-1]
             }
 
-            // ==========================================
-            // Part A: 垂直幕墙 (Curtain / Wall)
-            // 连接飞行轨迹和地面投影
-            // ==========================================
-            
             const wallVertices: number[] = []
             const wallColors: number[] = []
             const wallIndices: number[] = []
-            
+
             let currentLen = 0
             
             for (let i = 0; i < curvePoints.length; i++) {
@@ -128,18 +115,11 @@ export default (target: TargetPilotData) => {
                 const colorHex = generateColor(alt)
                 const color = new THREE.Color(colorHex)
                 
-                // Top Vertex (Flight Path)
+                // Top Vertex
                 wallVertices.push(p.x, p.y, p.z)
-                wallColors.push(color.r, color.g, color.b) // Full color
-                
-                // Bottom Vertex (Ground Projection)
-                // Local Z=0 corresponds to CenterM's altitude (which is 0)
-                // But we need to be careful: Mercator projection distorts scale.
-                // However, for visual purposes, (x, y, 0) is the ground projection of (x, y, z).
+                wallColors.push(color.r, color.g, color.b)
+                // Bottom Vertex
                 wallVertices.push(p.x, p.y, 0)
-                
-                // Bottom color: slightly darker or same?
-                // Let's make it same color, opacity will handle the fade feel
                 wallColors.push(color.r * 0.8, color.g * 0.8, color.b * 0.8) 
 
                 // Indices
@@ -149,7 +129,6 @@ export default (target: TargetPilotData) => {
                     const prevTop = (i - 1) * 2
                     const prevBot = (i - 1) * 2 + 1
                     
-                    // Two triangles to form a quad
                     // 1. PrevTop -> PrevBot -> CurrBot
                     wallIndices.push(prevTop, prevBot, currBot)
                     // 2. PrevTop -> CurrBot -> CurrTop
@@ -175,16 +154,8 @@ export default (target: TargetPilotData) => {
             wallMesh.position.set(centerM.x, centerM.y, centerM.z)
             scene.add(wallMesh)
 
-
-            // ==========================================
-            // Part B: 顶部轨迹线 (Top Tube)
-            // 实体管道，显示实际飞行路径
-            // ==========================================
-            
             const tubeRadius = 10 * metersPerUnit // 半径10米
             const tubeGeometry = new THREE.TubeGeometry(curve, segments, tubeRadius, 8, false)
-            
-            // Apply colors to tube
             const tubeCount = tubeGeometry.attributes.position.count
             const tubeColors = new Float32Array(tubeCount * 3)
             const radialSegments = 8
@@ -193,16 +164,9 @@ export default (target: TargetPilotData) => {
             
             for (let i = 0; i < ringCount; i++) {
                 const t = i / segments
-                // Need to map t back to length to get accurate altitude? 
-                // TubeGeometry parameterizes by arc length roughly if curve is good.
-                // We can approximate using the same point-based logic or just simple interpolation
-                // Since we used getSpacedPoints for the wall, the 'segments' align roughly with distance.
-                // Let's re-use the altitude array mapping logic but mapped to t [0,1]
-                
-                // Map t (0->1) to totalLen
+                // 0->1
                 const targetL = t * totalLen
                 const alt = getAltAtLen(targetL)
-                
                 const c = new THREE.Color(generateColor(alt))
                 
                 for (let j = 0; j < ringSize; j++) {
@@ -225,7 +189,6 @@ export default (target: TargetPilotData) => {
             tubeMesh.position.set(centerM.x, centerM.y, centerM.z)
             scene.add(tubeMesh)
 
-            // Renderer Setup
             renderer = new THREE.WebGLRenderer({
                 canvas: map.getCanvas(),
                 context: gl,
@@ -233,7 +196,7 @@ export default (target: TargetPilotData) => {
             });
             renderer.autoClear = false
         },
-        'render': (gl, matrix) => {
+        'render': (_, matrix) => {
             const m = new THREE.Matrix4().fromArray(matrix);
             camera.projectionMatrix = m;
 
