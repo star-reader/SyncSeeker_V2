@@ -13,6 +13,7 @@ import syncSeekerDB from '../localDB/indexedDB'
 import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema } from '../../hooks/theme/useTheme'
 import addDynamicLayer from './addDynamicLayer'
 import getGreatCircleRoute from '../../utils/getGreatCircleRoute'
+import fix180Crossing from '../../utils/fix180Crossing'
 
 let currentSelectedPilotId: string | null = null;
 
@@ -45,6 +46,9 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
         // 生成大圆路径点
         const routeCoords = getGreatCircleRoute(start, end)
 
+        // 修复跨越 180 度的问题
+        const fixedRouteCoords = fix180Crossing(routeCoords)
+
         const geojson: GeoJSON.FeatureCollection = {
             type: 'FeatureCollection',
             features: [{
@@ -52,7 +56,7 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
                 properties: {},
                 geometry: {
                     type: 'LineString',
-                    coordinates: routeCoords
+                    coordinates: fixedRouteCoords
                 }
             }]
         }

@@ -34,14 +34,23 @@ export default function PilotInfoPanel() {
   const [airline, setAirline] = useState<IndexedDBAirlines | null>(null)
   const [depAirport, setDepAirport] = useState<IndexedDBAirports | null>(null)
   const [arrAirport, setArrAirport] = useState<IndexedDBAirports | null>(null)
+  const [show3D, setShow3D] = useState(false)
 
   useEffect(() => {
     const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: string) => {
       setId(data)
       setOpen(true)
+      setShow3D(false) // Reset 3D state on new selection
+      pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
     })
     return () => { pubsub.unsubscribe(token) }
   }, [])
+
+  const handleToggle3D = () => {
+      const newVal = !show3D
+      setShow3D(newVal)
+      pubsub.publish(EVENTS.TOGGLE_3D_TRACK, newVal)
+  }
 
   const pilot: OnlinePilot | null = useMemo(() => {
     if (!id) return null
@@ -157,7 +166,19 @@ export default function PilotInfoPanel() {
         </div>
 
         <div className={styles.panelCard}>
-          <div className={styles.panelTitle}><IconByName name="SpeedOne" /> 实时数据</div>
+          <div className={styles.panelTitle}>
+              <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                <IconByName name="SpeedOne" /> 实时数据
+              </div>
+              <button 
+                  className={styles.toggle3dBtn} 
+                  data-active={show3D}
+                  onClick={handleToggle3D}
+                  title="Toggle 3D Track"
+              >
+                  <IconByName name="MapDraw" /> 3D
+              </button>
+          </div>
           <div className={styles.statsRow}>
             <div className={styles.statItem}>
               <div className={styles.statLabel}>高度 (ft)</div>

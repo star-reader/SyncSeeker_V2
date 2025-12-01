@@ -6,12 +6,16 @@ export const EVENTS = {
   PILOT_SCHEMA_CHANGE: 'pilot-schema-change',
   PILOT_ICON_CLICK: 'pilot-icon-click',
   PILOT_INFO_CLOSE: 'pilot-info-close',
-  NAVDATA_UPDATE: 'navdata-update'
+  NAVDATA_UPDATE: 'navdata-update',
+  TOGGLE_3D_TRACK: 'toggle-3d-track'
 }
 
 export const MAP_IDS = {
   PILOT_LIST_SOURCE: 'pilot-list-data',
   PILOT_LIST_LAYER: 'pilot-list-data',
   SELECTED_PILOT_ROUTE_SOURCE: 'selected-pilot-route-data',
-  SELECTED_PILOT_ROUTE_LAYER: 'selected-pilot-route-layer'
+  SELECTED_PILOT_ROUTE_LAYER: 'selected-pilot-route-layer',
+  PILOT_TRACK_2D_SOURCE: 'pilot-track-2d-data',
+  PILOT_TRACK_2D_LAYER: 'pilot-track-2d-layer',
+  PILOT_TRACK_3D_LAYER: 'detail-pilot-path-fill-3d'
 }

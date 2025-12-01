@@ -18,6 +18,7 @@ import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
 import asyncLoadControllerAssets from "../../services/map/asyncLoadControllerAssets"
 import drawSelectedPilotRoute from "../../services/map/drawSelectedPilotRoute"
+import drawPilotTracks from "../../services/map/drawPilotTracks"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -107,6 +108,7 @@ export default function BasicMap() {
             await asyncLoadControllerAssets(map)    
             drawOnlinePilot(map)
             drawSelectedPilotRoute(map)
+            drawPilotTracks(map)
             useMouse(map)
             updateMapWithUserSetting(map)
         })
