@@ -13,6 +13,7 @@ import { MuiColorInput } from 'mui-color-input'
 import styles from './SettingsPanel.module.scss'
 import { EVENTS } from '../../configs/constants'
 import { getPilotSchema } from '../../hooks/theme/useTheme'
+import { useThemeStore } from '../../stores/useThemeStore'
 import syncSeekerDB from '../../services/localDB/indexedDB'
 import { fetchAndStoreNavData } from '../../apis/fetchStorageData'
 import { CheckOne, CloseOne, DownloadOne, Refresh } from '@icon-park/react'
@@ -83,8 +84,8 @@ export default function SettingsPanel() {
   const schemaMemo = useMemo(() => ({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: iconNight } }), [labelDay, labelNight, iconDay, iconNight])
 
   const handleSave = () => {
-    localStorage.setItem('pilotSchema', JSON.stringify(schemaMemo))
-    pubsub.publish(EVENTS.PILOT_SCHEMA_CHANGE, schemaMemo)
+    // 统一通过 Store 更新：同步到内存与 localStorage，并发布事件
+    useThemeStore.getState().setPilotSchema(schemaMemo)
     setOpen(false)
     pubsub.publish(EVENTS.RETURN_TO_MAP, 'settings')
   }
@@ -107,25 +108,37 @@ export default function SettingsPanel() {
             <div className={styles.item}>
               <div className={styles.label}>文字（日）</div>
               <MuiColorInput value={labelDay} 
-              onChange={(v) => { setLabelDay(v); pubsub.publish(EVENTS.PILOT_SCHEMA_CHANGE, { label: { day: v, night: labelNight }, icon: { day: iconDay, night: iconNight } }) }} 
+              onChange={(v) => { 
+                setLabelDay(v); 
+                useThemeStore.getState().setPilotSchema({ label: { day: v, night: labelNight }, icon: { day: iconDay, night: iconNight } }) 
+              }} 
               format="hex" style={{zIndex: 10001}} />
             </div>
             <div className={styles.item}>
               <div className={styles.label}>文字（夜）</div>
               <MuiColorInput value={labelNight} 
-              onChange={(v) => { setLabelNight(v); pubsub.publish(EVENTS.PILOT_SCHEMA_CHANGE, { label: { day: labelDay, night: v }, icon: { day: iconDay, night: iconNight } }) }} 
+              onChange={(v) => { 
+                setLabelNight(v); 
+                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: v }, icon: { day: iconDay, night: iconNight } }) 
+              }} 
               format="hex" style={{zIndex: 10001}} />
             </div>
             <div className={styles.item}>
               <div className={styles.label}>图标（日）</div>
               <MuiColorInput value={iconDay} 
-              onChange={(v) => { setIconDay(v); pubsub.publish(EVENTS.PILOT_SCHEMA_CHANGE, { label: { day: labelDay, night: labelNight }, icon: { day: v, night: iconNight } }) }} 
+              onChange={(v) => { 
+                setIconDay(v); 
+                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: v, night: iconNight } }) 
+              }} 
               format="hex" style={{zIndex: 10001}} />
             </div>
             <div className={styles.item}>
               <div className={styles.label}>图标（夜）</div>
               <MuiColorInput value={iconNight} 
-              onChange={(v) => { setIconNight(v); pubsub.publish(EVENTS.PILOT_SCHEMA_CHANGE, { label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: v } }) }} 
+              onChange={(v) => { 
+                setIconNight(v); 
+                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: v } }) 
+              }} 
               format="hex" style={{zIndex: 10001}} />
             </div>
           </div>

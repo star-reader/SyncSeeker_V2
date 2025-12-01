@@ -6,7 +6,7 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import loadingSet from '../../configs/airplane/AirplaneLoad.json'
+import loadingSet from '../../../configs/airplane/AirplaneLoad.json'
 
 /**
  * 加载所有飞机图标资源

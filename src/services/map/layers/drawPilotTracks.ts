@@ -1,10 +1,10 @@
 import pubsub from 'pubsub-js'
 import axios from 'axios'
-import { EVENTS, MAP_IDS } from '../../configs/constants'
-import { apiEndpointsGo } from '../../configs/apiConfig'
-import drawTracks from '../flightPath/drawTracks'
-import draw3DTracks from '../flightPath/draw3DTracks'
-import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
+import { EVENTS, MAP_IDS } from '../../../configs/constants'
+import { apiEndpointsGo } from '../../../configs/apiConfig'
+import drawTracks from '../../flightPath/drawTracks'
+import draw3DTracks from '../../flightPath/draw3DTracks'
+import { useOnlineDataStore } from '../../../stores/useOnlineDataStore'
 
 let intervalId: ReturnType<typeof setInterval> | null = null
 let currentCallsign: string | null = null

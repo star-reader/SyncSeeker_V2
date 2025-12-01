@@ -12,13 +12,13 @@ import mapboxgl from 'mapbox-gl'
 import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
-import drawOnlinePilot from "../../services/map/drawOnlinePilot"
+import drawOnlinePilot from "../../services/map/layers/drawOnlinePilot"
 import useMouse from "../../hooks/maps/useMouse"
 import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
-import asyncLoadControllerAssets from "../../services/map/asyncLoadControllerAssets"
-import drawSelectedPilotRoute from "../../services/map/drawSelectedPilotRoute"
-import drawPilotTracks from "../../services/map/drawPilotTracks"
+import asyncLoadControllerAssets from "../../services/map/assets/asyncLoadControllerAssets"
+import drawSelectedPilotRoute from "../../services/map/layers/drawSelectedPilotRoute"
+import drawPilotTracks from "../../services/map/layers/drawPilotTracks"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)

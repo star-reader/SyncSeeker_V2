@@ -15,6 +15,7 @@ import navfulllogo from '../../assets/logo/nav-full-logo.png'
 // import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
 import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
+import { useThemeStore } from '../../stores/useThemeStore'
 import { EVENTS } from '../../configs/constants'
 
 /**
@@ -27,34 +28,22 @@ import { EVENTS } from '../../configs/constants'
  * - 全局事件发布 (EVENTS.MENU_SELECT, EVENTS.THEME_CHANGE)。
  */
 export default function TopNavBar() {
-  const [dark, setDark] = useState(false)
+  // 使用 Zustand Store 直接获取响应式状态
+  const theme = useThemeStore((state) => state.theme)
+  const isDark = theme === 'dark'
+  
   // const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const moreBtnRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme')
-    const prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-    const isDark = saved ? saved === 'dark' : prefers
-    setDark(isDark)
     const el = document.getElementById('root')
-    if (el) el.setAttribute('theme', isDark ? 'dark' : 'light')
-  }, [])
+    if (el) el.setAttribute('theme', theme)
+  }, [theme])
 
-  useEffect(() => {
-    const token = pubsub.subscribe(EVENTS.THEME_CHANGE, (_, data: string) => {
-      setDark(data === 'dark')
-      useSetCurrentTheme(data)
-    })
-    return () => {
-      pubsub.unsubscribe(token)
-    }
-  }, [])
-
-  const handleThemeChange = (theme: string) => {
-    setDark(theme === 'dark')
-    pubsub.publish(EVENTS.THEME_CHANGE, theme)
+  const handleThemeChange = (newTheme: string) => {
+    useSetCurrentTheme(newTheme)
   }
 
   useEffect(() => {
@@ -111,8 +100,8 @@ export default function TopNavBar() {
               </div> */}
 
               <div className={styles.actions}>
-                <button className={styles.iconButton} onClick={() => handleThemeChange(dark ? 'light' : 'dark')} aria-label="toggle-theme">
-                  {dark ? <SunOne size={18} /> : <Moon size={18} />}
+                <button className={styles.iconButton} onClick={() => handleThemeChange(isDark ? 'light' : 'dark')} aria-label="toggle-theme">
+                  {isDark ? <SunOne size={18} /> : <Moon size={18} />}
                 </button>
                 <button className={styles.iconButton} aria-label="settings" onClick={() => handleSelect('settings')}>
                   <SettingTwo size={18} />

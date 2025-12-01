@@ -7,7 +7,7 @@
  * @date 2025-11-29
  */
 
-import {controllerIconSet} from '../../configs/iconSet'
+import {controllerIconSet} from '../../../configs/iconSet'
 
 
 export default (map: mapboxgl.Map) => {

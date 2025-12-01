@@ -7,13 +7,13 @@
  * @date 2025-11-29
  */
 import pubsub from 'pubsub-js'
-import { EVENTS, MAP_IDS } from '../../configs/constants'
-import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
-import syncSeekerDB from '../localDB/indexedDB'
-import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema } from '../../hooks/theme/useTheme'
+import { EVENTS, MAP_IDS } from '../../../configs/constants'
+import { useOnlineDataStore } from '../../../stores/useOnlineDataStore'
+import syncSeekerDB from '../../localDB/indexedDB'
+import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema } from '../../../hooks/theme/useTheme'
 import addDynamicLayer from './addDynamicLayer'
-import getGreatCircleRoute from '../../utils/getGreatCircleRoute'
-import preprocessTrackData from '../../utils/preprocessTrackData'
+import getGreatCircleRoute from '../../../utils/getGreatCircleRoute'
+import preprocessTrackData from '../../../utils/preprocessTrackData'
 
 
 let currentSelectedPilotId: string | null = null;

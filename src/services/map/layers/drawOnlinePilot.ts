@@ -7,12 +7,12 @@
  * @date 2025-11-29
  */
 import pubsub from 'pubsub-js'
-import type { OnlinePilot, OnlineData } from '../../types/fsd'
-import addDynamicLayer from './addDynamicLayer'
-import asyncLoadAssets from './asyncLoadAssets'
-import { MAP_IDS, EVENTS } from '../../configs/constants'
-import { useGetUserColor } from '../../hooks/theme/useTheme'
-import { getAircraftAssetByType } from '../../utils/aircraft.ts'
+import type { OnlinePilot, OnlineData } from '../../../types/fsd'
+import addDynamicLayer from './addDynamicLayer.ts'
+import asyncLoadAssets from '../assets/asyncLoadAssets'
+import { MAP_IDS, EVENTS } from '../../../configs/constants'
+import { useGetUserColor } from '../../../hooks/theme/useTheme'
+import { getAircraftAssetByType } from '../../../utils/aircraft.ts'
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
 
