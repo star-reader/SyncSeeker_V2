@@ -8,7 +8,8 @@ export const EVENTS = {
   PILOT_INFO_CLOSE: 'pilot-info-close',
   NAVDATA_UPDATE: 'navdata-update',
   TOGGLE_3D_TRACK: 'toggle-3d-track',
-  PILOT_POSITION_UPDATE: 'pilot-position-update'
+  PILOT_POSITION_UPDATE: 'pilot-position-update',
+  HISTORY_TRACK_UPDATE: 'history-track-update'
 }
 
 export const MAP_IDS = {
@@ -18,5 +19,7 @@ export const MAP_IDS = {
   SELECTED_PILOT_ROUTE_LAYER: 'selected-pilot-route-layer',
   PILOT_TRACK_2D_SOURCE: 'pilot-track-2d-data',
   PILOT_TRACK_2D_LAYER: 'pilot-track-2d-layer',
-  PILOT_TRACK_3D_LAYER: 'detail-pilot-path-fill-3d'
+  PILOT_TRACK_3D_LAYER: 'detail-pilot-path-fill-3d',
+  PREDICTED_TRAIL_SOURCE: 'predicted-trail-data',
+  PREDICTED_TRAIL_LAYER: 'predicted-trail-layer'
 }

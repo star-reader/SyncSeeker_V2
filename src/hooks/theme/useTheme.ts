@@ -53,5 +53,6 @@ export const useGetUserColor = () => {
 export const colorsFromSchema = (schema: PilotSchema, theme: string) => {
     const label = theme === 'dark' ? schema.label.night : schema.label.day
     const icon = theme === 'dark' ? schema.icon.night : schema.icon.day
-    return { label, icon }
+    const trail = theme === 'dark' ? (schema.trail?.night || '#606060') : (schema.trail?.day || '#A0A0A0')
+    return { label, icon, trail }
 }

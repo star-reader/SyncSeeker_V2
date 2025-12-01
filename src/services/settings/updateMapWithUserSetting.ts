@@ -25,7 +25,7 @@ import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema
 export default (map: mapboxgl.Map) => {
     const apply = (schema?: PilotSchema) => {
         const theme = useGetCurrentTheme()
-        const { label, icon } = schema ? colorsFromSchema(schema, theme) : useGetUserColor()
+        const { label, icon, trail } = schema ? colorsFromSchema(schema, theme) : useGetUserColor()
         if (map.getLayer(MAP_IDS.PILOT_LIST_LAYER)) {
             map.setPaintProperty(MAP_IDS.PILOT_LIST_LAYER, 'text-color', label)
             map.setPaintProperty(
@@ -33,6 +33,9 @@ export default (map: mapboxgl.Map) => {
                 'icon-color',
                 ['case', ['==', ['get', 'emergency'], 'true'], 'red', icon]
             )
+        }
+        if (map.getLayer(MAP_IDS.PREDICTED_TRAIL_LAYER)) {
+            map.setPaintProperty(MAP_IDS.PREDICTED_TRAIL_LAYER, 'line-color', trail)
         }
     }
     apply()

@@ -4,7 +4,7 @@
  * 管理全局主题和配色方案的状态存储。
  * 替代原有的直接 localStorage 读取方式，提供内存缓存以提升性能。
  * 
- * @author Jerry Jin (Refactored by Trae)
+ * @author Jerry Jin
  * @date 2025-12-01
  */
 import { create } from 'zustand'
@@ -14,11 +14,13 @@ import { EVENTS } from '../configs/constants'
 export type PilotSchema = {
     label: { day: string, night: string }
     icon: { day: string, night: string }
+    trail: { day: string, night: string }
 }
 
 const defaultSchema: PilotSchema = {
     label: { day: '#008080', night: '#87CEEB' },
-    icon: { day: '#EF8B33', night: '#FFD27F' }
+    icon: { day: '#EF8B33', night: '#FFD27F' },
+    trail: { day: '#A0A0A0', night: '#606060' }
 }
 
 interface ThemeStore {
@@ -29,7 +31,7 @@ interface ThemeStore {
     // Getters
     getTheme: () => string
     getPilotSchema: () => PilotSchema
-    getUserColor: () => { label: string, icon: string }
+    getUserColor: () => { label: string, icon: string, trail: string }
     
     // Actions
     setTheme: (theme: string) => void
@@ -62,7 +64,8 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
         const { theme, pilotSchema } = get()
         const label = theme === 'dark' ? pilotSchema.label.night : pilotSchema.label.day
         const icon = theme === 'dark' ? pilotSchema.icon.night : pilotSchema.icon.day
-        return { label, icon }
+        const trail = theme === 'dark' ? (pilotSchema.trail?.night || '#606060') : (pilotSchema.trail?.day || '#A0A0A0')
+        return { label, icon, trail }
     },
 
     setTheme: (theme: string) => {

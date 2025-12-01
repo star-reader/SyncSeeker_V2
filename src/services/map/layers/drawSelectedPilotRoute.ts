@@ -17,6 +17,7 @@ import preprocessTrackData from '../../../utils/preprocessTrackData'
 
 
 let currentSelectedPilotId: string | null = null;
+export const getSelectedPilotId = () => currentSelectedPilotId;
 let currentSelectedCallsign: string | null = null
 let cachedArrivalIcao: string | null = null;
 let cachedAirportCoords: [number, number] | null = null;

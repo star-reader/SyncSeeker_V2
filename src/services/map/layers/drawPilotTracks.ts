@@ -86,6 +86,9 @@ export default (map: mapboxgl.Map) => {
             
             // 2D
             update2DLayer(map, data)
+            pubsub.publish(EVENTS.HISTORY_TRACK_UPDATE, {
+                id: res.callsign
+            })
             // 3D
             if (is3DEnabled) {
                 update3DLayer(map, data)
