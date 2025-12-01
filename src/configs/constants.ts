@@ -21,5 +21,7 @@ export const MAP_IDS = {
   PILOT_TRACK_2D_LAYER: 'pilot-track-2d-layer',
   PILOT_TRACK_3D_LAYER: 'detail-pilot-path-fill-3d',
   PREDICTED_TRAIL_SOURCE: 'predicted-trail-data',
-  PREDICTED_TRAIL_LAYER: 'predicted-trail-layer'
+  PREDICTED_TRAIL_LAYER: 'predicted-trail-layer',
+  ACTIVE_AIRPORTS_SOURCE: 'active-airports-data',
+  ACTIVE_AIRPORTS_LAYER: 'active-airports-layer'
 }

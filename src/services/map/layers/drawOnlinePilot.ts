@@ -38,11 +38,9 @@ const startAnimationLoop = (map: mapboxgl.Map) => {
         const now = performance.now()
         const deltaTime = now - lastFrameTime
         lastFrameTime = now
-
         // 限制更新频率，例如每帧都算，或者每 33ms 算一次
         // todo/Jerry Mapbox setData 消耗较大，如果飞机太多可能需要节流
         updatePositions(map, deltaTime)
-        
         animationFrameId = requestAnimationFrame(loop)
     }
     
@@ -51,9 +49,6 @@ const startAnimationLoop = (map: mapboxgl.Map) => {
     }
 }
 
-/**
- * 更新所有飞机的位置和轨迹
- */
 const updatePositions = (map: mapboxgl.Map, deltaTime: number) => {
     const pilotFeatures: GeoJSON.Feature[] = []
     const trailFeatures: GeoJSON.Feature[] = []

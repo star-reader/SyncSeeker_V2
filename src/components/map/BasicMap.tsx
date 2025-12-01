@@ -19,6 +19,7 @@ import updateMapWithUserSetting from "../../services/settings/updateMapWithUserS
 import asyncLoadControllerAssets from "../../services/map/assets/asyncLoadControllerAssets"
 import drawSelectedPilotRoute from "../../services/map/layers/drawSelectedPilotRoute"
 import drawPilotTracks from "../../services/map/layers/drawPilotTracks"
+import drawActiveAirports from "../../services/map/layers/drawActiveAirports"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -109,6 +110,7 @@ export default function BasicMap() {
             drawOnlinePilot(map)
             drawSelectedPilotRoute(map)
             drawPilotTracks(map)
+            drawActiveAirports(map)
             useMouse(map)
             updateMapWithUserSetting(map)
         })
