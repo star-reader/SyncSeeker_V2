@@ -48,3 +48,46 @@ interface TargetPilotData {
     "onlineTime"?: number,
     "date"?: string
 }
+
+interface APIResponsePilotData {
+    altitude: number;
+    bank: number;
+    callsign: string;
+    cid: string;
+    flight_plan: {
+        flight_rules: string;
+        aircraft: string;
+        departure: string;
+        arrival: string;
+        alternate: string;
+        cruise_tas: string;
+        altitude: string;
+        deptime: string;
+        enroute_time: string;
+        fuel_time: string;
+        remarks: string;
+        route: string;
+    };
+    groundspeed: number;
+    heading: number;
+    latitude: number;
+    logon_time: string;
+    longitude: number;
+    name: string;
+    pitch: number;
+    rating: number;
+    send_time: number;
+    server: string;
+    statics: Array<{
+        HDG: number;
+        Altitude: number;
+        Speed: number;
+        BankAngle: number;
+        Pitch: number;
+    }>;
+    tracks: Array<{
+        Lat: number;
+        Lon: number;
+    }>;
+    transponder: number;
+}

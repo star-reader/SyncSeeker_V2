@@ -11,7 +11,7 @@ let currentCallsign: string | null = null
 let is3DEnabled = false
 let currentPilotData: TargetPilotData | null = null
 
-const normalizePilotData = (data: any): TargetPilotData => {
+const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
     // 1. API返回的tracks数组，格式是[{Lat: number, Lon: number}, ...]，转成[[lng, lat], ...]
     let tracks: number[][] = []
     if (Array.isArray(data.tracks)) {
@@ -20,7 +20,6 @@ const normalizePilotData = (data: any): TargetPilotData => {
                 const lng = t.Lon !== undefined ? t.Lon : (t.longitude !== undefined ? t.longitude : (t.lng !== undefined ? t.lng : undefined))
                 const lat = t.Lat !== undefined ? t.Lat : (t.latitude !== undefined ? t.latitude : (t.lat !== undefined ? t.lat : undefined))
                 
-                // Validate coordinates
                 if (typeof lng === 'number' && typeof lat === 'number' && !isNaN(lng) && !isNaN(lat)) {
                     if (lng === 0 && lat === 0) return null // Treat 0,0 as invalid for now
                     return [lng, lat]
@@ -40,9 +39,10 @@ const normalizePilotData = (data: any): TargetPilotData => {
             }
             return 0
         })
-    } else if (Array.isArray(data.altitudeArray)) {
-        altitudeArray = data.altitudeArray.map((a: any) => Number(a) || 0)
-    }
+    } 
+    // else if (Array.isArray(data.altitudeArray)) {
+    //     altitudeArray = data.altitudeArray.map((a: any) => Number(a) || 0)
+    // }
     
     if (altitudeArray.length < tracks.length) {
         const lastAlt = altitudeArray.length > 0 ? altitudeArray[altitudeArray.length - 1] : (Number(data.altitude) || 0)
@@ -54,6 +54,7 @@ const normalizePilotData = (data: any): TargetPilotData => {
         altitudeArray = altitudeArray.slice(0, tracks.length)
     }
 
+    // @ts-ignore API res变了，这个没问题
     return {
         ...data,
         tracks,
@@ -66,15 +67,23 @@ export default (map: mapboxgl.Map) => {
         if (!currentCallsign) return
         try {
             const url = apiEndpointsGo.pilotTrack.replace('{callsign}', currentCallsign)
-            const res = await axios.get(url)
+            const res: APIResponsePilotData = (await axios.get(url)).data
             if (!currentCallsign) return
-            let data: TargetPilotData = res.data
-            data = normalizePilotData(data)
+            let data: TargetPilotData = normalizePilotData(res)
             currentPilotData = data
             if (!data.tracks || data.tracks.length === 0) {
                 removeLayers(map)
                 return
             }
+
+            if (data.tracks.length > 0) {
+                const latestPos = data.tracks[data.tracks.length - 1]
+                pubsub.publish(EVENTS.PILOT_POSITION_UPDATE, {
+                    id: currentCallsign,
+                    position: latestPos
+                })
+            }
+            
             // 2D
             update2DLayer(map, data)
             // 3D
@@ -83,20 +92,25 @@ export default (map: mapboxgl.Map) => {
             } else {
                 remove3DLayer(map)
             }
+            pubsub.publish(EVENTS.PILOT_POSITION_UPDATE, {
+                id: res.callsign,
+                callsign: res.callsign,
+                position: [res.longitude, res.latitude]
+            })
         } catch (e) {
             console.error('Failed to fetch pilot track', e)
         }
     }
 
-    pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, id: string) => {
+    pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: {id: string, callsign: string}) => {
         // 删除之前的查询
         if (intervalId) clearInterval(intervalId)
         removeLayers(map)
         
-        const pilot = useOnlineDataStore.getState().getPilotById(id)
+        const pilot = useOnlineDataStore.getState().getPilotById(data.id)
         if (!pilot) return
 
-        currentCallsign = pilot.callsign
+        currentCallsign = data.callsign
         fetchAndDraw()
         intervalId = setInterval(fetchAndDraw, 10000)
     })
@@ -140,7 +154,7 @@ const update2DLayer = (map: mapboxgl.Map, data: TargetPilotData) => {
                 'line-cap': 'round'
             },
             paint: {
-                'line-width': 3,
+                'line-width': 4,
                 'line-color': ['get', 'color']
             }
         })

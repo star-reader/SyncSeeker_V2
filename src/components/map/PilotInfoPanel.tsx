@@ -37,10 +37,10 @@ export default function PilotInfoPanel() {
   const [show3D, setShow3D] = useState(false)
 
   useEffect(() => {
-    const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: string) => {
-      setId(data)
+    const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: {id: string, callsign: string}) => {
+      setId(data.id)
       setOpen(true)
-      setShow3D(false) // Reset 3D state on new selection
+      setShow3D(false) // 新的飞机加入，默认不显示3D
       pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
     })
     return () => { pubsub.unsubscribe(token) }

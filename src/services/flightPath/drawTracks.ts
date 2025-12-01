@@ -1,5 +1,5 @@
 import useGenerateColor from "./thresholdColorGenerator"
-import fix180Crossing from "../../utils/fix180Crossing"
+import preprocessTrackData from "../../utils/preprocessTrackData"
 
 interface LineCollection {
     'type': 'Feature',
@@ -18,9 +18,6 @@ interface geoLine {
     'features': LineCollection[]
 }
 
-const isValidNext = (index: number, arr: any[]) => {
-    return index >= arr.length -1
-}
 
 export default (target: TargetPilotData) => {
     let geoJSON_line: geoLine = {
@@ -29,16 +26,26 @@ export default (target: TargetPilotData) => {
     }
 
     if (!target.tracks || target.tracks.length === 0) return geoJSON_line
-    const tracks = fix180Crossing(target.tracks)
-    for (let i = 0; i < tracks.length ; i++){
-        let item = tracks[i]
+    // Fix 180 degree crossing for 2D tracks as well
+    const tracks = preprocessTrackData(target.tracks)
+
+    if (!tracks || tracks.length < 2) return geoJSON_line
+
+    for (let i = 0; i < tracks.length - 1; i++){
+        const item = tracks[i]
+        const nextItem = tracks[i+1]
+
+        // Strict safety check to prevent Mapbox errors
+        if (!item || item.length < 2 || !nextItem || nextItem.length < 2) continue
+        if (isNaN(item[0]) || isNaN(item[1]) || isNaN(nextItem[0]) || isNaN(nextItem[1])) continue
+
         geoJSON_line.features.push({
             'type':'Feature',
             'properties':{
                 'color': useGenerateColor(target.altitudeArray ? (target.altitudeArray[i] || 0) : 0)
             },
             'geometry':{
-                'coordinates': isValidNext(i, tracks) ? [item, tracks[i+1]] : [item, item],
+                'coordinates': [item, nextItem],
                 'type':'LineString'
             }
         })

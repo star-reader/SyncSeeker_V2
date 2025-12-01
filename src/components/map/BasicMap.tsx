@@ -121,7 +121,9 @@ export default function BasicMap() {
                 if (i.layer.id === MAP_IDS.PILOT_LIST_LAYER && i.properties){
                     const props: any = i.properties
                     const id = props.session_id || props.cid
-                    if (id) pubsub.publish(EVENTS.PILOT_ICON_CLICK, id)
+                    if (id) pubsub.publish(EVENTS.PILOT_ICON_CLICK, {
+                        id, callsign: props.callsign
+                    })
                 }
             }
         })

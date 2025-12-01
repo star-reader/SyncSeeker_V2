@@ -13,15 +13,24 @@ import syncSeekerDB from '../localDB/indexedDB'
 import { useGetCurrentTheme, useGetUserColor, colorsFromSchema, type PilotSchema } from '../../hooks/theme/useTheme'
 import addDynamicLayer from './addDynamicLayer'
 import getGreatCircleRoute from '../../utils/getGreatCircleRoute'
-import fix180Crossing from '../../utils/fix180Crossing'
+import preprocessTrackData from '../../utils/preprocessTrackData'
 
-let currentSelectedPilotId: string | null = null
+
+let currentSelectedPilotId: string | null = null;
+let currentSelectedCallsign: string | null = null
+let cachedArrivalIcao: string | null = null;
+let cachedAirportCoords: [number, number] | null = null;
 
 /**
  * 绘制选中飞行员的航线
  */
-const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
+const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null, callsign: string | null, currentPos?: [number, number]) => {
+    if (pilotId !== currentSelectedPilotId) {
+        cachedArrivalIcao = null
+        cachedAirportCoords = null
+    }
     currentSelectedPilotId = pilotId
+    currentSelectedCallsign = callsign
 
     // 如果没有ID，清空图层
     if (!pilotId) {
@@ -35,19 +44,25 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
     if (!pilot || !pilot.flight_plan?.arrival) return
 
     try {
-        await syncSeekerDB.init()
-        const airport = await syncSeekerDB.getAirportByIcao(pilot.flight_plan.arrival)
-        
-        if (!airport) return
+        let end: [number, number]
 
-        const start: [number, number] = [pilot.longitude, pilot.latitude]
-        const end: [number, number] = airport.coordinates
+        if (pilot.flight_plan.arrival === cachedArrivalIcao && cachedAirportCoords) {
+            end = cachedAirportCoords
+        } else {
+            await syncSeekerDB.init()
+            const airport = await syncSeekerDB.getAirportByIcao(pilot.flight_plan.arrival)
+            
+            if (!airport) return
+            end = airport.coordinates
+            cachedArrivalIcao = pilot.flight_plan.arrival
+            cachedAirportCoords = end
+        }
 
+        const start: [number, number] = currentPos || [pilot.longitude, pilot.latitude]
         // 生成大圆路径点
         const routeCoords = getGreatCircleRoute(start, end)
-
         // 修复跨越 180 度的问题
-        const fixedRouteCoords = fix180Crossing(routeCoords)
+        const fixedRouteCoords = preprocessTrackData(routeCoords)
 
         const geojson: GeoJSON.FeatureCollection = {
             type: 'FeatureCollection',
@@ -83,9 +98,7 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null) => {
                 'line-dasharray': [2, 4] // 虚线效果
             }
         }
-
         addDynamicLayer(map, MAP_IDS.SELECTED_PILOT_ROUTE_SOURCE, source, layer, geojson)
-
     } catch (e) {
         console.error('Failed to draw pilot route:', e)
     }
@@ -101,13 +114,13 @@ const applyThemeUpdate = (map: mapboxgl.Map, schema?: PilotSchema) => {
 
 export default (map: mapboxgl.Map) => {
     // 监听点击事件
-    pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, id: string) => {
-        updateRouteLayer(map, id)
+    pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: {id: string, callsign: string}) => {
+        updateRouteLayer(map, data.id, data.callsign)
     })
 
     // 监听关闭事件
     pubsub.subscribe(EVENTS.PILOT_INFO_CLOSE, () => {
-        updateRouteLayer(map, null)
+        updateRouteLayer(map, null, null)
     })
     
     // 监听主题/配色变化
@@ -118,4 +131,15 @@ export default (map: mapboxgl.Map) => {
     pubsub.subscribe(EVENTS.THEME_CHANGE, () => {
         applyThemeUpdate(map)
     })
+
+    // 监听飞行员位置更新，实时重绘航线
+    pubsub.subscribe(EVENTS.PILOT_POSITION_UPDATE, (_, data: { callsign: string, position: [number, number] }) => {
+        if (currentSelectedCallsign && data.callsign === currentSelectedCallsign) {
+            updateRouteLayer(map, currentSelectedPilotId, currentSelectedCallsign, data.position)
+        }else{
+            console.log('data dismatched, received callsign is ', data.callsign, 'and current selected callsign is ', currentSelectedCallsign)
+        }
+    })
+
+
 }
