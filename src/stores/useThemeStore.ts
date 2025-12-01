@@ -14,7 +14,7 @@ import { EVENTS } from '../configs/constants'
 export type PilotSchema = {
     label: { day: string, night: string }
     icon: { day: string, night: string }
-    trail: { day: string, night: string }
+    trail?: { day: string, night: string }
 }
 
 const defaultSchema: PilotSchema = {
@@ -45,7 +45,14 @@ const getInitialSchema = (): PilotSchema => {
     if (!raw) return defaultSchema
     try {
         const obj = JSON.parse(raw)
-        if (obj && obj.label && obj.icon) return obj
+        if (obj && obj.label && obj.icon) {
+            // Deep merge with default schema to ensure all fields exist (e.g. trail)
+            return {
+                label: { ...defaultSchema.label, ...obj.label },
+                icon: { ...defaultSchema.icon, ...obj.icon },
+                trail: { ...defaultSchema.trail, ...(obj.trail || {}) }
+            }
+        }
         return defaultSchema
     } catch {
         return defaultSchema

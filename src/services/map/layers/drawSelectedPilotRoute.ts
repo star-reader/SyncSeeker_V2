@@ -96,7 +96,8 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null, calls
             paint: {
                 'line-color': color,
                 'line-width': 2,
-                'line-dasharray': [2, 4] // 虚线效果
+                'line-dasharray': [2, 4], // 虚线效果
+                'line-emissive-strength': 1,
             }
         }
         addDynamicLayer(map, MAP_IDS.SELECTED_PILOT_ROUTE_SOURCE, source, layer, geojson)

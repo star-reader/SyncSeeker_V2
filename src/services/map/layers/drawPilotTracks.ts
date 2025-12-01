@@ -158,7 +158,8 @@ const update2DLayer = (map: mapboxgl.Map, data: TargetPilotData) => {
             },
             paint: {
                 'line-width': 4,
-                'line-color': ['get', 'color']
+                'line-color': ['get', 'color'],
+                'line-emissive-strength': 1,
             }
         })
     }

@@ -31,9 +31,6 @@ let animationFrameId: number | null = null
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
 
-/**
- * 动画循环函数
- */
 const startAnimationLoop = (map: mapboxgl.Map) => {
     let lastFrameTime = performance.now()
 
@@ -43,7 +40,7 @@ const startAnimationLoop = (map: mapboxgl.Map) => {
         lastFrameTime = now
 
         // 限制更新频率，例如每帧都算，或者每 33ms 算一次
-        // Mapbox setData 消耗较大，如果飞机太多可能需要节流
+        // todo/Jerry Mapbox setData 消耗较大，如果飞机太多可能需要节流
         updatePositions(map, deltaTime)
         
         animationFrameId = requestAnimationFrame(loop)
@@ -62,7 +59,7 @@ const updatePositions = (map: mapboxgl.Map, deltaTime: number) => {
     const trailFeatures: GeoJSON.Feature[] = []
     
     pilotStates.forEach((state, id) => {
-        const { pilot, currentPos, trail } = state
+        const { pilot, currentPos } = state
         const speed = pilot.groundspeed
         
         // 如果速度极小，视为静止，不进行推测
@@ -166,7 +163,8 @@ const initLayers = (map: mapboxgl.Map) => {
             },
             paint: {
                 'line-color': userColors.trail,
-                'line-width': 2
+                'line-width': 2,
+                'line-emissive-strength': 1,
             }
         }) // 这里的顺序可能需要调整，确保在 Pilot Layer 之下
     }
