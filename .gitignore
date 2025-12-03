@@ -29,4 +29,5 @@ dist-ssr
 .trae
 .cursor
 .hidden
+.github
 .runtime-test
