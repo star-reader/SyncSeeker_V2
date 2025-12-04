@@ -53,10 +53,13 @@ export default () => {
           </div>
         </div>
         {!list.length && (
-          <div className={styles.empty}>暂无在线机组</div>
+          <div className={styles.empty}>
+            <div style={{ marginBottom: 8 }}><IconByName name="Sleep" size={32} /></div>
+            <div>暂无在线机组</div>
+          </div>
         )}
         <div className={styles.list}>
-          {list.length ? list.map(p => (
+          {list.map(p => (
             <div key={p.session_id} className={styles.card} onClick={() => setOpenId(p.session_id)}>
               <div className={styles.title}>
                 <span className={styles.callsign}>{p.callsign}</span>
@@ -71,8 +74,6 @@ export default () => {
                 <span className={styles.chip}><IconByName name="Time" /> {onlineTime(p.logon_time)}</span>
               </div>
             </div>
-          )) : Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className={styles.skeleton} />
           ))}
         </div>
 

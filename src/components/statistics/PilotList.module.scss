@@ -15,7 +15,7 @@
   padding: 0;
   margin: 0;
   margin-bottom: 20px;
-  z-index: 100;
+  z-index: 1000;
   overflow: auto;
   overflow-x: hidden;
 }
@@ -173,11 +173,17 @@
 }
 
 .empty {
-  border: 1px dashed var(--sky-border-color);
+  // border: 1px dashed var(--sky-border-color);
   border-radius: 12px;
-  padding: 18px;
+  padding: 60px 0;
   text-align: center;
   color: var(--sky-text-color-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0.8;
 }
 
 .overlay {

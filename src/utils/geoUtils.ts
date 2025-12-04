@@ -57,3 +57,24 @@ export const calculateNextPosition = (
 
     return [toDeg(nextLonRad), toDeg(nextLatRad)];
 }
+
+/**
+ * 计算两点之间的距离 (Haversine formula)
+ * 
+ * @param lat1 起点纬度
+ * @param lon1 起点经度
+ * @param lat2 终点纬度
+ * @param lon2 终点经度
+ * @returns 距离 (米)
+ */
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+

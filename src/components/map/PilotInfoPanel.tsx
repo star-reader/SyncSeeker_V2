@@ -15,29 +15,25 @@ import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import IconByName from '../common/IconByName'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
 import onlineTime from '../../utils/onlineTime'
+import { calculateDistance } from '../../utils/geoUtils'
 import type { OnlinePilot } from '../../types/fsd'
 import syncSeekerDB from '../../services/localDB/indexedDB'
 
-/**
- * 飞行员信息面板组件
- * 
- * 交互：
- * - 订阅 EVENTS.PILOT_ICON_CLICK 事件以打开面板并设置当前选中的飞行员 ID。
- * - 自动从 Store 中获取最新的飞行员数据。
- * - 支持复制航路、关闭面板等操作。
- */
+
 export default function PilotInfoPanel() {
   const [open, setOpen] = useState(false)
   const [id, setId] = useState<string | null>(null)
   const onlineData = useOnlineDataStore(s => s.onlineData)
-  
+
   const [airline, setAirline] = useState<IndexedDBAirlines | null>(null)
   const [depAirport, setDepAirport] = useState<IndexedDBAirports | null>(null)
   const [arrAirport, setArrAirport] = useState<IndexedDBAirports | null>(null)
   const [show3D, setShow3D] = useState(false)
+  const [copyingRoute, setCopyingRoute] = useState(false)
+  const [progress, setProgress] = useState(50)
 
   useEffect(() => {
-    const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: {id: string, callsign: string}) => {
+    const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: { id: string, callsign: string }) => {
       setId(data.id)
       setOpen(true)
       setShow3D(false) // 新的飞机加入，默认不显示3D
@@ -47,9 +43,9 @@ export default function PilotInfoPanel() {
   }, [])
 
   const handleToggle3D = () => {
-      const newVal = !show3D
-      setShow3D(newVal)
-      pubsub.publish(EVENTS.TOGGLE_3D_TRACK, newVal)
+    const newVal = !show3D
+    setShow3D(newVal)
+    pubsub.publish(EVENTS.TOGGLE_3D_TRACK, newVal)
   }
 
   const pilot: OnlinePilot | null = useMemo(() => {
@@ -59,45 +55,67 @@ export default function PilotInfoPanel() {
 
   useEffect(() => {
     if (!pilot) {
-        setAirline(null)
-        setDepAirport(null)
-        setArrAirport(null)
-        return
+      setAirline(null)
+      setDepAirport(null)
+      setArrAirport(null)
+      return
     }
 
     const fetchData = async () => {
-        try {
-            // Ensure DB is initialized
-            await syncSeekerDB.init().catch(() => {})
-            
-            // Airline
-            const callsign = pilot.callsign
-            const airlineCodeMatch = callsign.match(/^[A-Z]{3}/)
-            if (airlineCodeMatch) {
-                const code = airlineCodeMatch[0]
-                syncSeekerDB.getAirlineByIcao(code).then(setAirline).catch(() => setAirline(null))
-            } else {
-                setAirline(null)
-            }
+      try {
+        // Ensure DB is initialized
+        await syncSeekerDB.init().catch(() => { })
 
-            // Airports
-            if (pilot.flight_plan) {
-                 const { departure, arrival } = pilot.flight_plan
-                 if(departure) syncSeekerDB.getAirportByIcao(departure).then(setDepAirport).catch(() => setDepAirport(null))
-                 else setDepAirport(null)
-                 
-                 if(arrival) syncSeekerDB.getAirportByIcao(arrival).then(setArrAirport).catch(() => setArrAirport(null))
-                 else setArrAirport(null)
-            } else {
-                setDepAirport(null)
-                setArrAirport(null)
-            }
-        } catch (e) {
-            console.error(e)
+        // Airline
+        const callsign = pilot.callsign
+        const airlineCodeMatch = callsign.match(/^[A-Z]{3}/)
+        if (airlineCodeMatch) {
+          const code = airlineCodeMatch[0]
+          syncSeekerDB.getAirlineByIcao(code).then(setAirline).catch(() => setAirline(null))
+        } else {
+          setAirline(null)
         }
+
+        // Airports
+        if (pilot.flight_plan) {
+          const { departure, arrival } = pilot.flight_plan
+          if (departure) syncSeekerDB.getAirportByIcao(departure).then(setDepAirport).catch(() => setDepAirport(null))
+          else setDepAirport(null)
+
+          if (arrival) syncSeekerDB.getAirportByIcao(arrival).then(setArrAirport).catch(() => setArrAirport(null))
+          else setArrAirport(null)
+        } else {
+          setDepAirport(null)
+          setArrAirport(null)
+        }
+      } catch (e) {
+        console.error(e)
+      }
     }
     fetchData()
   }, [pilot?.callsign, pilot?.flight_plan?.departure, pilot?.flight_plan?.arrival])
+
+  useEffect(() => {
+    if (pilot && depAirport && arrAirport) {
+      const depLat = depAirport.coordinates[1]
+      const depLon = depAirport.coordinates[0]
+      const arrLat = arrAirport.coordinates[1]
+      const arrLon = arrAirport.coordinates[0]
+      
+      const totalDist = calculateDistance(depLat, depLon, arrLat, arrLon)
+      const remainingDist = calculateDistance(pilot.latitude, pilot.longitude, arrLat, arrLon)
+      
+      if (totalDist > 1000) {
+          let p = ((totalDist - remainingDist) / totalDist) * 100
+          p = Math.max(0, Math.min(100, p))
+          setProgress(p)
+      } else {
+          setProgress(50)
+      }
+    } else {
+        setProgress(50)
+    }
+  }, [pilot, depAirport, arrAirport])
 
   const status = pilot ? getPilotStatusOf(pilot) : ''
   const statusTag = pilot ? getPilotStatusOfTag(pilot) : 'ground'
@@ -122,7 +140,11 @@ export default function PilotInfoPanel() {
   const handleCopyRoute = () => {
     if (!routeText) return
     if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      setCopyingRoute(true)
       navigator.clipboard.writeText(routeText)
+      setTimeout(() => {
+        setCopyingRoute(false)
+      }, 1400);
     }
   }
 
@@ -139,11 +161,11 @@ export default function PilotInfoPanel() {
           </div>
         </div>
         <div className={styles.headerActions}>
-           <div className={`${styles.status} ${styles[`status--${statusTag}`]}`}>{status || ''}</div>
-           <button className={styles.closeBtn} onClick={handleClose}><IconByName name="Close" /></button>
+          <div className={`${styles.status} ${styles[`status--${statusTag}`]}`}>{status || ''}</div>
+          <button className={styles.closeBtn} onClick={handleClose}><IconByName name="Close" /></button>
         </div>
       </div>
-      
+
       <div className={styles.body}>
         <div className={styles.routeCard}>
           <div className={styles.routeRow}>
@@ -160,24 +182,24 @@ export default function PilotInfoPanel() {
             </div>
           </div>
           <div className={styles.trackBar}>
-            <div className={styles.trackProgress}></div>
-            <div className={styles.trackPlane}><IconByName name="Plane" /></div>
+            <div className={styles.trackProgress} style={{ width: `${progress}%` }}></div>
+            <div className={styles.trackPlane} style={{ left: `${progress}%` }}><IconByName name="Plane" /></div>
           </div>
         </div>
 
         <div className={styles.panelCard}>
           <div className={styles.panelTitle}>
-              <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
-                <IconByName name="SpeedOne" /> 实时数据
-              </div>
-              <button 
-                  className={styles.toggle3dBtn} 
-                  data-active={show3D}
-                  onClick={handleToggle3D}
-                  title="Toggle 3D Track"
-              >
-                  <IconByName name="MapDraw" /> 3D
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <IconByName name="SpeedOne" /> 实时数据
+            </div>
+            <button
+              className={styles.toggle3dBtn}
+              data-active={show3D}
+              onClick={handleToggle3D}
+              title="Toggle 3D Track"
+            >
+              <IconByName name="MapDraw" /> 3D航迹
+            </button>
           </div>
           <div className={styles.statsRow}>
             <div className={styles.statItem}>
@@ -209,22 +231,26 @@ export default function PilotInfoPanel() {
             <div className={styles.kvLine}><div className={styles.kvLabel}>巡航高度</div><div className={styles.kvValueLine}>{cruiseAlt}</div></div>
             <div className={styles.kvLine}><div className={styles.kvLabel}>巡航速度</div><div className={styles.kvValueLine}>{cruiseTas}</div></div>
           </div>
-          
+
           {routeText && (
             <div className={styles.codeBlock}>
               <div className={styles.codeHeader}>
                 <div className={styles.codeTitle}>ROUTE</div>
-                <button className={styles.copyBtn} onClick={handleCopyRoute}><IconByName name="Copy" /> COPY</button>
+                <button className={styles.copyBtn} onClick={handleCopyRoute}><IconByName name="Copy" />
+                  {
+                    copyingRoute ? <span className={styles.copiedText}>已复制</span> : <span className={styles.copyText}>复制航路</span>
+                  }
+                </button>
               </div>
               <pre className={styles.codeContent}>{routeText}</pre>
             </div>
           )}
-          
+
           {remarks && (
-             <div className={styles.codeBlock} style={{ marginTop: '8px' }}>
-                <div className={styles.codeHeader}><div className={styles.codeTitle}>REMARKS</div></div>
-                <pre className={styles.codeContent} style={{ maxHeight: '80px' }}>{remarks}</pre>
-             </div>
+            <div className={styles.codeBlock} style={{ marginTop: '8px' }}>
+              <div className={styles.codeHeader}><div className={styles.codeTitle}>REMARKS</div></div>
+              <pre className={styles.codeContent} style={{ maxHeight: '80px' }}>{remarks}</pre>
+            </div>
           )}
         </div>
 
@@ -235,7 +261,7 @@ export default function PilotInfoPanel() {
             <div className={styles.kvLine}><div className={styles.kvLabel}>在线时长</div><div className={styles.kvValueLine}>{pilot ? onlineTime(pilot.logon_time) : '-'}</div></div>
           </div>
         </div>
-        
+
       </div>
     </div>
   )
