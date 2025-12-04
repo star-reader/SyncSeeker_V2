@@ -138,9 +138,10 @@ export default (map: mapboxgl.Map) => {
     pubsub.subscribe(EVENTS.PILOT_POSITION_UPDATE, (_, data: { callsign: string, position: [number, number] }) => {
         if (currentSelectedCallsign && data.callsign === currentSelectedCallsign) {
             updateRouteLayer(map, currentSelectedPilotId, currentSelectedCallsign, data.position)
-        }else{
-            console.log('data dismatched, received callsign is ', data.callsign, 'and current selected callsign is ', currentSelectedCallsign)
         }
+        // else{
+        //     console.log('data dismatched, received callsign is ', data.callsign, 'and current selected callsign is ', currentSelectedCallsign)
+        // }
     })
 
 

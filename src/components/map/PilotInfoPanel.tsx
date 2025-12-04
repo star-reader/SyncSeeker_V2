@@ -7,7 +7,7 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import pubsub from 'pubsub-js'
 import styles from './PilotInfoPanel.module.scss'
 import { EVENTS } from '../../configs/constants'
@@ -31,16 +31,59 @@ export default function PilotInfoPanel() {
   const [show3D, setShow3D] = useState(false)
   const [copyingRoute, setCopyingRoute] = useState(false)
   const [progress, setProgress] = useState(50)
+  const [expanded, setExpanded] = useState(false)
+  const detailsRef = useRef<HTMLDivElement>(null)
+  
+  // Drag logic state
+  const [dragging, setDragging] = useState(false)
+  const [translateY, setTranslateY] = useState(0)
+  const [startY, setStartY] = useState(0)
 
   useEffect(() => {
     const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: { id: string, callsign: string }) => {
       setId(data.id)
       setOpen(true)
+      setExpanded(false)
+      setTranslateY(0)
       setShow3D(false) // 新的飞机加入，默认不显示3D
       pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
     })
     return () => { pubsub.unsubscribe(token) }
   }, [])
+
+  // Touch handlers for drag
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (expanded && detailsRef.current && detailsRef.current.contains(e.target as Node)) {
+        return
+    }
+
+    setDragging(true)
+    setStartY(e.touches[0].clientY)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragging) return
+    const currentY = e.touches[0].clientY
+    const deltaY = currentY - startY
+    setTranslateY(deltaY)
+  }
+
+  const handleTouchEnd = () => {
+    setDragging(false)
+    const threshold = 60
+    
+    if (!expanded && translateY < -threshold) {
+        setExpanded(true)
+    } else if (expanded && translateY > threshold) {
+        setExpanded(false)
+    } else if (!expanded && translateY > threshold) {
+        setOpen(false)
+        setId(null)
+        pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
+    }
+    
+    setTranslateY(0)
+  }
 
   const handleToggle3D = () => {
     const newVal = !show3D
@@ -149,8 +192,21 @@ export default function PilotInfoPanel() {
   }
 
   return (
-    <div className={styles.container} data-open={open ? 'true' : 'false'}>
-      <div className={styles.header}>
+    <div 
+      className={styles.container} 
+      data-open={open ? 'true' : 'false'}
+      data-expanded={expanded ? 'true' : 'false'}
+      data-dragging={dragging ? 'true' : 'false'}
+      style={{ 
+          // Use CSS variable to pass drag offset to CSS calc()
+          '--drag-offset': `${translateY}px`
+      } as React.CSSProperties}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className={styles.handleBar} onClick={() => setExpanded(!expanded)} />
+      <div className={styles.header} onClick={() => !expanded && setExpanded(true)}>
         <div className={styles.title}>
           <div className={styles.callsign}>{pilot?.callsign || '-'}</div>
           <div className={styles.submeta}>
@@ -167,7 +223,7 @@ export default function PilotInfoPanel() {
       </div>
 
       <div className={styles.body}>
-        <div className={styles.routeCard}>
+        <div className={styles.routeCard} onClick={() => !expanded && setExpanded(true)}>
           <div className={styles.routeRow}>
             <div className={styles.routeCol}>
               <div className={styles.routeLabel}>DEPARTURE</div>
@@ -187,14 +243,15 @@ export default function PilotInfoPanel() {
           </div>
         </div>
 
-        <div className={styles.panelCard}>
-          <div className={styles.panelTitle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <IconByName name="SpeedOne" /> 实时数据
-            </div>
-            <button
-              className={styles.toggle3dBtn}
-              data-active={show3D}
+        <div className={styles.detailsContent} ref={detailsRef}>
+            <div className={styles.panelCard}>
+            <div className={styles.panelTitle}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconByName name="SpeedOne" /> 实时数据
+                </div>
+                <button
+                className={styles.toggle3dBtn}
+                data-active={show3D}
               onClick={handleToggle3D}
               title="Toggle 3D Track"
             >
@@ -260,6 +317,7 @@ export default function PilotInfoPanel() {
             <div className={styles.kvLine}><div className={styles.kvLabel}>服务器</div><div className={styles.kvValueLine} title={pilot?.server}>{pilot?.server || '-'}</div></div>
             <div className={styles.kvLine}><div className={styles.kvLabel}>在线时长</div><div className={styles.kvValueLine}>{pilot ? onlineTime(pilot.logon_time) : '-'}</div></div>
           </div>
+        </div>
         </div>
 
       </div>

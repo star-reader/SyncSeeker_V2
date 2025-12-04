@@ -1,22 +1,42 @@
 .container {
   position: fixed;
-  top: 72px; /* Moved down to avoid nav overlap */
+  top: 72px;
   right: 20px;
   width: 360px;
   max-height: calc(100vh - 92px);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 90%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 16px; /* Reduced radius */
+  border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
   box-shadow: 
     0 4px 24px color-mix(in srgb, var(--sky-color-black) 8%, transparent),
     0 1px 2px color-mix(in srgb, var(--sky-color-black) 4%, transparent);
-  z-index: 900; /* Lower than navbar (usually 1000) */
+  z-index: 900;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.3s ease, max-height 0.3s ease;
   transform: translateX(120%);
+  user-select: none;
+  overflow: hidden;
+}
+
+.handleBar {
+  display: none;
+  width: 100%;
+  height: 20px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.handleBar::after {
+  content: '';
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--sky-text-color-secondary) 40%, transparent);
 }
 
 .container[data-open="true"] {
@@ -36,7 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 0; /* Allow flex shrink */
+  min-width: 0;
   flex: 1;
 }
 
@@ -398,22 +418,63 @@
     left: 0;
     right: 0;
     width: 100%;
+    height: auto;
     max-height: 85vh;
     border-radius: 24px 24px 0 0;
     transform: translateY(100%);
     border: none;
     border-top: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
-    background: var(--sky-bg-color-base); /* Opaque on mobile for better performance/look */
+    background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    touch-action: none;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth spring-like transition */
   }
   
-  .container[data-open="true"] {
-    transform: translateY(0);
+  .container[data-dragging="true"] {
+    transition: none !important;
+  }
+  
+  .handleBar {
+    display: flex;
+  }
+
+  /* Default hidden state */
+  .container[data-open="false"] {
+    transform: translateY(100%);
+  }
+
+  /* Collapsed state: Show only top 220px */
+  .container[data-open="true"][data-expanded="false"] {
+    transform: translateY(calc(100% - 220px + var(--drag-offset, 0px)));
+  }
+
+  /* Expanded state: Show full height (up to 85vh) */
+  .container[data-open="true"][data-expanded="true"] {
+    transform: translateY(var(--drag-offset, 0px));
+  }
+
+  .detailsContent {
+    transition: opacity 0.3s ease;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    flex: 1;
+  }
+
+
+  .container[data-expanded="false"] .detailsContent {
+    pointer-events: none;
+  }
+
+  .container[data-expanded="true"] .detailsContent {
+    pointer-events: auto;
   }
 
   .airportBig { font-size: 32px; }
   
   .statsRow {
-    grid-template-columns: 1fr 1fr 1fr 1fr; /* Keep 4 cols on mobile if possible, or 2 if too small */
+    grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
 
