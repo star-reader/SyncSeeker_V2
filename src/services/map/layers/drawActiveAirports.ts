@@ -164,6 +164,8 @@ export default (map: mapboxgl.Map) => {
         }
     })
 
+    // 点击事件已在 BasicMap.tsx 中统一处理
+
     return () => {
         pubsub.unsubscribe(token1)
         pubsub.unsubscribe(token2)

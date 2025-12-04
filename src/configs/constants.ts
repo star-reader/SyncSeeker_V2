@@ -9,7 +9,8 @@ export const EVENTS = {
   NAVDATA_UPDATE: 'navdata-update',
   TOGGLE_3D_TRACK: 'toggle-3d-track',
   PILOT_POSITION_UPDATE: 'pilot-position-update',
-  HISTORY_TRACK_UPDATE: 'history-track-update'
+  HISTORY_TRACK_UPDATE: 'history-track-update',
+  AIRPORT_CLICK: 'airport-click'
 }
 
 export const MAP_IDS = {

@@ -16,7 +16,8 @@ export default (map: mapboxgl.Map) => {
     if (!map) return
 
     const layers = [
-        MAP_IDS.PILOT_LIST_LAYER
+        MAP_IDS.PILOT_LIST_LAYER,
+        MAP_IDS.ACTIVE_AIRPORTS_LAYER,
     ]
 
     for (let layer of layers) {
