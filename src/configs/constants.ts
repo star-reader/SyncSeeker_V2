@@ -10,6 +10,7 @@ export const EVENTS = {
   TOGGLE_3D_TRACK: 'toggle-3d-track',
   PILOT_POSITION_UPDATE: 'pilot-position-update',
   HISTORY_TRACK_UPDATE: 'history-track-update',
+  PILOT_TRACK_DATA_UPDATE: 'pilot-track-data-update',
   AIRPORT_CLICK: 'airport-click',
   AIRPORT_INFO_CLOSE: 'airport-info-close'
 }

@@ -18,6 +18,7 @@ import onlineTime from '../../utils/onlineTime'
 import { calculateDistance } from '../../utils/geoUtils'
 import type { OnlinePilot } from '../../types/fsd'
 import syncSeekerDB from '../../services/localDB/indexedDB'
+import FlightChart from './FlightChart'
 
 
 export default function PilotInfoPanel() {
@@ -34,6 +35,12 @@ export default function PilotInfoPanel() {
   const [expanded, setExpanded] = useState(false)
   const detailsRef = useRef<HTMLDivElement>(null)
   
+  // 航迹图表数据
+  const [trackData, setTrackData] = useState<{ altitudeArray: number[], speedArray: number[] }>({
+    altitudeArray: [],
+    speedArray: []
+  })
+  
   // Drag logic state
   const [dragging, setDragging] = useState(false)
   const [translateY, setTranslateY] = useState(0)
@@ -46,6 +53,7 @@ export default function PilotInfoPanel() {
       setExpanded(false)
       setTranslateY(0)
       setShow3D(false) // 新的飞机加入，默认不显示3D
+      setTrackData({ altitudeArray: [], speedArray: [] }) // 清空旧数据
       pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
     })
     return () => { pubsub.unsubscribe(token) }
@@ -95,6 +103,19 @@ export default function PilotInfoPanel() {
     if (!id) return null
     return useOnlineDataStore.getState().getPilotById(id) || null
   }, [id, onlineData])
+
+  // 订阅航迹数据更新
+  useEffect(() => {
+    const token = pubsub.subscribe(EVENTS.PILOT_TRACK_DATA_UPDATE, (_, data: { callsign: string, altitudeArray: number[], speedArray: number[] }) => {
+      if (pilot && (data.callsign === pilot.callsign)) {
+        setTrackData({
+          altitudeArray: data.altitudeArray || [],
+          speedArray: data.speedArray || []
+        })
+      }
+    })
+    return () => { pubsub.unsubscribe(token) }
+  }, [pilot?.callsign])
 
   useEffect(() => {
     if (!pilot) {
@@ -276,6 +297,12 @@ export default function PilotInfoPanel() {
               <div className={styles.statValue}>{pilot?.transponder || 0}</div>
             </div>
           </div>
+          
+          {/* 高度-速度图表 */}
+          <FlightChart 
+            altitudeArray={trackData.altitudeArray} 
+            speedArray={trackData.speedArray} 
+          />
         </div>
 
         <div className={styles.panelCard}>
