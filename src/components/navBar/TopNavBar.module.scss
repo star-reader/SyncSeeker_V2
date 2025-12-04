@@ -12,6 +12,7 @@
   transition-duration: 0.3s;
   background: transparent;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .navbar::before {

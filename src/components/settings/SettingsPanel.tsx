@@ -154,7 +154,7 @@ export default function SettingsPanel() {
                 </div>
                 <div className={styles.statusText}>
                     {loading ? '正在更新数据...' : (
-                        hasData ? `已下载最新数据 (AIRAC ${version?.airac_code || 'Unknown'} - ${version?.update_date || ''})` : '未检测到本地数据'
+                        hasData ? `已下载最新数据 (版本 ${version?.version_id} 数据日期${version?.update_date || ''})` : '未检测到本地数据'
                     )}
                 </div>
             </div>
@@ -165,7 +165,7 @@ export default function SettingsPanel() {
                 onClick={handleFetchData}
                 disabled={loading}
             >
-                {hasData ? '更新数据' : '立即下载'}
+                {hasData ? '更新' : '下载'}
             </Button>
           </div>
 

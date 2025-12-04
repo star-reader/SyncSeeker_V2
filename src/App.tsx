@@ -9,6 +9,7 @@ import PilotList from './components/statistics/PilotList'
 import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
 import AirportInfoPanel from './components/map/AirportInfoPanel'
+import AirportBoard from './components/airport/AirportBoard'
 import { EVENTS } from './configs/constants'
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
             {openedMenu === 'pilot' && <PilotList />}
             {openedMenu === 'controller' && <ControllerList />}
             {openedMenu === 'settings' && <SettingsPanel />}
+            {openedMenu === 'board' && <AirportBoard />}
             <PilotInfoPanel />
             <AirportInfoPanel />
         </>
