@@ -28,19 +28,23 @@ interface PilotState {
 // 模块级状态管理
 const pilotStates = new Map<string, PilotState>()
 let animationFrameId: number | null = null
+const UPDATE_INTERVAL = 80 // 位置更新间隔（毫秒）
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
 
 const startAnimationLoop = (map: mapboxgl.Map) => {
-    let lastFrameTime = performance.now()
+    let lastUpdateTime = performance.now()
 
     const loop = () => {
         const now = performance.now()
-        const deltaTime = now - lastFrameTime
-        lastFrameTime = now
-        // 限制更新频率，例如每帧都算，或者每 33ms 算一次
-        // todo/Jerry Mapbox setData 消耗较大，如果飞机太多可能需要节流
-        updatePositions(map, deltaTime)
+        const deltaTime = now - lastUpdateTime
+        
+        // 只有达到更新间隔才执行位置更新
+        if (deltaTime >= UPDATE_INTERVAL) {
+            updatePositions(map, deltaTime)
+            lastUpdateTime = now
+        }
+        
         animationFrameId = requestAnimationFrame(loop)
     }
     
