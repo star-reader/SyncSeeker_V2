@@ -52,13 +52,17 @@ const startAnimationLoop = (map: mapboxgl.Map) => {
 const updatePositions = (map: mapboxgl.Map, deltaTime: number) => {
     const pilotFeatures: GeoJSON.Feature[] = []
     const trailFeatures: GeoJSON.Feature[] = []
+    const selectedId = getSelectedPilotId()
     
     pilotStates.forEach((state, id) => {
         const { pilot, currentPos } = state
         const speed = pilot.groundspeed
         
-        // 如果速度极小，视为静止，不进行推测
-        if (speed > 10) {
+        // 判断是否为当前选中的飞机
+        const isSelected = selectedId && (id === selectedId || pilot.callsign === selectedId || pilot.cid.toString() === selectedId)
+        
+        // 只对选中的飞机进行位置推测，其他飞机直接使用原始位置
+        if (isSelected && speed > 10) {
             const [newLon, newLat] = calculateNextPosition(
                 currentPos[1], 
                 currentPos[0], 
@@ -70,17 +74,15 @@ const updatePositions = (map: mapboxgl.Map, deltaTime: number) => {
             state.currentPos = [newLon, newLat]
 
             // 仅为选中的飞行员记录轨迹
-            const selectedId = getSelectedPilotId()
-            if (id === selectedId || pilot.callsign === selectedId || pilot.cid.toString() === selectedId) {
-                if (state.trail.length === 0) {
-                    // 轨迹为空时，从当前位置开始（避免直接从第一个推测点开始导致线条突兀）
-                    state.trail.push([state.pilot.longitude, state.pilot.latitude])
-                }
-                state.trail.push([newLon, newLat])
-            } else {
-                // 如果未被选中，清空轨迹以释放内存
-                if (state.trail.length > 0) state.trail = []
+            if (state.trail.length === 0) {
+                // 轨迹为空时，从当前位置开始（避免直接从第一个推测点开始导致线条突兀）
+                state.trail.push([state.pilot.longitude, state.pilot.latitude])
             }
+            state.trail.push([newLon, newLat])
+        } else {
+            // 未选中的飞机：重置到真实位置，清空轨迹
+            state.currentPos = [pilot.longitude, pilot.latitude]
+            if (state.trail.length > 0) state.trail = []
         }
 
         // 构建飞机图标 Feature
@@ -102,9 +104,8 @@ const updatePositions = (map: mapboxgl.Map, deltaTime: number) => {
         })
 
         // 构建预测轨迹 Feature
-        const selectedId = getSelectedPilotId()
         // 只有当飞行员被选中时才显示预测轨迹
-        if (state.trail.length > 1 && (id === selectedId || pilot.callsign === selectedId || pilot.cid.toString() === selectedId)) {
+        if (isSelected && state.trail.length > 1) {
             trailFeatures.push({
                 'type': 'Feature',
                 'geometry': {

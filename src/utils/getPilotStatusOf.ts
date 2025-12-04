@@ -72,7 +72,8 @@ function getStatus(p: OnlinePilot): string {
 
     if (p.altitude > 20000) return '巡航中'
     if (p.altitude > altTakeoffMax) return '爬升'
-    return '下降'
+    // 默认返回飞行中
+    return '进行中'
 }
 
 export default getStatus
