@@ -164,16 +164,7 @@ export default (map: mapboxgl.Map) => {
         }
     })
 
-    // 监听机场点击事件
-    map.on('click', MAP_IDS.ACTIVE_AIRPORTS_LAYER, (e) => {
-        if (e.features && e.features.length > 0) {
-            const feature = e.features[0]
-            const icao = feature.properties?.icao
-            if (icao) {
-                pubsub.publish(EVENTS.AIRPORT_CLICK, { icao })
-            }
-        }
-    })
+    // 点击事件已在 BasicMap.tsx 中统一处理
 
     return () => {
         pubsub.unsubscribe(token1)

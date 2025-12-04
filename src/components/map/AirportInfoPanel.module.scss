@@ -1,10 +1,3 @@
-/**
- * AirportInfoPanel Styles
- * 
- * 机场流量信息面板样式。
- * 支持桌面端侧边栏和移动端底部抽屉两种模式。
- */
-
 .container {
   position: fixed;
   top: 72px;
@@ -272,13 +265,12 @@
     left: 0;
     right: 0;
     width: 100%;
-    height: auto;
-    max-height: 85vh;
+    height: 70vh;
     border-radius: 24px 24px 0 0;
     transform: translateY(100%);
     border: none;
     border-top: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
-    background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
+    background: color-mix(in srgb, var(--sky-bg-color-base) 85%, transparent);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     touch-action: none;
@@ -293,30 +285,48 @@
     display: flex;
   }
 
-  .container[data-open="false"] {
+  .container[data-open="false"],
+  .container[data-snap="closed"] {
     transform: translateY(100%);
   }
 
-  .container[data-open="true"][data-expanded="false"] {
-    transform: translateY(calc(100% - 200px + var(--drag-offset, 0px)));
+  .container[data-open="true"][data-snap="half"] {
+    transform: translateY(calc(40% + var(--drag-offset, 0px)));
   }
 
-  .container[data-open="true"][data-expanded="true"] {
+  .container[data-open="true"][data-snap="full"] {
     transform: translateY(var(--drag-offset, 0px));
   }
 
   .body {
     touch-action: pan-y;
-  }
-
-  .container[data-expanded="false"] .body {
-    pointer-events: none;
-    max-height: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    flex: 1;
     overflow: hidden;
   }
 
-  .container[data-expanded="true"] .body {
+//   .container[data-snap="half"] .body {
+//     pointer-events: none;
+//     max-height: 0;
+//     opacity: 0;
+//     overflow: hidden;
+//   }
+
+  /* Full state - show body content */
+  .container[data-snap="full"] .body {
     pointer-events: auto;
+    max-height: none;
+    opacity: 1;
+    overflow-y: auto;
+  }
+
+  .tabs {
+    padding: 8px 16px 12px;
+  }
+
+  .tab {
+    padding: 10px 8px;
+    font-size: 13px;
   }
 
   .stats {

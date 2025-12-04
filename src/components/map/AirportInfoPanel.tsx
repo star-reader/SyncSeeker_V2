@@ -17,6 +17,7 @@ import syncSeekerDB from '../../services/localDB/indexedDB'
 import type { OnlinePilot, OnlineController } from '../../types/fsd'
 
 type TabType = 'departures' | 'arrivals' | 'atc'
+type SnapPosition = 'closed' | 'half' | 'full'
 
 export default function AirportInfoPanel() {
   const [open, setOpen] = useState(false)
@@ -25,8 +26,7 @@ export default function AirportInfoPanel() {
   const [activeTab, setActiveTab] = useState<TabType>('departures')
   const onlineData = useOnlineDataStore(s => s.onlineData)
   
-  // Mobile drag state
-  const [expanded, setExpanded] = useState(false)
+  const [snapPosition, setSnapPosition] = useState<SnapPosition>('half')
   const [dragging, setDragging] = useState(false)
   const [translateY, setTranslateY] = useState(0)
   const [startY, setStartY] = useState(0)
@@ -36,7 +36,7 @@ export default function AirportInfoPanel() {
     const token = pubsub.subscribe(EVENTS.AIRPORT_CLICK, (_, data: { icao: string }) => {
       setIcao(data.icao)
       setOpen(true)
-      setExpanded(false)
+      setSnapPosition('half')
       setActiveTab('departures')
       setTranslateY(0)
     })
@@ -86,10 +86,12 @@ export default function AirportInfoPanel() {
     handleClose()
   }
 
-  // Touch handlers for mobile drag
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (expanded && detailsRef.current && detailsRef.current.contains(e.target as Node)) {
-      return
+    if (snapPosition === 'full' && detailsRef.current && detailsRef.current.contains(e.target as Node)) {
+      const el = detailsRef.current
+      if (el.scrollTop > 0) {
+        return
+      }
     }
     setDragging(true)
     setStartY(e.touches[0].clientY)
@@ -103,17 +105,29 @@ export default function AirportInfoPanel() {
 
   const handleTouchEnd = () => {
     setDragging(false)
-    const threshold = 60
+    const threshold = 50
 
-    if (!expanded && translateY < -threshold) {
-      setExpanded(true)
-    } else if (expanded && translateY > threshold) {
-      setExpanded(false)
-    } else if (!expanded && translateY > threshold) {
-      handleClose()
+    if (translateY < -threshold) {
+      if (snapPosition === 'half') {
+        setSnapPosition('full')
+      }
+    } else if (translateY > threshold) {
+      if (snapPosition === 'full') {
+        setSnapPosition('half')
+      } else if (snapPosition === 'half') {
+        handleClose()
+      }
     }
 
     setTranslateY(0)
+  }
+
+  const handleBarClick = () => {
+    if (snapPosition === 'half') {
+      setSnapPosition('full')
+    } else {
+      setSnapPosition('half')
+    }
   }
 
   const renderPilotItem = (pilot: OnlinePilot) => (
@@ -166,14 +180,14 @@ export default function AirportInfoPanel() {
     <div
       className={styles.container}
       data-open={open ? 'true' : 'false'}
-      data-expanded={expanded ? 'true' : 'false'}
+      data-snap={snapPosition}
       data-dragging={dragging ? 'true' : 'false'}
       style={{ '--drag-offset': `${translateY}px` } as React.CSSProperties}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className={styles.handleBar} onClick={() => setExpanded(!expanded)} />
+      <div className={styles.handleBar} onClick={handleBarClick} />
       <div className={styles.header}>
         <div className={styles.title}>
           <div className={styles.icaoCode}>{icao || '-'}</div>

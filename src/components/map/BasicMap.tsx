@@ -119,13 +119,22 @@ export default function BasicMap() {
             const layers = map.queryRenderedFeatures(e.point)
             for (let i of layers) {
                 if (!i.layer || !i.layer.id) continue
-                // 预留其他
+                // 飞行员图标点击
                 if (i.layer.id === MAP_IDS.PILOT_LIST_LAYER && i.properties){
                     const props: any = i.properties
                     const id = props.session_id || props.cid
                     if (id) pubsub.publish(EVENTS.PILOT_ICON_CLICK, {
                         id, callsign: props.callsign
                     })
+                    return // 处理后退出
+                }
+                // 机场点或标签点击
+                if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {
+                    const icao = i.properties.icao
+                    if (icao) {
+                        pubsub.publish(EVENTS.AIRPORT_CLICK, { icao })
+                        return // 处理后退出
+                    }
                 }
             }
         })
