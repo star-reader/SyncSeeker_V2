@@ -35,7 +35,8 @@ const initLayer = (map: mapboxgl.Map) => {
       paint: {
         'line-color': ['get', 'color'],
         'line-width': 1.5,
-        'line-opacity': 0.6
+        'line-opacity': 0.9,
+        'line-emissive-strength': 1,
       },
       layout: {
         'line-cap': 'round',

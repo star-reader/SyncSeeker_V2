@@ -34,7 +34,8 @@ export default function AirportInfoPanel() {
   const detailsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const token = pubsub.subscribe(EVENTS.AIRPORT_CLICK, (_, data: { icao: string }) => {
+    const token = pubsub.subscribe(EVENTS.AIRPORT_CLICK, (_, data: { icao: string, hoverOnly: boolean }) => {
+      if (data.hoverOnly) return
       setIcao(data.icao)
       setOpen(true)
       setSnapPosition('half')
