@@ -20,6 +20,7 @@ import asyncLoadControllerAssets from "../../services/map/assets/asyncLoadContro
 import drawSelectedPilotRoute from "../../services/map/layers/drawSelectedPilotRoute"
 import drawPilotTracks from "../../services/map/layers/drawPilotTracks"
 import drawActiveAirports from "../../services/map/layers/drawActiveAirports"
+import drawAirportRadiation from "../../services/map/layers/drawAirportRadiation"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -111,6 +112,7 @@ export default function BasicMap() {
             drawSelectedPilotRoute(map)
             drawPilotTracks(map)
             drawActiveAirports(map)
+            drawAirportRadiation(map)
             useMouse(map)
             updateMapWithUserSetting(map)
         })
@@ -132,12 +134,37 @@ export default function BasicMap() {
                 if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {
                     const icao = i.properties.icao
                     if (icao) {
-                        pubsub.publish(EVENTS.AIRPORT_CLICK, { icao })
+                        pubsub.publish(EVENTS.AIRPORT_CLICK, { icao, hoverOnly: false })
                         return // 处理后退出
                     }
                 }
             }
         })
+
+        // // 悬浮在地图也展示机场流量
+        // map.on('mousemove', (e) => {
+        //     const layers = map.queryRenderedFeatures(e.point)
+        //     for (let i of layers) {
+        //         if (!i.layer || !i.layer.id) continue
+        //         if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {
+        //             const icao = i.properties.icao
+        //             if (icao) {
+        //                 pubsub.publish(EVENTS.AIRPORT_CLICK, { icao, hoverOnly: true })
+        //             }
+        //         }
+        //     }
+        // })
+
+        // // 移除触发AIRPORT_INFO_CLOSE
+        // map.on('mouseleave', (e) => {
+        //     const layers = map.queryRenderedFeatures(e.point)
+        //     for (let i of layers){
+        //         if (!i.layer || !i.layer.id) continue
+        //         if (i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) {
+        //             pubsub.publish(EVENTS.AIRPORT_INFO_CLOSE)
+        //         }
+        //     }
+        // })
     }
 
     return (

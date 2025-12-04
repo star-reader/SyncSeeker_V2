@@ -14,6 +14,7 @@ import { EVENTS } from '../../configs/constants'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import IconByName from '../common/IconByName'
 import syncSeekerDB from '../../services/localDB/indexedDB'
+import { getDepartures, getArrivals, getControllers, getAtis } from '../../services/airport/getAirportTraffic'
 import type { OnlinePilot, OnlineController } from '../../types/fsd'
 
 type TabType = 'departures' | 'arrivals' | 'atc'
@@ -33,7 +34,8 @@ export default function AirportInfoPanel() {
   const detailsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const token = pubsub.subscribe(EVENTS.AIRPORT_CLICK, (_, data: { icao: string }) => {
+    const token = pubsub.subscribe(EVENTS.AIRPORT_CLICK, (_, data: { icao: string, hoverOnly: boolean }) => {
+      if (data.hoverOnly) return
       setIcao(data.icao)
       setOpen(true)
       setSnapPosition('half')
@@ -56,29 +58,25 @@ export default function AirportInfoPanel() {
   }, [icao])
 
   const departures: OnlinePilot[] = useMemo(() => {
-    if (!icao || !onlineData?.flights) return []
-    return onlineData.flights.filter(p => p.flight_plan?.departure === icao)
+    return getDepartures(icao || '', onlineData)
   }, [icao, onlineData])
 
   const arrivals: OnlinePilot[] = useMemo(() => {
-    if (!icao || !onlineData?.flights) return []
-    return onlineData.flights.filter(p => p.flight_plan?.arrival === icao)
+    return getArrivals(icao || '', onlineData)
   }, [icao, onlineData])
 
   const controllers: OnlineController[] = useMemo(() => {
-    if (!icao || !onlineData?.controllers) return []
-    // Match controllers whose callsign starts with the airport ICAO (e.g., ZBAA_TWR, ZBAA_APP)
-    return onlineData.controllers.filter(c => c.callsign.startsWith(icao))
+    return getControllers(icao || '', onlineData)
   }, [icao, onlineData])
 
   const atis: OnlineController[] = useMemo(() => {
-    if (!icao || !onlineData?.atis) return []
-    return onlineData.atis.filter(a => a.callsign.startsWith(icao))
+    return getAtis(icao || '', onlineData)
   }, [icao, onlineData])
 
   const handleClose = () => {
     setOpen(false)
     setIcao(null)
+    pubsub.publish(EVENTS.AIRPORT_INFO_CLOSE)
   }
 
   const handlePilotClick = (pilot: OnlinePilot) => {

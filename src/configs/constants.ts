@@ -10,7 +10,8 @@ export const EVENTS = {
   TOGGLE_3D_TRACK: 'toggle-3d-track',
   PILOT_POSITION_UPDATE: 'pilot-position-update',
   HISTORY_TRACK_UPDATE: 'history-track-update',
-  AIRPORT_CLICK: 'airport-click'
+  AIRPORT_CLICK: 'airport-click',
+  AIRPORT_INFO_CLOSE: 'airport-info-close'
 }
 
 export const MAP_IDS = {
@@ -24,5 +25,7 @@ export const MAP_IDS = {
   PREDICTED_TRAIL_SOURCE: 'predicted-trail-data',
   PREDICTED_TRAIL_LAYER: 'predicted-trail-layer',
   ACTIVE_AIRPORTS_SOURCE: 'active-airports-data',
-  ACTIVE_AIRPORTS_LAYER: 'active-airports-layer'
+  ACTIVE_AIRPORTS_LAYER: 'active-airports-layer',
+  AIRPORT_RADIATION_SOURCE: 'airport-radiation-data',
+  AIRPORT_RADIATION_LAYER: 'airport-radiation-layer'
 }

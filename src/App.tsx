@@ -14,8 +14,6 @@ import { EVENTS } from './configs/constants'
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
 
-
-
     useEffect(() => {
         const stop = pollingData()
         return stop
@@ -32,7 +30,7 @@ export default function App() {
             pubsub.unsubscribe(token1)
             pubsub.unsubscribe(token2)
         }
-    })
+    }, [])
 
     return (
         <>
