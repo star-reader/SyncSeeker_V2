@@ -1,0 +1,31 @@
+/**
+ * FlightChart Styles
+ */
+.chartContainer {
+  width: 100%;
+  padding: 8px 0;
+  
+  :global(.recharts-legend-wrapper) {
+    padding: 0 !important;
+  }
+  
+  :global(.recharts-default-legend) {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  
+  :global(.recharts-legend-item) {
+    margin: 0 !important;
+  }
+}
+
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: var(--sky-text-color-secondary);
+  font-size: 13px;
+  opacity: 0.7;
+}

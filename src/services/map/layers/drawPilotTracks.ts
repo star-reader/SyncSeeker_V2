@@ -29,8 +29,9 @@ const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
         }).filter((t: any): t is number[] => t !== null)
     }
 
-    // 2. altitudeArray
+    // 2. altitudeArray 和 speedArray
     let altitudeArray: number[] = []
+    let speedArray: number[] = []
     
     if (Array.isArray(data.statics)) {
         altitudeArray = data.statics.map((s: any) => {
@@ -39,10 +40,13 @@ const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
             }
             return 0
         })
-    } 
-    // else if (Array.isArray(data.altitudeArray)) {
-    //     altitudeArray = data.altitudeArray.map((a: any) => Number(a) || 0)
-    // }
+        speedArray = data.statics.map((s: any) => {
+            if (typeof s === 'object' && s !== null && s.Speed !== undefined) {
+                return Number(s.Speed)
+            }
+            return 0
+        })
+    }
     
     if (altitudeArray.length < tracks.length) {
         const lastAlt = altitudeArray.length > 0 ? altitudeArray[altitudeArray.length - 1] : (Number(data.altitude) || 0)
@@ -53,12 +57,23 @@ const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
     if (altitudeArray.length > tracks.length) {
         altitudeArray = altitudeArray.slice(0, tracks.length)
     }
+    
+    if (speedArray.length < tracks.length) {
+        const lastSpeed = speedArray.length > 0 ? speedArray[speedArray.length - 1] : (Number(data.groundspeed) || 0)
+        const missingCount = tracks.length - speedArray.length
+        const filler = new Array(missingCount).fill(lastSpeed)
+        speedArray = [...speedArray, ...filler]
+    }
+    if (speedArray.length > tracks.length) {
+        speedArray = speedArray.slice(0, tracks.length)
+    }
 
     // @ts-ignore API res变了，这个没问题
     return {
         ...data,
         tracks,
-        altitudeArray
+        altitudeArray,
+        speedArray
     }
 }
 
@@ -89,6 +104,14 @@ export default (map: mapboxgl.Map) => {
             pubsub.publish(EVENTS.HISTORY_TRACK_UPDATE, {
                 id: res.callsign
             })
+            
+            // 发布航迹数据供图表使用
+            pubsub.publish(EVENTS.PILOT_TRACK_DATA_UPDATE, {
+                callsign: res.callsign,
+                altitudeArray: data.altitudeArray,
+                speedArray: data.speedArray
+            })
+            
             // 3D
             if (is3DEnabled) {
                 update3DLayer(map, data)
