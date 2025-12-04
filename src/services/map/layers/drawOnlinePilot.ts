@@ -28,7 +28,7 @@ interface PilotState {
 // 模块级状态管理
 const pilotStates = new Map<string, PilotState>()
 let animationFrameId: number | null = null
-const UPDATE_INTERVAL = 80 // 位置更新间隔（毫秒）
+const UPDATE_INTERVAL = 50 // 位置更新间隔（毫秒）
 
 const getPilotIcon = (_type: string | undefined) => getAircraftAssetByType(_type)
 
