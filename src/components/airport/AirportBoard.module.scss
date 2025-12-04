@@ -1,0 +1,737 @@
+/**
+ * AirportBoard Styles
+ * 
+ * 机场大屏样式，支持明暗主题切换。
+ * 使用主题变量，优化响应式布局。
+ */
+
+.container {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--sky-bg-color-base);
+  z-index: 1000;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 左侧机场选择器 */
+.sidebar {
+  width: 180px;
+  background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+  border-right: 1px solid var(--sky-border-color);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sky-color-primary);
+  border-bottom: 1px solid var(--sky-border-color);
+}
+
+.airportList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.airportList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.airportList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.airportList::-webkit-scrollbar-thumb {
+  background: var(--sky-border-color);
+  border-radius: 2px;
+}
+
+.airportItem {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--sky-text-color-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.airportItem:hover {
+  background: color-mix(in srgb, var(--sky-fill-color) 80%, transparent);
+  color: var(--sky-text-color-primary);
+}
+
+.airportItem.active {
+  background: var(--sky-color-primary);
+  border-color: var(--sky-color-primary);
+  color: #fff;
+}
+
+.airportIcao {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.airportCount {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--sky-text-color-primary) 10%, transparent);
+  border-radius: 10px;
+}
+
+.airportItem.active .airportCount {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 主内容区域 */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 顶部信息栏 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  background: color-mix(in srgb, var(--sky-fill-color) 40%, transparent);
+  border-bottom: 1px solid var(--sky-border-color);
+}
+
+.airportInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.icaoCode {
+  font-size: 38px;
+  font-weight: 800;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  letter-spacing: 4px;
+  color: var(--sky-color-primary);
+}
+
+.airportName {
+  font-size: 15px;
+  color: var(--sky-text-color-secondary);
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clock {
+  text-align: center;
+}
+
+.timeDisplay {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--sky-color-success);
+  letter-spacing: 2px;
+}
+
+.dateDisplay {
+  font-size: 13px;
+  color: var(--sky-text-color-secondary);
+  margin-top: 4px;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: color-mix(in srgb, var(--sky-fill-color) 70%, transparent);
+  border: 1px solid var(--sky-border-color);
+  border-radius: 8px;
+  color: var(--sky-text-color-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: color-mix(in srgb, var(--sky-fill-color) 100%, transparent);
+}
+
+/* 标签切换 */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 28px;
+  background: color-mix(in srgb, var(--sky-fill-color) 30%, transparent);
+  border-bottom: 2px solid var(--sky-border-color);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
+  color: var(--sky-text-color-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+}
+
+.tab:hover {
+  color: var(--sky-text-color-primary);
+}
+
+.tab.active {
+  color: var(--sky-color-primary);
+}
+
+.tab.active::after {
+  background: var(--sky-color-primary);
+}
+
+.count {
+  font-size: 12px;
+  padding: 2px 10px;
+  background: color-mix(in srgb, var(--sky-text-color-primary) 8%, transparent);
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.tab.active .count {
+  background: color-mix(in srgb, var(--sky-color-primary) 20%, transparent);
+  color: var(--sky-color-primary);
+}
+
+/* 表头 */
+.tableHeader {
+  display: grid;
+  grid-template-columns: 60px 140px 90px 80px 70px 80px 60px 80px;
+  gap: 16px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--sky-fill-color) 40%, transparent);
+  border-bottom: 1px solid var(--sky-border-color);
+  color: var(--sky-text-color-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  align-items: center;
+}
+
+/* 航班列表 */
+.flightList {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--sky-bg-color-base);
+}
+
+.flightList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.flightList::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--sky-fill-color) 30%, transparent);
+}
+
+.flightList::-webkit-scrollbar-thumb {
+  background: var(--sky-border-color);
+  border-radius: 4px;
+}
+
+.flightRow {
+  display: grid;
+  grid-template-columns: 60px 140px 90px 80px 70px 80px 60px 80px;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
+  color: var(--sky-text-color-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  animation: fadeIn 0.3s ease forwards;
+  opacity: 0;
+  align-items: center;
+}
+
+.flightRow:hover {
+  background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.logoCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.airlineLogo {
+  width: 70px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.logoPlaceholder {
+  width: 70px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sky-text-color-secondary);
+  background: color-mix(in srgb, var(--sky-fill-color) 60%, transparent);
+  border-radius: 4px;
+}
+
+.callsignCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--sky-text-color-primary);
+  letter-spacing: 0.5px;
+}
+
+.destinationCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-weight: 600;
+  color: var(--sky-color-primary);
+}
+
+.aircraftCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--sky-text-color-secondary);
+  font-size: 13px;
+}
+
+.timeCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--sky-color-success);
+  font-weight: 500;
+}
+
+.altitudeCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--sky-text-color-primary);
+  text-align: right;
+}
+
+.speedCell {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  color: var(--sky-text-color-primary);
+  text-align: right;
+}
+
+.statusCell {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.status--ground {
+  background: color-mix(in srgb, var(--sky-text-color-secondary) 15%, transparent);
+  color: var(--sky-text-color-secondary);
+}
+
+.status--taxi {
+  background: color-mix(in srgb, var(--sky-color-warning) 20%, transparent);
+  color: var(--sky-color-warning);
+}
+
+.status--approach {
+  background: color-mix(in srgb, var(--sky-color-primary) 20%, transparent);
+  color: var(--sky-color-primary);
+}
+
+.status--enroute {
+  background: color-mix(in srgb, var(--sky-color-success) 20%, transparent);
+  color: var(--sky-color-success);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+  color: var(--sky-text-color-secondary);
+  font-size: 16px;
+}
+
+/* 平板 */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 140px;
+  }
+
+  .tableHeader,
+  .flightRow {
+    grid-template-columns: 50px 120px 80px 70px 60px 70px 50px 70px;
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .airlineLogo {
+    width: 50px;
+    height: 28px;
+  }
+
+  .logoPlaceholder {
+    width: 50px;
+    height: 28px;
+  }
+
+  .icaoCode {
+    font-size: 28px;
+  }
+
+  .timeDisplay {
+    font-size: 24px;
+  }
+
+  .callsignCell {
+    font-size: 13px;
+  }
+
+  .statusCell {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+
+/* 移动端 */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  /* 左侧变顶部横向滚动 */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--sky-border-color);
+  }
+
+  .sidebarHeader {
+    display: none;
+  }
+
+  .airportList {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .airportList::-webkit-scrollbar {
+    display: none;
+  }
+
+  .airportItem {
+    flex-shrink: 0;
+    width: auto;
+    padding: 8px 14px;
+    margin-bottom: 0;
+  }
+
+  /* 头部简化 */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    flex-wrap: nowrap;
+  }
+
+  .airportInfo {
+    flex: 0 0 auto;
+  }
+
+  .icaoCode {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .airportName {
+    display: none;
+  }
+
+  .clock {
+    flex: 1;
+    text-align: center;
+  }
+
+  .timeDisplay {
+    font-size: 18px;
+  }
+
+  .dateDisplay {
+    font-size: 10px;
+  }
+
+  /* 返回按钮 - 显示图标+圆形样式 */
+  .closeBtn {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sky-color-primary);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .closeBtn:active {
+    opacity: 0.8;
+  }
+
+  /* 只隐藏文字，保留图标 */
+  .closeBtn > span {
+    display: none;
+  }
+
+  /* 图标保持显示 */
+  .closeBtn > svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  .closeBtn > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .closeBtn > div svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* 标签简化 */
+  .tabs {
+    padding: 0 16px;
+    background: var(--sky-bg-color-base);
+  }
+
+  .tab {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .tab > span:first-of-type {
+    display: none;
+  }
+
+  /* 移动端表头 */
+  .tableHeader {
+    display: grid;
+    grid-template-columns: 48px 1fr 70px 56px 56px;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 11px;
+    background: color-mix(in srgb, var(--sky-fill-color) 60%, transparent);
+  }
+
+  /* 隐藏部分表头列 */
+  .tableHeader .aircraftCell,
+  .tableHeader .altitudeCell,
+  .tableHeader .speedCell {
+    display: none;
+  }
+
+  .tableHeader .logoCell {
+    visibility: hidden;
+  }
+
+  /* 航班列表 */
+  .flightList {
+    padding: 0;
+  }
+
+  .flightRow {
+    display: grid;
+    grid-template-columns: 48px 1fr 70px 56px 56px;
+    gap: 6px;
+    padding: 12px 16px;
+    margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--sky-border-color);
+    background: transparent;
+  }
+
+  .flightRow:active {
+    background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+  }
+
+  .logoCell {
+    width: 48px;
+  }
+
+  .airlineLogo {
+    width: 50px;
+    height: 28px;
+  }
+
+  .logoPlaceholder {
+    width: 50px;
+    height: 28px;
+  }
+
+  .callsignCell {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .destinationCell {
+    font-size: 13px;
+    color: var(--sky-color-primary);
+  }
+
+  /* 隐藏机型、高度、速度 */
+  .aircraftCell,
+  .altitudeCell,
+  .speedCell {
+    display: none;
+  }
+
+  .timeCell {
+    font-size: 13px;
+    text-align: right;
+  }
+
+  .statusCell {
+    font-size: 10px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 12px;
+  }
+
+  .icaoCode {
+    font-size: 18px;
+  }
+
+  .timeDisplay {
+    font-size: 14px;
+  }
+
+  .closeBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .tab {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .tableHeader {
+    grid-template-columns: 40px 1fr 60px 50px 50px;
+    gap: 4px;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+
+  .flightRow {
+    grid-template-columns: 40px 1fr 60px 50px 50px;
+    gap: 4px;
+    padding: 10px 12px;
+  }
+
+  .logoCell {
+    width: 40px;
+  }
+
+  .airlineLogo {
+    width: 40px;
+    height: 22px;
+  }
+
+  .logoPlaceholder {
+    width: 40px;
+    height: 22px;
+  }
+
+  .callsignCell {
+    font-size: 12px;
+  }
+
+  .destinationCell {
+    font-size: 11px;
+  }
+
+  .timeCell {
+    font-size: 11px;
+  }
+
+  .statusCell {
+    font-size: 9px;
+    padding: 3px 4px;
+  }
+}

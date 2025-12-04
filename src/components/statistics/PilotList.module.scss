@@ -16,6 +16,8 @@
   margin: 0;
   margin-bottom: 20px;
   z-index: 1000;
+  user-select: none;
+  -webkit-user-select: none;
   overflow: auto;
   overflow-x: hidden;
 }
@@ -228,6 +230,7 @@
   max-height: calc(100vh - 64px);
   overflow: auto;
   user-select: none;
+  -webkit-user-select: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -258,6 +261,7 @@
   color: var(--sky-text-color-primary);
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .modalBody {
