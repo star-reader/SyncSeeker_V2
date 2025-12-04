@@ -8,6 +8,7 @@ import pollingData from './apis/pollingData'
 import PilotList from './components/statistics/PilotList'
 import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
+import AirportInfoPanel from './components/map/AirportInfoPanel'
 import { EVENTS } from './configs/constants'
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
             {openedMenu === 'controller' && <ControllerList />}
             {openedMenu === 'settings' && <SettingsPanel />}
             <PilotInfoPanel />
+            <AirportInfoPanel />
         </>
         </>
     )
