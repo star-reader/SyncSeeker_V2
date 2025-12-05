@@ -536,25 +536,28 @@
     opacity: 0.8;
   }
 
-  /* 只隐藏文字，保留图标 */
-  .closeBtn > span {
-    display: none;
+  span {
+    display: inline !important;
+  }
+
+  span[data-return-text="true"] {
+    display: none !important;
   }
 
   /* 图标保持显示 */
-  .closeBtn > svg {
+  .closeBtn>svg {
     width: 20px;
     height: 20px;
     display: block;
   }
 
-  .closeBtn > div {
+  .closeBtn>div {
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .closeBtn > div svg {
+  .closeBtn>div svg {
     width: 20px;
     height: 20px;
   }
@@ -573,7 +576,7 @@
     gap: 6px;
   }
 
-  .tab > span:first-of-type {
+  .tab>span:first-of-type {
     display: none;
   }
 
