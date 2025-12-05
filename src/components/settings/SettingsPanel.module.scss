@@ -14,6 +14,9 @@
 
 .panel {
   width: min(720px, calc(100vw - 36px));
+  max-height: calc(100vh - 148px);
+  display: flex;
+  flex-direction: column;
   border-radius: 16px;
   border: 1px solid var(--sky-border-color);
   background: color-mix(in srgb, var(--sky-bg-color-base) 92%, transparent);
@@ -22,6 +25,7 @@
 }
 
 .header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,9 +39,12 @@
 }
 
 .body {
+  flex: 1;
   padding: 16px;
   display: grid;
   gap: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .grid {
@@ -58,9 +65,13 @@
 }
 
 .actions {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--sky-border-color);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 92%, transparent);
 }
 
 .dataStatus {
@@ -145,6 +156,7 @@
   }
   .panel {
     width: 100%;
+    max-height: 85vh;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     border-bottom-left-radius: 0;

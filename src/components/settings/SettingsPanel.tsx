@@ -224,11 +224,10 @@ export default function SettingsPanel() {
               </div>
             )}
           </div>
-
-          <div className={styles.actions}>
-            <Button variant="outlined" onClick={handleCancel}>取消</Button>
-            <Button variant="contained" onClick={handleSave}>保存</Button>
-          </div>
+        </div>
+        <div className={styles.actions}>
+          <Button variant="outlined" onClick={handleCancel}>取消</Button>
+          <Button variant="contained" onClick={handleSave}>保存</Button>
         </div>
       </div>
     </div>
