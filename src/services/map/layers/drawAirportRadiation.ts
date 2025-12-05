@@ -15,6 +15,7 @@ import { getDepartures, getArrivals } from '../../../services/airport/getAirport
 import { useOnlineDataStore } from '../../../stores/useOnlineDataStore'
 import syncSeekerDB from '../../../services/localDB/indexedDB'
 import getGreatCircleRoute from '../../../utils/getGreatCircleRoute'
+import preprocessTrackData from '../../../utils/preprocessTrackData'
 
 const DEPARTURE_COLOR = '#22c55e' // 绿色
 const ARRIVAL_COLOR = '#f97316'   // 橙色
@@ -82,7 +83,7 @@ const updateRadiation = async (map: mapboxgl.Map, icao: string) => {
   for (const pilot of departures) {
     if (pilot.longitude && pilot.latitude) {
       const pilotCoords: [number, number] = [pilot.longitude, pilot.latitude]
-      const routeCoords = getGreatCircleRoute(airportCoords, pilotCoords, 50)
+      const routeCoords = preprocessTrackData(getGreatCircleRoute(airportCoords, pilotCoords, 50))
       
       features.push({
         type: 'Feature',
