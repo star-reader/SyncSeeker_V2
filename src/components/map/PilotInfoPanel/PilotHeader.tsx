@@ -8,7 +8,11 @@ export default function PilotHeader({
     status,
     statusTag,
     aircraft,
-    onClose
+    onClose,
+    onShare,
+    isSharing,
+    onToggleTracking,
+    isTracking
 }: PilotHeaderProps) {
     return (
         <div className={styles.header}>
@@ -35,7 +39,25 @@ export default function PilotHeader({
                 <div className={`${styles.status} ${styles[`status--${statusTag}`]}`}>
                     {status || ''}
                 </div>
-                <button className={styles.closeBtn} onClick={onClose}>
+                {onToggleTracking && (
+                    <button 
+                        className={`${styles.trackBtn} ${isTracking ? styles.tracking : ''}`} 
+                        onClick={(e) => { e.stopPropagation(); onToggleTracking(); }}
+                        title={isTracking ? "取消追踪" : "追踪航班（保持在屏幕中央）"}
+                    >
+                        <IconByName name={isTracking ? "Local" : "LocalTwo"} />
+                    </button>
+                )}
+                {onShare && (
+                    <button 
+                        className={`${styles.shareBtn} ${isSharing ? styles.shared : ''}`} 
+                        onClick={(e) => { e.stopPropagation(); onShare(); }}
+                        title="分享航班链接"
+                    >
+                        <IconByName name={isSharing ? "CheckOne" : "Share"} />
+                    </button>
+                )}
+                <button className={styles.closeBtn} onClick={(e) => { e.stopPropagation(); onClose(); }}>
                     <IconByName name="Close" />
                 </button>
             </div>

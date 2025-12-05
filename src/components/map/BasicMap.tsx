@@ -12,6 +12,7 @@ import mapboxgl from 'mapbox-gl'
 import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
+import { useOnlineDataStore } from "../../stores/useOnlineDataStore"
 import drawOnlinePilot from "../../services/map/layers/drawOnlinePilot"
 import registerMapCursorHandlers from "../../services/map/registerMapCursorHandlers"
 import { EVENTS, MAP_IDS } from "../../configs/constants"
@@ -24,6 +25,7 @@ import drawAirportRadiation from "../../services/map/layers/drawAirportRadiation
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
+    const trackedCallsignRef = useRef<string | null>(null)
 
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
@@ -59,6 +61,56 @@ export default function BasicMap() {
         })
         return () => {
             pubsub.unsubscribe(themeToken)
+        }
+    }, [])
+
+    // 航班追踪功能
+    useEffect(() => {
+        // 开启/关闭追踪
+        const trackToken = pubsub.subscribe(
+            EVENTS.TOGGLE_FLIGHT_TRACKING, 
+            (_, data: { callsign: string, enabled: boolean }) => {
+                if (data.enabled) {
+                    trackedCallsignRef.current = data.callsign
+                    // 立即居中一次
+                    const pilot = useOnlineDataStore.getState().getFlights().find(
+                        p => p.callsign === data.callsign
+                    )
+                    if (pilot && mapRef.current) {
+                        mapRef.current.easeTo({
+                            center: [pilot.longitude, pilot.latitude],
+                            duration: 500
+                        })
+                    }
+                } else {
+                    trackedCallsignRef.current = null
+                }
+            }
+        )
+
+        // 停止追踪
+        const stopTrackToken = pubsub.subscribe(EVENTS.STOP_FLIGHT_TRACKING, () => {
+            trackedCallsignRef.current = null
+        })
+
+        // 数据更新时，如果正在追踪，自动居中
+        const dataUpdateToken = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
+            if (!trackedCallsignRef.current || !mapRef.current) return
+            const pilot = useOnlineDataStore.getState().getFlights().find(
+                p => p.callsign === trackedCallsignRef.current
+            )
+            if (pilot) {
+                mapRef.current.easeTo({
+                    center: [pilot.longitude, pilot.latitude],
+                    duration: 300
+                })
+            }
+        })
+
+        return () => {
+            pubsub.unsubscribe(trackToken)
+            pubsub.unsubscribe(stopTrackToken)
+            pubsub.unsubscribe(dataUpdateToken)
         }
     }, [])
 

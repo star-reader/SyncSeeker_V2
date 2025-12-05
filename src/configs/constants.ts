@@ -12,7 +12,10 @@ export const EVENTS = {
   HISTORY_TRACK_UPDATE: 'history-track-update',
   PILOT_TRACK_DATA_UPDATE: 'pilot-track-data-update',
   AIRPORT_CLICK: 'airport-click',
-  AIRPORT_INFO_CLOSE: 'airport-info-close'
+  AIRPORT_INFO_CLOSE: 'airport-info-close',
+  TOGGLE_FLIGHT_TRACKING: 'toggle-flight-tracking',
+  STOP_FLIGHT_TRACKING: 'stop-flight-tracking',
+  FLIGHT_SHARED: 'flight-shared'
 }
 
 export const MAP_IDS = {

@@ -5,6 +5,8 @@ import { EVENTS } from '../../../configs/constants'
 import { useOnlineDataStore } from '../../../stores/useOnlineDataStore'
 import getPilotStatusOf, { getPilotStatusOfTag } from '../../../utils/getPilotStatusOf'
 import { calculateDistance } from '../../../utils/geoUtils'
+import { generateShareUrl, copyToClipboard } from '../../../utils/flightSharing'
+import { showToast } from '../../common/Toast'
 import type { OnlinePilot } from '../../../types/fsd'
 import syncSeekerDB from '../../../services/localDB/indexedDB'
 import type { IndexedDBAirlines, IndexedDBAirports } from '../../../types/types'
@@ -24,6 +26,8 @@ export default function PilotInfoPanel() {
     const [arrAirport, setArrAirport] = useState<IndexedDBAirports | null>(null)
     const [show3D, setShow3D] = useState(false)
     const [copyingRoute, setCopyingRoute] = useState(false)
+    const [isSharing, setIsSharing] = useState(false)
+    const [isTracking, setIsTracking] = useState(false)
     const [progress, setProgress] = useState(50)
     const [expanded, setExpanded] = useState(false)
     const detailsRef = useRef<HTMLDivElement>(null)
@@ -38,14 +42,22 @@ export default function PilotInfoPanel() {
     const [startY, setStartY] = useState(0)
 
     useEffect(() => {
-        const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: { id: string, callsign: string }) => {
+        const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: { id: string, callsign: string, autoTrack?: boolean }) => {
             setId(data.id)
             setOpen(true)
             setExpanded(false)
+            setIsSharing(false)
             setTranslateY(0)
             setShow3D(false)
             setTrackData({ altitudeArray: [], speedArray: [] })
             pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
+            // 如果是通过分享链接进入，自动开启追踪
+            if (data.autoTrack) {
+                setIsTracking(true)
+                pubsub.publish(EVENTS.TOGGLE_FLIGHT_TRACKING, { callsign: data.callsign, enabled: true })
+            } else {
+                setIsTracking(false)
+            }
         })
         return () => { pubsub.unsubscribe(token) }
     }, [])
@@ -169,8 +181,13 @@ export default function PilotInfoPanel() {
     const handleClose = useCallback(() => {
         setOpen(false)
         setId(null)
+        // 关闭面板时停止追踪
+        if (isTracking) {
+            setIsTracking(false)
+            pubsub.publish(EVENTS.STOP_FLIGHT_TRACKING)
+        }
         pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
-    }, [])
+    }, [isTracking])
 
     const handleCopyRoute = useCallback(() => {
         const routeText = fp?.route
@@ -179,6 +196,32 @@ export default function PilotInfoPanel() {
         navigator.clipboard.writeText(routeText)
         setTimeout(() => setCopyingRoute(false), 1400)
     }, [fp?.route])
+
+    const handleShare = useCallback(async () => {
+        if (!pilot?.callsign) return
+        const shareUrl = generateShareUrl(pilot.callsign)
+        const success = await copyToClipboard(shareUrl)
+        if (success) {
+            setIsSharing(true)
+            showToast(`分享链接已复制到剪贴板`, 'success', 'Share')
+            setTimeout(() => setIsSharing(false), 2000)
+        }
+    }, [pilot?.callsign])
+
+    const handleToggleTracking = useCallback(() => {
+        if (!pilot?.callsign) return
+        const newTracking = !isTracking
+        setIsTracking(newTracking)
+        pubsub.publish(EVENTS.TOGGLE_FLIGHT_TRACKING, { 
+            callsign: pilot.callsign, 
+            enabled: newTracking 
+        })
+        if (newTracking) {
+            showToast(`正在追踪 ${pilot.callsign}`, 'info', 'LocalTwo')
+        } else {
+            showToast(`已取消追踪`, 'info', 'Local')
+        }
+    }, [pilot?.callsign, isTracking])
 
     const handleExpand = useCallback(() => {
         if (!expanded) setExpanded(true)
@@ -205,6 +248,10 @@ export default function PilotInfoPanel() {
                     statusTag={statusTag}
                     aircraft={aircraft}
                     onClose={handleClose}
+                    onShare={handleShare}
+                    isSharing={isSharing}
+                    onToggleTracking={handleToggleTracking}
+                    isTracking={isTracking}
                 />
             </div>
 
