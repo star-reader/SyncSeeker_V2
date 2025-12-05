@@ -8,7 +8,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import pubsub from 'pubsub-js'
-import { Button, Divider, Typography, CircularProgress } from '@mui/material'
+import { Button, Divider, Typography, CircularProgress, Switch, FormControl, Select, MenuItem, type SelectChangeEvent } from '@mui/material'
 import { MuiColorInput } from 'mui-color-input'
 import styles from './SettingsPanel.module.scss'
 import { EVENTS } from '../../configs/constants'
@@ -17,6 +17,7 @@ import { useThemeStore } from '../../stores/useThemeStore'
 import syncSeekerDB from '../../services/localDB/indexedDB'
 import { fetchAndStoreNavData } from '../../apis/fetchStorageData'
 import { CheckOne, CloseOne, DownloadOne, Refresh } from '@icon-park/react'
+import type { WeatherRadarOpacity } from '../../services/map/layers/addWeatherRadar'
 
 export default function SettingsPanel() {
   const [open, setOpen] = useState(true)
@@ -24,6 +25,10 @@ export default function SettingsPanel() {
   const [labelNight, setLabelNight] = useState('#87CEEB')
   const [iconDay, setIconDay] = useState('#EF8B33')
   const [iconNight, setIconNight] = useState('#FFD27F')
+  
+  // Weather Radar
+  const [weatherRadarEnabled, setWeatherRadarEnabled] = useState(false)
+  const [weatherRadarOpacity, setWeatherRadarOpacity] = useState<WeatherRadarOpacity>('medium')
   
   // Data Status
   const [hasData, setHasData] = useState(false)
@@ -36,6 +41,12 @@ export default function SettingsPanel() {
     setLabelNight(s.label.night)
     setIconDay(s.icon.day)
     setIconNight(s.icon.night)
+    
+    // 读取气象雷达设置
+    const radarEnabled = localStorage.getItem('weather-radar-enabled') === 'true'
+    const radarOpacity = (localStorage.getItem('weather-radar-opacity') as WeatherRadarOpacity) || 'medium'
+    setWeatherRadarEnabled(radarEnabled)
+    setWeatherRadarOpacity(radarOpacity)
     
     checkDataStatus()
 
@@ -79,6 +90,19 @@ export default function SettingsPanel() {
     } finally {
         setLoading(false)
     }
+  }
+
+  // 气象雷达开关
+  const handleToggleWeatherRadar = (enabled: boolean) => {
+    setWeatherRadarEnabled(enabled)
+    pubsub.publish(EVENTS.TOGGLE_WEATHER_RADAR, enabled)
+  }
+
+  // 气象雷达透明度
+  const handleWeatherRadarOpacityChange = (event: SelectChangeEvent) => {
+    const opacity = event.target.value as WeatherRadarOpacity
+    setWeatherRadarOpacity(opacity)
+    pubsub.publish(EVENTS.UPDATE_WEATHER_RADAR_OPACITY, opacity)
   }
 
   const schemaMemo = useMemo(() => ({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: iconNight } }), [labelDay, labelNight, iconDay, iconNight])
@@ -164,9 +188,41 @@ export default function SettingsPanel() {
                 startIcon={hasData ? <Refresh /> : <DownloadOne />}
                 onClick={handleFetchData}
                 disabled={loading}
+                style={{minWidth: '90px'}}
             >
                 {hasData ? '更新' : '下载'}
             </Button>
+          </div>
+
+          <Typography variant="subtitle2" style={{ marginTop: '16px' }}>地图图层</Typography>
+          <Divider />
+          <div className={styles.layerSettings}>
+            <div className={styles.layerItem}>
+              <div className={styles.layerInfo}>
+                <div className={styles.layerName}>气象雷达</div>
+                <div className={styles.layerDesc}>显示实时降水雷达图层</div>
+              </div>
+              <Switch 
+                checked={weatherRadarEnabled} 
+                onChange={(e) => handleToggleWeatherRadar(e.target.checked)}
+              />
+            </div>
+            {weatherRadarEnabled && (
+              <div className={styles.layerOptions}>
+                <div className={styles.optionLabel}>透明度</div>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <Select
+                    value={weatherRadarOpacity}
+                    onChange={handleWeatherRadarOpacityChange}
+                  >
+                    <MenuItem value="light">浅 (20%)</MenuItem>
+                    <MenuItem value="medium">中 (40%)</MenuItem>
+                    <MenuItem value="high">高 (70%)</MenuItem>
+                    <MenuItem value="full">完全 (100%)</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+            )}
           </div>
 
           <div className={styles.actions}>

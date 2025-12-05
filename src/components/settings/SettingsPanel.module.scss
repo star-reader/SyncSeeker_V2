@@ -93,6 +93,52 @@
     color: var(--sky-text-color-primary);
 }
 
+.layerSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+    background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+    border-radius: 12px;
+    border: 1px solid var(--sky-border-color);
+}
+
+.layerItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.layerInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.layerName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sky-text-color-primary);
+}
+
+.layerDesc {
+    font-size: 12px;
+    color: var(--sky-text-color-secondary);
+}
+
+.layerOptions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--sky-border-color);
+}
+
+.optionLabel {
+    font-size: 13px;
+    color: var(--sky-text-color-secondary);
+}
+
 @media (max-width: 680px) {
   .overlay {
     place-items: end center;

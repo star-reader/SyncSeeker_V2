@@ -15,7 +15,9 @@ export const EVENTS = {
   AIRPORT_INFO_CLOSE: 'airport-info-close',
   TOGGLE_FLIGHT_TRACKING: 'toggle-flight-tracking',
   STOP_FLIGHT_TRACKING: 'stop-flight-tracking',
-  FLIGHT_SHARED: 'flight-shared'
+  FLIGHT_SHARED: 'flight-shared',
+  TOGGLE_WEATHER_RADAR: 'toggle-weather-radar',
+  UPDATE_WEATHER_RADAR_OPACITY: 'update-weather-radar-opacity'
 }
 
 export const MAP_IDS = {
@@ -31,5 +33,7 @@ export const MAP_IDS = {
   ACTIVE_AIRPORTS_SOURCE: 'active-airports-data',
   ACTIVE_AIRPORTS_LAYER: 'active-airports-layer',
   AIRPORT_RADIATION_SOURCE: 'airport-radiation-data',
-  AIRPORT_RADIATION_LAYER: 'airport-radiation-layer'
+  AIRPORT_RADIATION_LAYER: 'airport-radiation-layer',
+  WEATHER_RADAR_SOURCE: 'weather-radar-data',
+  WEATHER_RADAR_LAYER: 'weather-radar-layer'
 }

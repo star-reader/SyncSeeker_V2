@@ -22,6 +22,7 @@ import drawSelectedPilotRoute from "../../services/map/layers/drawSelectedPilotR
 import drawPilotTracks from "../../services/map/layers/drawPilotTracks"
 import drawActiveAirports from "../../services/map/layers/drawActiveAirports"
 import drawAirportRadiation from "../../services/map/layers/drawAirportRadiation"
+import addWeatherRadar from "../../services/map/layers/addWeatherRadar"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -165,6 +166,7 @@ export default function BasicMap() {
             drawPilotTracks(map)
             drawActiveAirports(map)
             drawAirportRadiation(map)
+            addWeatherRadar(map)
             registerMapCursorHandlers(map)
             updateMapWithUserSetting(map)
         })
