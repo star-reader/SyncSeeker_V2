@@ -8,7 +8,7 @@
  * @date 2025-11-29
  */
 import { useEffect, useRef, useState } from 'react'
-import { SettingTwo, Moon, SunOne, 
+import { SettingTwo, Moon, SunOne, Info, 
   ListTop, RadarThree, Airplane, More } from '@icon-park/react'
 import pubsub from 'pubsub-js'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
@@ -121,19 +121,25 @@ export default function TopNavBar() {
                     <span className={styles.menuIcon}>
                       <ListTop size={18} />
                     </span>
-                    <span className={styles.menuLabel}>在线机组列表</span>
+                    <span className={styles.menuLabel}>在线机组</span>
                   </button>
                   <button className={styles.menuItem} onClick={() => handleSelect('controller')}>
                     <span className={styles.menuIcon}>
                       <RadarThree size={18} />
                     </span>
-                    <span className={styles.menuLabel}>在线管制列表</span>
+                    <span className={styles.menuLabel}>在线管制</span>
                   </button>
                   <button className={styles.menuItem} onClick={() => handleSelect('board')}>
                     <span className={styles.menuIcon}>
                       <Airplane size={18} />
                     </span>
-                    <span className={styles.menuLabel}>机场大屏选项</span>
+                    <span className={styles.menuLabel}>机场大屏</span>
+                  </button>
+                  <button className={styles.menuItem} onClick={() => handleSelect('about')}>
+                    <span className={styles.menuIcon}>
+                      <Info size={18} />
+                    </span>
+                    <span className={styles.menuLabel}>关于系统</span>
                   </button>
                 </div>
               </div>

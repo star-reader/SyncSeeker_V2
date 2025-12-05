@@ -121,7 +121,7 @@ export default function SettingsPanel() {
 
   return (
     <div className={styles.overlay} data-open={open ? 'true' : 'false'}>
-      <div className={styles.panel}>
+      <div className={styles.panel} data-container-name="settings">
         <div className={styles.header}>
           <div className={styles.title}>设置</div>
         </div>
