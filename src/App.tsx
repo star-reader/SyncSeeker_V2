@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import pubsub from 'pubsub-js'
 import BasicMap from './components/map/BasicMap'
 import TopNavBar from './components/navBar/TopNavBar'
@@ -10,14 +10,69 @@ import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
 import AirportInfoPanel from './components/map/AirportInfoPanel'
 import AirportBoard from './components/airport/AirportBoard'
+import Toast from './components/common/Toast'
 import { EVENTS } from './configs/constants'
+import { useOnlineDataStore } from './stores/useOnlineDataStore'
+import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
+    const trackAttempted = useRef(false)
+    const trackCancelled = useRef(false)
 
     useEffect(() => {
         const stop = pollingData()
         return stop
+    }, [])
+
+    // 检测 URL 中的追踪参数并自动追踪航班
+    useEffect(() => {
+        const trackCallsign = getTrackParamFromUrl()
+        if (!trackCallsign || trackAttempted.current) return
+
+        const handleDataUpdate = () => {
+            // 如果用户已经取消了追踪，不再尝试
+            if (trackCancelled.current) return
+            
+            const flights = useOnlineDataStore.getState().getFlights()
+            const targetPilot = flights.find(
+                p => p.callsign.toUpperCase() === trackCallsign.toUpperCase()
+            )
+            
+            if (targetPilot) {
+                trackAttempted.current = true
+                clearTrackParam()
+                pubsub.publish(EVENTS.PILOT_ICON_CLICK, { 
+                    id: targetPilot.session_id, 
+                    callsign: targetPilot.callsign,
+                    autoTrack: true
+                })
+            }
+        }
+
+        const closeToken = pubsub.subscribe(EVENTS.PILOT_INFO_CLOSE, () => {
+            trackCancelled.current = true
+            clearTrackParam()
+        })
+
+        handleDataUpdate()
+
+        const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, handleDataUpdate)
+        
+        // 设置超时，防止无限等待
+        const timeout = setTimeout(() => {
+            if (!trackAttempted.current) {
+                trackAttempted.current = true
+                clearTrackParam()
+                console.warn(`Flight ${trackCallsign} not found online`)
+            }
+        }, 30000)
+
+        return () => {
+            pubsub.unsubscribe(token)
+            pubsub.unsubscribe(closeToken)
+            clearTimeout(timeout)
+        }
     }, [])
 
     useEffect(() => {
@@ -37,14 +92,15 @@ export default function App() {
         <>
             <TopNavBar />
             <BasicMap />
-        <>
-            {openedMenu === 'pilot' && <PilotList />}
-            {openedMenu === 'controller' && <ControllerList />}
-            {openedMenu === 'settings' && <SettingsPanel />}
-            {openedMenu === 'board' && <AirportBoard />}
-            <PilotInfoPanel />
-            <AirportInfoPanel />
-        </>
+            <>
+                {openedMenu === 'pilot' && <PilotList />}
+                {openedMenu === 'controller' && <ControllerList />}
+                {openedMenu === 'settings' && <SettingsPanel />}
+                {openedMenu === 'board' && <AirportBoard />}
+                <PilotInfoPanel />
+                <AirportInfoPanel />
+            </>
+            <Toast />
         </>
     )
 }

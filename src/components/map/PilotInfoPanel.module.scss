@@ -111,6 +111,27 @@
 .status--arriving { color: #e17055; background: rgba(225, 112, 85, 0.1); }
 .status--ground { color: #636e72; background: rgba(99, 110, 114, 0.1); }
 
+.shareBtn, .trackBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
+  color: var(--sky-color-primary);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.shareBtn:hover {
+  background: color-mix(in srgb, var(--sky-color-primary) 25%, transparent);
+}
+.shareBtn.shared {
+  background: color-mix(in srgb, var(--sky-color-success) 20%, transparent);
+  color: var(--sky-color-success);
+}
+
 .closeBtn {
   width: 28px;
   height: 28px;

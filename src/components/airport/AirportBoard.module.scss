@@ -330,31 +330,31 @@
 }
 
 .destinationCell {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   font-weight: 600;
   color: var(--sky-color-primary);
 }
 
 .aircraftCell {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   color: var(--sky-text-color-secondary);
   font-size: 13px;
 }
 
 .timeCell {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   color: var(--sky-color-success);
   font-weight: 500;
 }
 
 .altitudeCell {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   color: var(--sky-text-color-primary);
   text-align: right;
 }
 
 .speedCell {
-  font-family: 'SF Mono', 'Consolas', monospace;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   color: var(--sky-text-color-primary);
   text-align: right;
 }

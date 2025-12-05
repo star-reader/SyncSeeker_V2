@@ -1,0 +1,70 @@
+.container {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--sky-bg-color-overlay);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  color: var(--sky-text-color-primary);
+  animation: slideIn 0.3s ease-out;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--sky-border-color-light);
+}
+
+.toast svg {
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success {
+  border-left: 2px solid var(--sky-color-success);
+}
+.success svg {
+  color: var(--sky-color-success);
+}
+
+.info {
+  border-left: 2px solid var(--sky-color-primary);
+}
+.info svg {
+  color: var(--sky-color-primary);
+}
+
+.warning {
+  border-left: 2px solid var(--sky-color-warning);
+}
+.warning svg {
+  color: var(--sky-color-warning);
+}
+
+.error {
+  border-left: 2px solid var(--sky-color-danger);
+}
+.error svg {
+  color: var(--sky-color-danger);
+}

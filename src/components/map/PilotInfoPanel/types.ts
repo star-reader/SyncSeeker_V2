@@ -8,6 +8,10 @@ export interface PilotHeaderProps {
     statusTag: string
     aircraft: string
     onClose: () => void
+    onShare?: () => void
+    isSharing?: boolean
+    onToggleTracking?: () => void
+    isTracking?: boolean
 }
 
 export interface RouteCardProps {

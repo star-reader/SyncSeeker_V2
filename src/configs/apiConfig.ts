@@ -24,3 +24,7 @@ export const apiEndpointsGo: Record<string, string> = {
     getOnlineList: `${API_BASE_URL}/Map/GetOnlineList`,
     pilotTrack: `${API_BASE_URL}/Map/GetSingleClient/{callsign}`, // 注意哦，这个是callsign不是id
 }
+
+export const externalApis = {
+    weatherRadar: 'https://api.rainviewer.com/public/weather-maps.json'
+}
