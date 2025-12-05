@@ -8,7 +8,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 import pubsub from 'pubsub-js'
-import { Button, Divider, Typography, CircularProgress, Switch, FormControl, Select, MenuItem, type SelectChangeEvent } from '@mui/material'
+import { Button, CircularProgress, Switch, FormControl, Select, MenuItem, type SelectChangeEvent } from '@mui/material'
 import { MuiColorInput } from 'mui-color-input'
 import styles from './SettingsPanel.module.scss'
 import { EVENTS } from '../../configs/constants'
@@ -126,108 +126,134 @@ export default function SettingsPanel() {
           <div className={styles.title}>设置</div>
         </div>
         <div className={styles.body}>
-          <Typography variant="subtitle2">机组样式（日/夜）</Typography>
-          <Divider />
-          <div className={`${styles.grid} setting-grid`}>
-            <div className={styles.item}>
-              <div className={styles.label}>文字（日）</div>
-              <MuiColorInput value={labelDay} 
-              onChange={(v) => { 
-                setLabelDay(v); 
-                useThemeStore.getState().setPilotSchema({ label: { day: v, night: labelNight }, icon: { day: iconDay, night: iconNight } }) 
-              }} 
-              format="hex" style={{zIndex: 10001}} />
+          {/* 机组样式设置 */}
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionTitle}>机组样式</span>
+              <span className={styles.sectionSubtitle}>日间 / 夜间</span>
             </div>
-            <div className={styles.item}>
-              <div className={styles.label}>文字（夜）</div>
-              <MuiColorInput value={labelNight} 
-              onChange={(v) => { 
-                setLabelNight(v); 
-                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: v }, icon: { day: iconDay, night: iconNight } }) 
-              }} 
-              format="hex" style={{zIndex: 10001}} />
+            <div className={styles.colorGrid}>
+              <div className={styles.colorRow}>
+                <span className={styles.colorLabel}>文字颜色</span>
+                <div className={styles.colorPair}>
+                  <MuiColorInput 
+                    value={labelDay} 
+                    onChange={(v) => { 
+                      setLabelDay(v); 
+                      useThemeStore.getState().setPilotSchema({ label: { day: v, night: labelNight }, icon: { day: iconDay, night: iconNight } }) 
+                    }} 
+                    format="hex"
+                    size="small"
+                    className={styles.colorInput}
+                  />
+                  <MuiColorInput 
+                    value={labelNight} 
+                    onChange={(v) => { 
+                      setLabelNight(v); 
+                      useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: v }, icon: { day: iconDay, night: iconNight } }) 
+                    }} 
+                    format="hex"
+                    size="small"
+                    className={styles.colorInput}
+                  />
+                </div>
+              </div>
+              <div className={styles.colorRow}>
+                <span className={styles.colorLabel}>图标颜色</span>
+                <div className={styles.colorPair}>
+                  <MuiColorInput 
+                    value={iconDay} 
+                    onChange={(v) => { 
+                      setIconDay(v); 
+                      useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: v, night: iconNight } }) 
+                    }} 
+                    format="hex"
+                    size="small"
+                    className={styles.colorInput}
+                  />
+                  <MuiColorInput 
+                    value={iconNight} 
+                    onChange={(v) => { 
+                      setIconNight(v); 
+                      useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: v } }) 
+                    }} 
+                    format="hex"
+                    size="small"
+                    className={styles.colorInput}
+                  />
+                </div>
+              </div>
             </div>
-            <div className={styles.item}>
-              <div className={styles.label}>图标（日）</div>
-              <MuiColorInput value={iconDay} 
-              onChange={(v) => { 
-                setIconDay(v); 
-                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: v, night: iconNight } }) 
-              }} 
-              format="hex" style={{zIndex: 10001}} />
-            </div>
-            <div className={styles.item}>
-              <div className={styles.label}>图标（夜）</div>
-              <MuiColorInput value={iconNight} 
-              onChange={(v) => { 
-                setIconNight(v); 
-                useThemeStore.getState().setPilotSchema({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: v } }) 
-              }} 
-              format="hex" style={{zIndex: 10001}} />
-            </div>
-          </div>
+          </section>
 
-          <Typography variant="subtitle2" style={{ marginTop: '16px' }}>本地数据管理</Typography>
-          <Divider />
-          <div className={styles.dataStatus}>
-            <div className={styles.statusInfo}>
-                <div className={styles.statusIcon}>
-                    {loading ? <CircularProgress size={20} /> : (
-                        hasData ? <CheckOne theme="filled" size="24" fill="#67C23A"/> : <CloseOne theme="filled" size="24" fill="#F56C6C"/>
-                    )}
-                </div>
-                <div className={styles.statusText}>
-                    {loading ? '正在更新数据...' : (
-                        hasData ? `已下载最新数据 (版本 ${version?.version_id} 数据日期${version?.update_date || ''})` : '未检测到本地数据'
-                    )}
-                </div>
+          {/* 地图图层设置 */}
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionTitle}>地图图层</span>
             </div>
-            <Button 
-                variant="outlined" 
-                color={hasData ? "primary" : "error"}
-                startIcon={hasData ? <Refresh /> : <DownloadOne />}
+            <div className={styles.optionRow}>
+              <div className={styles.optionInfo}>
+                <span className={styles.optionName}>气象雷达</span>
+                <span className={styles.optionDesc}>实时降水图层</span>
+              </div>
+              <div className={styles.optionControls}>
+                {weatherRadarEnabled && (
+                  <FormControl size="small" sx={{ minWidth: 100 }}>
+                    <Select
+                      value={weatherRadarOpacity}
+                      onChange={handleWeatherRadarOpacityChange}
+                      sx={{ height: 32, fontSize: 13 }}
+                    >
+                      <MenuItem value="light">20%</MenuItem>
+                      <MenuItem value="medium">40%</MenuItem>
+                      <MenuItem value="high">70%</MenuItem>
+                      <MenuItem value="full">100%</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+                <Switch 
+                  checked={weatherRadarEnabled} 
+                  onChange={(e) => handleToggleWeatherRadar(e.target.checked)}
+                  size="small"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* 数据管理 */}
+          <section className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionTitle}>数据管理</span>
+            </div>
+            <div className={styles.dataRow}>
+              <div className={styles.dataInfo}>
+                <div className={styles.dataIcon}>
+                  {loading ? <CircularProgress size={16} /> : (
+                    hasData ? <CheckOne theme="filled" size="18" fill="#67C23A"/> : <CloseOne theme="filled" size="18" fill="#F56C6C"/>
+                  )}
+                </div>
+                <div className={styles.dataText}>
+                  {loading ? '更新中...' : (
+                    hasData ? `v${version?.version_id} · ${version?.update_date || ''}` : '未下载'
+                  )}
+                </div>
+              </div>
+              <Button 
+                variant="text" 
+                size="small"
+                startIcon={hasData ? <Refresh size={14}/> : <DownloadOne size={14}/>}
                 onClick={handleFetchData}
                 disabled={loading}
-                style={{minWidth: '90px'}}
-            >
+                sx={{ minWidth: 'auto', fontSize: 13 }}
+              >
                 {hasData ? '更新' : '下载'}
-            </Button>
-          </div>
-
-          <Typography variant="subtitle2" style={{ marginTop: '16px' }}>地图图层</Typography>
-          <Divider />
-          <div className={styles.layerSettings}>
-            <div className={styles.layerItem}>
-              <div className={styles.layerInfo}>
-                <div className={styles.layerName}>气象雷达</div>
-                <div className={styles.layerDesc}>显示实时降水雷达图层</div>
-              </div>
-              <Switch 
-                checked={weatherRadarEnabled} 
-                onChange={(e) => handleToggleWeatherRadar(e.target.checked)}
-              />
+              </Button>
             </div>
-            {weatherRadarEnabled && (
-              <div className={styles.layerOptions}>
-                <div className={styles.optionLabel}>透明度</div>
-                <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <Select
-                    value={weatherRadarOpacity}
-                    onChange={handleWeatherRadarOpacityChange}
-                  >
-                    <MenuItem value="light">浅 (20%)</MenuItem>
-                    <MenuItem value="medium">中 (40%)</MenuItem>
-                    <MenuItem value="high">高 (70%)</MenuItem>
-                    <MenuItem value="full">完全 (100%)</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-            )}
-          </div>
+          </section>
         </div>
         <div className={styles.actions}>
-          <Button variant="outlined" onClick={handleCancel}>取消</Button>
-          <Button variant="contained" onClick={handleSave}>保存</Button>
+          <Button variant="outlined" size="small" onClick={handleCancel}>取消</Button>
+          <Button variant="contained" size="small" onClick={handleSave}>保存</Button>
         </div>
       </div>
     </div>
