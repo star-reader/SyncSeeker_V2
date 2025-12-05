@@ -5,6 +5,7 @@ import { apiEndpointsGo } from '../../../configs/apiConfig'
 import drawTracks from '../../flightPath/drawTracks'
 import draw3DTracks from '../../flightPath/draw3DTracks'
 import { useOnlineDataStore } from '../../../stores/useOnlineDataStore'
+import type { LngLat } from '../../../types/geo.d.ts'
 
 let intervalId: ReturnType<typeof setInterval> | null = null
 let currentCallsign: string | null = null
@@ -13,7 +14,7 @@ let currentPilotData: TargetPilotData | null = null
 
 const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
     // 1. API返回的tracks数组，格式是[{Lat: number, Lon: number}, ...]，转成[[lng, lat], ...]
-    let tracks: number[][] = []
+    let tracks: LngLat[] = []
     if (Array.isArray(data.tracks)) {
         tracks = data.tracks.map((t: any) => {
             if (typeof t === 'object' && t !== null) {
@@ -22,11 +23,11 @@ const normalizePilotData = (data: APIResponsePilotData): TargetPilotData => {
                 
                 if (typeof lng === 'number' && typeof lat === 'number' && !isNaN(lng) && !isNaN(lat)) {
                     if (lng === 0 && lat === 0) return null // Treat 0,0 as invalid for now
-                    return [lng, lat]
+                    return [lng, lat] as LngLat
                 }
             }
             return null
-        }).filter((t: any): t is number[] => t !== null)
+        }).filter((t): t is LngLat => t !== null)
     }
 
     // 2. altitudeArray 和 speedArray

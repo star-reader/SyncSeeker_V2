@@ -5,17 +5,20 @@
  * 包含航位推测、距离计算等
  */
 
-const R = 6371e3; // 地球半径 (米)
+import type { LngLat, Heading, Knots } from '../types/geo.d.ts'
+
+/** 地球半径 (米) */
+const R = 6371e3;
 
 /**
  * 将角度转换为弧度
  */
-const toRad = (d: number) => d * Math.PI / 180;
+const toRad = (d: number): number => d * Math.PI / 180;
 
 /**
  * 将弧度转换为角度
  */
-const toDeg = (r: number) => r * 180 / Math.PI;
+const toDeg = (r: number): number => r * 180 / Math.PI;
 
 /**
  * 航位推测 (Dead Reckoning)
@@ -31,10 +34,10 @@ const toDeg = (r: number) => r * 180 / Math.PI;
 export const calculateNextPosition = (
     lat: number, 
     lon: number, 
-    speed: number, 
-    heading: number, 
+    speed: Knots, 
+    heading: Heading, 
     timeDelta: number
-): [number, number] => {
+): LngLat => {
     // 1 knot = 0.514444 m/s
     const distance = (speed * 0.514444) * (timeDelta / 1000);
     const angularDistance = distance / R;

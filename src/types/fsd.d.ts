@@ -1,4 +1,5 @@
-// 基础用户接口
+import type { LngLat, Heading, Feet, Knots, Squawk } from './geo.d.ts'
+
 interface BaseUser {
     cid: string;
     name: string;
@@ -8,9 +9,10 @@ interface BaseUser {
     logon_time: string;
 }
 
-// 飞行计划接口
+export type FlightRules = 'I' | 'V' | 'Y' | 'Z';
+
 export interface FlightPlan {
-    flight_rules: string;
+    flight_rules: FlightRules;
     aircraft: string;
     departure: string;
     arrival: string;
@@ -24,51 +26,51 @@ export interface FlightPlan {
     route: string;
 }
 
-// 管制员接口
+export type ATCFacility = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
 export interface OnlineController extends BaseUser {
     frequency: string;
-    facility: number;
+    facility: ATCFacility;
     rating: number;
     visual_range: number;
     text_atis: string[];
 }
 
-// 飞行员接口
 export interface OnlinePilot extends BaseUser {
     latitude: number;
     longitude: number;
-    altitude: number;
-    groundspeed: number;
+    altitude: Feet;
+    groundspeed: Knots;
     transponder: number;
-    heading: number;
+    heading: Heading;
     bank: number;
     pitch: number;
-    flight_plan?: FlightPlan;
+    flight_plan?: FlightPlan | null;
 }
 
-// 在线数据接口
 export interface OnlineData {
     controllers: OnlineController[];
     flights: OnlinePilot[];
-    atis: OnlineController[]
+    atis: OnlineController[];
 }
 
 export interface SingleFlightData {
     aircraft: string;
-    altitude: number;
-    altitudeArray: number[];
+    altitude: Feet;
+    altitudeArray: Feet[];
     arrival: string;
     callsign: string;
     cid: string;
     departure: string;
-    heading: number;
-    lnglat: [number, number];
+    heading: Heading;
+    lnglat: LngLat;
     realname: string;
     route: string;
-    speed: number;
-    speedArray: number[];
-    squawk: number;
-    teacks: number[][]
+    speed: Knots;
+    speedArray: Knots[];
+    squawk: Squawk;
+    /** 历史航迹数组 */
+    tracks: LngLat[];
 }
 
 export interface ATCRawData {
@@ -78,7 +80,7 @@ export interface ATCRawData {
     frequency: string;
     latitude: number;
     longitude: number;
-    facility: number;
+    facility: ATCFacility;
     rating: number;
     server: string;
     visual_range: number;
