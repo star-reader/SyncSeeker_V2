@@ -15,6 +15,7 @@
     "@icon-park/react": "^1.4.2",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
+    "@turf/turf": "^7.3.1",
     "axios": "^1.13.2",
     "liquid-web": "^1.1.1",
     "mapbox-gl": "^3.16.0",
