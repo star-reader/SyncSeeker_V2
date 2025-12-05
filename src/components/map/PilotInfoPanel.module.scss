@@ -116,8 +116,8 @@
   height: 28px;
   border-radius: 50%;
   border: none;
-  background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
-  color: var(--sky-color-primary);
+  // background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
+  color: var(--sky-text-color-regular);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -125,7 +125,8 @@
   flex-shrink: 0;
 }
 .shareBtn:hover {
-  background: color-mix(in srgb, var(--sky-color-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
+  color: var(--sky-color-primary);
 }
 .shareBtn.shared {
   background: color-mix(in srgb, var(--sky-color-success) 20%, transparent);
@@ -483,7 +484,6 @@
     touch-action: pan-y;
     flex: 1;
   }
-
 
   .container[data-expanded="false"] .detailsContent {
     pointer-events: none;

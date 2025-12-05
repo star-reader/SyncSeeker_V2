@@ -10,6 +10,7 @@ import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
 import AirportInfoPanel from './components/map/AirportInfoPanel'
 import AirportBoard from './components/airport/AirportBoard'
+import AboutPanel from './components/about/AboutPanel'
 import Toast from './components/common/Toast'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
@@ -100,6 +101,7 @@ export default function App() {
                 <PilotInfoPanel />
                 <AirportInfoPanel />
             </>
+            <AboutPanel />
             <Toast />
         </>
     )

@@ -30,7 +30,7 @@
 }
 
 
-.setting-grid input {
+div[data-container-name] input, div[data-container-name] div {
   color: var(--sky-text-color-primary) !important;
 }
 

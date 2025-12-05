@@ -64,7 +64,7 @@ const initLayer = (map: mapboxgl.Map) => {
                     'interpolate',
                     ['linear'],
                     ['zoom'],
-                    4, 0,
+                    2, 0,
                     5, 1
                 ]
             }
