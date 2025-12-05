@@ -13,7 +13,7 @@ import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
 import { useGetCurrentTheme } from "../../hooks/theme/useTheme"
 import drawOnlinePilot from "../../services/map/layers/drawOnlinePilot"
-import useMouse from "../../hooks/maps/useMouse"
+import registerMapCursorHandlers from "../../services/map/registerMapCursorHandlers"
 import { EVENTS, MAP_IDS } from "../../configs/constants"
 import updateMapWithUserSetting from "../../services/settings/updateMapWithUserSetting"
 import asyncLoadControllerAssets from "../../services/map/assets/asyncLoadControllerAssets"
@@ -113,7 +113,7 @@ export default function BasicMap() {
             drawPilotTracks(map)
             drawActiveAirports(map)
             drawAirportRadiation(map)
-            useMouse(map)
+            registerMapCursorHandlers(map)
             updateMapWithUserSetting(map)
         })
 

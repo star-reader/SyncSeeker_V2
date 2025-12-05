@@ -2,7 +2,6 @@
  * useTheme Hook & Utilities
  * 
  * 管理应用的主题（Light/Dark）及配色方案。
- * Refactored: 现在代理到全局 Zustand Store (useThemeStore) 以提升性能。
  * 
  * @author Jerry Jin
  * @date 2025-11-29
