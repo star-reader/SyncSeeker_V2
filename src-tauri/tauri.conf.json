@@ -16,7 +16,10 @@
         "width": 1920,
         "height": 1080,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "titleBarStyle": "Visible",
+        "hiddenTitle": false,
+        "decorations": true
       }
     ],
     "security": {

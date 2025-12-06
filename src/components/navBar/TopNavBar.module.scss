@@ -4,31 +4,47 @@
   left: 0;
   right: 0;
   z-index: 1100;
-  height: 56px;
+  /* Total height includes safe area */
+  height: calc(56px + env(safe-area-inset-top, 0px));
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   padding: 0 18px;
   transition-duration: 0.3s;
   background: transparent;
   user-select: none;
   -webkit-user-select: none;
+  box-sizing: border-box;
 }
 
 .navbar::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: color-mix(in srgb, var(--sky-bg-color-base) 35%, transparent);
-  -webkit-backdrop-filter: saturate(120%) blur(10px);
-  backdrop-filter: saturate(120%) blur(10px);
+  /* Translucent glass effect for immersive overlay */
+  background: color-mix(in srgb, var(--sky-bg-color-base) 15%, transparent);
+  -webkit-backdrop-filter: saturate(120%) blur(20px);
+  backdrop-filter: saturate(120%) blur(20px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* subtle divider to separate nav from map content */
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--sky-border-color) 8%, transparent);
   pointer-events: none;
   z-index: -1;
 }
 
 .inner {
   width: 100%;
-  // max-width: 1200px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
