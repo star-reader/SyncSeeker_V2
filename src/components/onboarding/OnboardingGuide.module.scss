@@ -258,10 +258,12 @@
     flex-direction: column;
     
     button {
-      width: 100%;
+      width: 80%;
+      left: 10%;
       height: 44px !important;
       font-size: 15px !important;
       font-weight: 500 !important;
+      border-radius: 50%;
     }
   }
   
