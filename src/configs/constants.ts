@@ -20,7 +20,8 @@ export const EVENTS = {
   UPDATE_WEATHER_RADAR_OPACITY: 'update-weather-radar-opacity',
   MAP_STYLE_CHANGE: 'map-style-change',
   CONTROLLER_ICON_CLICK: 'controller-icon-click',
-  CONTROLLER_INFO_CLOSE: 'controller-info-close'
+  CONTROLLER_INFO_CLOSE: 'controller-info-close',
+  INSTALL_APP_CLICK: 'install-app-click'
 }
 
 export const MAP_IDS = {

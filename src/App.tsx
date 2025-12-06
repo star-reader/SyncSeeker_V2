@@ -14,6 +14,7 @@ import AirportBoard from './components/airport/AirportBoard'
 import AboutPanel from './components/about/AboutPanel'
 import Toast from './components/common/Toast'
 import OnboardingGuide from './components/onboarding/OnboardingGuide'
+import InstallGuidePanel from './components/install/InstallGuidePanel'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
@@ -29,6 +30,30 @@ export default function App() {
         initializeFonts()
         
         const stop = pollingData()
+        
+        // 检查PWA安装状态，首次访问时提示安装
+        const checkPWAInstallation = () => {
+            // 检查是否是Tauri应用
+            const isTauri = '__TAURI__' in window
+            
+            // 检查是否已安装为PWA
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+            const isIOSStandalone = (window.navigator as any).standalone === true
+            const isPWAInstalled = isStandalone || isIOSStandalone
+            
+            const hasSeenInstallGuide = localStorage.getItem('pwa-install-guide-seen')
+            
+            // 只在浏览器环境（非Tauri且未安装PWA）且首次访问时显示安装提示
+            if (!isTauri && !isPWAInstalled && !hasSeenInstallGuide) {
+                setTimeout(() => {
+                    pubsub.publish(EVENTS.INSTALL_APP_CLICK)
+                    localStorage.setItem('pwa-install-guide-seen', 'true')
+                }, 3000)
+            }
+        }
+        
+        checkPWAInstallation()
+        
         return stop
     }, [])
 
@@ -110,6 +135,7 @@ export default function App() {
                 <AirportInfoPanel />
             </>
             <AboutPanel />
+            <InstallGuidePanel />
             <Toast />
         </>
     )
