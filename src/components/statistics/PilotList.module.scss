@@ -5,7 +5,7 @@
   height: calc(100vh - 56px - env(safe-area-inset-top));
   top: calc(56px + env(safe-area-inset-top));
   display: flex;
-  justify-content: center;
+  // justify-content: center;
   // align-items: center;
   background: color-mix(in srgb, var(--sky-fill-color) 45%, transparent);
   backdrop-filter: blur(10px);
