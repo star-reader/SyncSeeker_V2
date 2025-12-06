@@ -2,8 +2,8 @@
   position: fixed;
   left: 0;
   width: 100%;
-  height: calc(100vh - 56px);
-  top: 56px;
+  height: calc(100vh - 56px - env(safe-area-inset-top));
+  top: calc(56px + env(safe-area-inset-top));
   display: flex;
   justify-content: center;
   // align-items: center;
