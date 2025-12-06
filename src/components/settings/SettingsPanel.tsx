@@ -25,6 +25,7 @@ export default function SettingsPanel() {
   const [labelNight, setLabelNight] = useState('#87CEEB')
   const [iconDay, setIconDay] = useState('#EF8B33')
   const [iconNight, setIconNight] = useState('#FFD27F')
+  const [mapStyle, setMapStyle] = useState<'dynamic' | 'satellite'>('dynamic')
   
   // Weather Radar
   const [weatherRadarEnabled, setWeatherRadarEnabled] = useState(false)
@@ -41,6 +42,12 @@ export default function SettingsPanel() {
     setLabelNight(s.label.night)
     setIconDay(s.icon.day)
     setIconNight(s.icon.night)
+    
+    // 读取地图主题设置
+    const savedMapStyle = localStorage.getItem('map-style') as 'dynamic' | 'satellite' | null
+    if (savedMapStyle) {
+      setMapStyle(savedMapStyle)
+    }
     
     // 读取气象雷达设置
     const radarEnabled = localStorage.getItem('weather-radar-enabled') === 'true'
@@ -103,6 +110,13 @@ export default function SettingsPanel() {
     const opacity = event.target.value as WeatherRadarOpacity
     setWeatherRadarOpacity(opacity)
     pubsub.publish(EVENTS.UPDATE_WEATHER_RADAR_OPACITY, opacity)
+  }
+
+  // 地图主题切换
+  const handleMapStyleChange = (event: SelectChangeEvent) => {
+    const style = event.target.value as 'dynamic' | 'satellite'
+    setMapStyle(style)
+    pubsub.publish(EVENTS.MAP_STYLE_CHANGE, style)
   }
 
   const schemaMemo = useMemo(() => ({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: iconNight } }), [labelDay, labelNight, iconDay, iconNight])
@@ -191,6 +205,26 @@ export default function SettingsPanel() {
             <div className={styles.sectionHeader}>
               <span className={styles.sectionTitle}>地图图层</span>
             </div>
+            
+            {/* 地图主题选择 */}
+            <div className={styles.optionRow}>
+              <div className={styles.optionInfo}>
+                <span className={styles.optionName}>地图主题</span>
+                <span className={styles.optionDesc}>动态/卫星</span>
+              </div>
+              <FormControl size="small" sx={{ minWidth: 100 }}>
+                <Select
+                  value={mapStyle}
+                  onChange={handleMapStyleChange}
+                  sx={{ height: 32, fontSize: 13 }}
+                >
+                  <MenuItem value="dynamic">动态</MenuItem>
+                  <MenuItem value="satellite">卫星</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            
+            {/* 气象雷达 */}
             <div className={styles.optionRow}>
               <div className={styles.optionInfo}>
                 <span className={styles.optionName}>气象雷达</span>

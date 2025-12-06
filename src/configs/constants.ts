@@ -17,7 +17,8 @@ export const EVENTS = {
   STOP_FLIGHT_TRACKING: 'stop-flight-tracking',
   FLIGHT_SHARED: 'flight-shared',
   TOGGLE_WEATHER_RADAR: 'toggle-weather-radar',
-  UPDATE_WEATHER_RADAR_OPACITY: 'update-weather-radar-opacity'
+  UPDATE_WEATHER_RADAR_OPACITY: 'update-weather-radar-opacity',
+  MAP_STYLE_CHANGE: 'map-style-change'
 }
 
 export const MAP_IDS = {

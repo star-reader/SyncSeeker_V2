@@ -12,6 +12,7 @@ import AirportInfoPanel from './components/map/AirportInfoPanel'
 import AirportBoard from './components/airport/AirportBoard'
 import AboutPanel from './components/about/AboutPanel'
 import Toast from './components/common/Toast'
+import OnboardingGuide from './components/onboarding/OnboardingGuide'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
@@ -91,6 +92,7 @@ export default function App() {
 
     return (
         <>
+            <OnboardingGuide />
             <TopNavBar />
             <BasicMap />
             <>
