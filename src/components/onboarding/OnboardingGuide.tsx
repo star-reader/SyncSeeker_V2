@@ -14,14 +14,14 @@ import { fetchAndStoreNavData } from '../../apis/fetchStorageData'
 // 引入图片
 import pc_1 from '../../assets/onboarding/pc/1.png'
 import pc_2 from '../../assets/onboarding/pc/2.png'
-// import pc_3 from '../../assets/onboarding/pc/3.png'
+import pc_3 from '../../assets/onboarding/pc/3.png'
 import pc_4 from '../../assets/onboarding/pc/4.png'
 import pc_5 from '../../assets/onboarding/pc/5.png'
 import pc_6 from '../../assets/onboarding/pc/6.png'
 
 import mobile_1 from '../../assets/onboarding/mobile/1.png'
 import mobile_2 from '../../assets/onboarding/mobile/2.png'
-// import mobile_3 from '../../assets/onboarding/mobile/3.png'
+import mobile_3 from '../../assets/onboarding/mobile/3.png'
 import mobile_4 from '../../assets/onboarding/mobile/4.png'
 import mobile_5 from '../../assets/onboarding/mobile/5.png'
 import mobile_6 from '../../assets/onboarding/mobile/6.png'
@@ -53,8 +53,8 @@ const ONBOARDING_STEPS: Step[] = [
     id: 3,
     title: '查看在线管制',
     description: '实时显示全球在线管制员和管制区域，查看管制频率和覆盖范围',
-    imageMobile: mobile_1,
-    imageDesktop: pc_1
+    imageMobile: mobile_3,
+    imageDesktop: pc_3
   },
   {
     id: 4,

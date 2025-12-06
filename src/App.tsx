@@ -8,6 +8,7 @@ import pollingData from './apis/pollingData'
 import PilotList from './components/statistics/PilotList'
 import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
+import ControllerInfoPanel from './components/map/ControllerInfoPanel'
 import AirportInfoPanel from './components/map/AirportInfoPanel'
 import AirportBoard from './components/airport/AirportBoard'
 import AboutPanel from './components/about/AboutPanel'
@@ -16,6 +17,7 @@ import OnboardingGuide from './components/onboarding/OnboardingGuide'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
+import { initializeFonts } from './utils/fontLoader'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -23,6 +25,9 @@ export default function App() {
     const trackCancelled = useRef(false)
 
     useEffect(() => {
+        // 初始化字体加载
+        initializeFonts()
+        
         const stop = pollingData()
         return stop
     }, [])
@@ -101,6 +106,7 @@ export default function App() {
                 {openedMenu === 'settings' && <SettingsPanel />}
                 {openedMenu === 'board' && <AirportBoard />}
                 <PilotInfoPanel />
+                <ControllerInfoPanel />
                 <AirportInfoPanel />
             </>
             <AboutPanel />

@@ -216,6 +216,16 @@ export default function BasicMap() {
                     })
                     return // 处理后退出
                 }
+                // 管制员标记点击（marker, circle, polygon都可以触发）
+                if ((i.layer.id === MAP_IDS.CONTROLLER_MARKER_LAYER || 
+                     i.layer.id === MAP_IDS.CONTROLLER_CIRCLE_FILL_LAYER ||
+                     i.layer.id === MAP_IDS.CONTROLLER_POLYGON_FILL_LAYER) && i.properties) {
+                    const callsign = i.properties.callsign
+                    if (callsign) {
+                        pubsub.publish(EVENTS.CONTROLLER_ICON_CLICK, { callsign })
+                        return // 处理后退出
+                    }
+                }
                 // 机场点或标签点击
                 if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {
                     const icao = i.properties.icao
