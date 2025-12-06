@@ -34,6 +34,8 @@ export interface OnlineController extends BaseUser {
     rating: number;
     visual_range: number;
     text_atis: string[];
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface OnlinePilot extends BaseUser {

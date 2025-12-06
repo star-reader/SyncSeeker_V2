@@ -35,5 +35,14 @@ export const MAP_IDS = {
   AIRPORT_RADIATION_SOURCE: 'airport-radiation-data',
   AIRPORT_RADIATION_LAYER: 'airport-radiation-layer',
   WEATHER_RADAR_SOURCE: 'weather-radar-data',
-  WEATHER_RADAR_LAYER: 'weather-radar-layer'
+  WEATHER_RADAR_LAYER: 'weather-radar-layer',
+  // Controller layers
+  CONTROLLER_POLYGON_SOURCE: 'controller-polygon-data',
+  CONTROLLER_POLYGON_FILL_LAYER: 'controller-polygon-fill',
+  CONTROLLER_POLYGON_LINE_LAYER: 'controller-polygon-line',
+  CONTROLLER_CIRCLE_SOURCE: 'controller-circle-data',
+  CONTROLLER_CIRCLE_FILL_LAYER: 'controller-circle-fill',
+  CONTROLLER_CIRCLE_LINE_LAYER: 'controller-circle-line',
+  CONTROLLER_MARKER_SOURCE: 'controller-marker-data',
+  CONTROLLER_MARKER_LAYER: 'controller-marker-layer'
 }

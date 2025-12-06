@@ -22,7 +22,9 @@ import drawSelectedPilotRoute from "../../services/map/layers/drawSelectedPilotR
 import drawPilotTracks from "../../services/map/layers/drawPilotTracks"
 import drawActiveAirports from "../../services/map/layers/drawActiveAirports"
 import drawAirportRadiation from "../../services/map/layers/drawAirportRadiation"
+import drawOnlineController from "../../services/map/layers/drawOnlineController"
 import addWeatherRadar from "../../services/map/layers/addWeatherRadar"
+import asyncLoadGeneralAssets from "../../services/map/assets/asyncLoadGeneralAssets"
 
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -160,8 +162,10 @@ export default function BasicMap() {
         map.once('style.load', async () => {
             // asyncLoadAssets改在drawOnlinePilot中进行
             // await asyncLoadAssets(map)
-            await asyncLoadControllerAssets(map)    
+            await asyncLoadControllerAssets(map)   
+            await asyncLoadGeneralAssets(map) 
             drawOnlinePilot(map)
+            drawOnlineController(map)
             drawSelectedPilotRoute(map)
             drawPilotTracks(map)
             drawActiveAirports(map)
