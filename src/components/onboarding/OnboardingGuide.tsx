@@ -73,7 +73,7 @@ const ONBOARDING_STEPS: Step[] = [
   {
     id: 5,
     title: '下载导航数据',
-    description: '首次使用需要下载导航数据库，以体验更完整的服务功能',
+    description: '首次使用需要下载导航数据库，通常时间不会超过1分钟',
     imageMobile: mobile_6,
     imageDesktop: pc_6
   }
