@@ -323,13 +323,17 @@
   }
 }
 
-.downloadSection {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
+// .downloadSection {
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 12px;
+
+//   @include screen-up(md) {
+//     width: 80%;
+//   }
+// }
 
 .downloadButton {
   width: 100%;

@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "SyncSeeker",
+        "title": "SKYline SyncSeeker",
         "width": 1920,
         "height": 1080,
         "resizable": true,

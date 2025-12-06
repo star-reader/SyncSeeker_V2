@@ -1,0 +1,66 @@
+{
+    "name": "SKYline SyncSeeker",
+    "short_name": "SyncSeeker",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#4682B4",
+    "description": "SYline SyncSeeker是SKYline模拟飞行俱乐部全新推出的在线航班实时查询跟踪软件，可实时查询、跟踪航班，并查看平台管制员在线状态。",
+    "prefer_related_applications": false,
+    "related_applications": [
+        
+    ],
+    "capture_links": "none",
+    "icons": [
+        {
+            "src": "/pwa-icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/pwa-icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "/pwa-icons/icon-1024x1024.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        },
+        {
+            "src": "/pwa-icons/icon-192x192-maskable.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/pwa-icons/icon-512x512-maskable.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/pwa-icons/icon-1024x1024-monochrome.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/pwa-icons/icon-192x192-monochrome.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "monochrome"
+        },
+        {
+            "src": "/pwa-icons/icon-512x512-monochrome.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "monochrome"
+        },
+        {
+            "src": "/pwa-icons/icon-1024x1024-monochrome.png",
+            "sizes": "1024x1024",
+            "type": "image/png",
+            "purpose": "monochrome"
+        }
+    ]
+}
