@@ -26,7 +26,6 @@ export default function InstallGuidePanel() {
       e.preventDefault()
       // 保存事件对象供后续使用
       deferredPromptRef.current = e as BeforeInstallPromptEvent
-      console.log('beforeinstallprompt event captured')
       
       // 如果之前已设置了需要自动提示，现在就触发
       if (shouldAutoPromptRef.current) {
@@ -48,18 +47,12 @@ export default function InstallGuidePanel() {
       } else {
         // 如果还没有 prompt 事件，标记一下等事件到来时再触发
         shouldAutoPromptRef.current = true
-        console.log('Waiting for beforeinstallprompt event...')
       }
     })
 
     // 监听安装应用点击事件
     const token = pubsub.subscribe(EVENTS.INSTALL_APP_CLICK, async () => {
       if (!deferredPromptRef.current) {
-        console.log('PWA installation not available. Possible reasons:')
-        console.log('1. Browser does not support PWA installation')
-        console.log('2. App is already installed')
-        console.log('3. PWA installation criteria not met')
-        console.log('4. beforeinstallprompt event has not fired yet')
         return
       }
 
@@ -69,8 +62,6 @@ export default function InstallGuidePanel() {
         
         // 等待用户响应
         const choiceResult = await deferredPromptRef.current.userChoice
-        
-        console.log(`Install prompt result: ${choiceResult.outcome}`)
         
         if (choiceResult.outcome === 'accepted') {
           localStorage.setItem('pwa-installed', 'true')

@@ -43,8 +43,6 @@ export const fetchAndStoreNavData = async (): Promise<boolean> => {
             return false
         }
 
-        console.log('Updating nav data...', remoteVersion)
-
         // 4. 并行请求数据文件
         const [airportsRes, airlinesRes, firsRes, appRes] = await Promise.all([
             axios.get<IndexedDBAirports[]>(`${baseUrl}/airports.json?remote_version=${remoteVersion.bundle_id}`),

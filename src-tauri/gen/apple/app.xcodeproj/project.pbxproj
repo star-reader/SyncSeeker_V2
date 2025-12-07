@@ -39,7 +39,7 @@
 		CE1209BFDECB28E00189B168 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		D8F57162F5CC7AEDD55F173D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		F3673D372C5ABDD1AD6E7067 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		FBC720DFA1D01F55B0A32344 /* syncseeker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = syncseeker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FBC720DFA1D01F55B0A32344 /* SyncSeeker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SyncSeeker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,7 +136,7 @@
 		EE72B6AC647386A11F795E44 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FBC720DFA1D01F55B0A32344 /* syncseeker.app */,
+				FBC720DFA1D01F55B0A32344 /* SyncSeeker.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -170,7 +170,7 @@
 			packageProductDependencies = (
 			);
 			productName = app_iOS;
-			productReference = FBC720DFA1D01F55B0A32344 /* syncseeker.app */;
+			productReference = FBC720DFA1D01F55B0A32344 /* SyncSeeker.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -258,7 +258,7 @@
 				CODE_SIGN_ENTITLEMENTS = app_iOS/app_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 0.1.0;
-				DEVELOPMENT_TEAM = 63U46455JG;
+				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -266,7 +266,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = app_iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "SKYline SyncSeeker";
+				INFOPLIST_KEY_CFBundleDisplayName = SyncSeeker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -287,8 +287,8 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map;
-				PRODUCT_NAME = "SKYline SyncSeeker";
+				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
+				PRODUCT_NAME = "SyncSeeker";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -368,7 +368,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = app_iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "SKYline SyncSeeker";
+				INFOPLIST_KEY_CFBundleDisplayName = SyncSeeker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -389,8 +389,8 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map;
-				PRODUCT_NAME = "SKYline SyncSeeker";
+				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
+				PRODUCT_NAME = "SyncSeeker";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
