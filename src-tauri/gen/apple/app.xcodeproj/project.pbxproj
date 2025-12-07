@@ -266,7 +266,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = app_iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = SyncSeeker;
+				INFOPLIST_KEY_CFBundleDisplayName = "SKYline SyncSeeker";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -288,7 +288,7 @@
 				);
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map;
-				PRODUCT_NAME = "syncseeker";
+				PRODUCT_NAME = "SKYline SyncSeeker";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
@@ -368,7 +368,7 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = app_iOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = SyncSeeker;
+				INFOPLIST_KEY_CFBundleDisplayName = "SKYline SyncSeeker";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -390,7 +390,7 @@
 				);
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map;
-				PRODUCT_NAME = "syncseeker";
+				PRODUCT_NAME = "SKYline SyncSeeker";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = arm64;
