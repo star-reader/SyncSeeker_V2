@@ -124,7 +124,9 @@ function RoadmapContent() {
       <div className={styles.roadmapList}>
         {aboutStasticInfo.road_map.map((item, idx) => (
           <div key={idx} className={styles.roadmapItem} data-status={item.status}>
-            <div className={styles.roadmapVersion}>{item.version}</div>
+            <div className={styles.roadmapVersion}>{item.version} <br /> 
+              {item.status === 'released' ?  '已发布' : item.status === 'beta' ? '内测中' : item.status === 'planned' ? '计划中' : '未来'} 
+            </div>
             <div className={styles.roadmapContent}>
               <div className={styles.roadmapTitle}>{item.title}</div>
               <div className={styles.roadmapDesc}>{item.description}</div>

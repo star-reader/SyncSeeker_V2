@@ -1,13 +1,60 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- 
+      Copyright (c) 2025 SKYline天际模飞俱乐部. All rights reserved.
+      Author and Maintainer: Chunhao Jin 2287 @skylineflyleague, 2025, designed with ❤️
+      Verify id: 99a5cdf3-5abc-42a7-ae2c-19969f6c598e
+    -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>syncseeker</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="description"
+      content="SYline SyncSeeker是SKYline模拟飞行俱乐部全新推出的在线航班实时查询跟踪软件，可实时查询、跟踪航班，并查看平台管制员在线状态。"
+    />
+    <meta
+      name="keywords"
+      content="SKYline,Sync Seeker,SyncSeeker,天际模飞,天际线模飞,天际模飞俱乐部,连飞地图,联飞地图,连飞,联飞,模拟飞行,FSX,MFS,MFS2020,MFS2024,p3d,XPlane"
+    />
+    <title>SKYline SyncSeeker</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/pwa-icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/pwa-icons/icon-512x512.png">
+    <link rel="icon" type="image/png" href="/pwa-icons/icon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/pwa-icons/icon-512x512.png" sizes="512x512">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="application-name" content="SKYline SyncSeeker">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="SKYline SyncSeeker">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="text/javascript">
+      window.__NANO_VR_HASH__ = "b7a584b72e2a231e3982d98048d18149b28b7df881112c8220ef4bac8c555cfe"
+    </script>
+    <script type="text/javascript">
+      window.__DEBUG_MODE__ = function(){try{return localStorage.getItem("__dbg")==="1"}catch(e){return false}};
+      window.__METRICS__ = {
+        _c: [],
+        push: function(e){this._c.push({t:Date.now(),d:e})},
+        _f: new Uint8Array([33,66,99,111,110,102,105,103,95,49,50,51])
+      };
+      window.__FEATURE_FLAGS__ = function(){
+        var _={};for(var i=97;i<123;i++)_[String.fromCharCode(i)]=!!(i%3);
+        _.xMode=!![];_.yMode=![];_.zMode=!![];
+        return _;
+      };
+    </script>
   </body>
 </html>

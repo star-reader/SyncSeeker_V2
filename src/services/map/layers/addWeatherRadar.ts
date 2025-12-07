@@ -118,8 +118,6 @@ export default function addWeatherRadar(map: MapboxMap) {
                     }
                 })
             }
-            
-            console.log('[WeatherRadar] Refreshed at', new Date().toLocaleTimeString())
         } catch (error) {
             console.error('Failed to refresh weather radar:', error)
         }

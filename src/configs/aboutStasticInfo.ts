@@ -12,14 +12,14 @@ export default {
     road_map: [
         //有released beta planned future四个选项 
         { version: 'v0.1.0', status: 'beta', title: '基础服务', description: '连飞地图基础功能、移动端APP开发' },
-        { version: 'v1.2.0', status: 'beta', title: '集成服务', description: '3D航迹、机场大屏、机场流量显示' },
-        { version: 'v1.3.0', status: 'planned', title: 'NOTAM与METAR集成', description: '展示相关机场和空域的航行公告与天气信息' },
-        { version: 'v1.4.0', status: 'planned', title: '天气可视化系统', description: '更详细、智能的天气可视化系统' },
-        { version: 'v1.5.0', status: 'planned', title: '机组飞机图片', description: '允许机组设置航班图片' },
-        { version: 'v1.6.0', status: 'planned', title: '用户登录与社群', description: '用户登录、高级用户设置、好友等' },
-        { version: 'v1.7.0', status: 'planned', title: '连飞活动集成', description: '连飞活动模式与功能集成' },
-        { version: 'v1.8.0', status: 'future', title: '导航数据与AMDT集成', description: '集成导航数据与机场地面AMDT系统' },
-        { version: 'v1.9.0', status: 'future', title: '本地离线化记录', description: '本地飞行数据记录、更高级的飞行数据记录' },
+        { version: 'v0.2.0', status: 'beta', title: '集成服务', description: '3D航迹、机场大屏、机场流量显示' },
+        { version: 'v1.0.0', status: 'planned', title: 'NOTAM与METAR集成', description: '展示相关机场和空域的航行公告与天气信息' },
+        { version: 'v1.1.0', status: 'planned', title: '天气可视化系统', description: '更详细、智能的天气可视化系统' },
+        { version: 'v1.2.0', status: 'planned', title: '机组飞机图片', description: '允许机组设置航班图片' },
+        { version: 'v1.3.0', status: 'planned', title: '用户登录与社群', description: '用户登录、高级用户设置、好友等' },
+        { version: 'v1.4.0', status: 'planned', title: '连飞活动集成', description: '连飞活动模式与功能集成' },
+        { version: 'v1.5.0', status: 'future', title: '导航数据与AMDT集成', description: '集成导航数据与机场地面AMDT系统' },
+        { version: 'v1.6.0', status: 'future', title: '本地离线化记录', description: '本地飞行数据记录、更高级的飞行数据记录' },
     ],
     changelogs: [
     {

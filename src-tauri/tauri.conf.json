@@ -1,0 +1,41 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "SyncSeeker",
+  "version": "0.1.0",
+  "identifier": "cn.skylineflyleague.map.beta",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:4988",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SKYline SyncSeeker",
+        "width": 1920,
+        "height": 1080,
+        "resizable": true,
+        "fullscreen": false,
+        "titleBarStyle": "Visible",
+        "hiddenTitle": false,
+        "decorations": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.png"
+    ],
+    "iOS": {
+      "bundleVersion": "100"
+    }
+  }
+}

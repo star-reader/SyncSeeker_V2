@@ -11,7 +11,7 @@ import marker_atc from '../../../assets/marker_atc.png'
 export default (map: mapboxgl.Map) => {
 
     const assetsData = [
-        {'name': 'marker.atc', 'img': marker_atc}
+        {'name': 'marker.atc', 'img': marker_atc, isSef: false}
     ]
 
     const length = assetsData.length
@@ -23,7 +23,7 @@ export default (map: mapboxgl.Map) => {
                 if (!img) return
                 map.addImage(i.name, img, {
                     'pixelRatio': 1,
-                    'sdf': true
+                    'sdf': i.isSef
                 })
                 count++
                 if (count === length) {

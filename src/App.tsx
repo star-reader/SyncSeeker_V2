@@ -8,13 +8,17 @@ import pollingData from './apis/pollingData'
 import PilotList from './components/statistics/PilotList'
 import SettingsPanel from './components/settings/SettingsPanel'
 import PilotInfoPanel from './components/map/PilotInfoPanel'
+import ControllerInfoPanel from './components/map/ControllerInfoPanel'
 import AirportInfoPanel from './components/map/AirportInfoPanel'
 import AirportBoard from './components/airport/AirportBoard'
 import AboutPanel from './components/about/AboutPanel'
 import Toast from './components/common/Toast'
+import OnboardingGuide from './components/onboarding/OnboardingGuide'
+import InstallGuidePanel from './components/install/InstallGuidePanel'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
+import { initializeFonts } from './utils/fontLoader'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -22,7 +26,34 @@ export default function App() {
     const trackCancelled = useRef(false)
 
     useEffect(() => {
+        // 初始化字体加载
+        initializeFonts()
+        
         const stop = pollingData()
+        
+        // 检查PWA安装状态，首次访问时提示安装
+        const checkPWAInstallation = () => {
+            // 检查是否是Tauri应用
+            const isTauri = '__TAURI__' in window
+            
+            // 检查是否已安装为PWA
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+            const isIOSStandalone = (window.navigator as any).standalone === true
+            const isPWAInstalled = isStandalone || isIOSStandalone
+            
+            const hasSeenInstallGuide = localStorage.getItem('pwa-install-guide-seen')
+            
+            // 只在浏览器环境（非Tauri且未安装PWA）且首次访问时显示安装提示
+            if (!isTauri && !isPWAInstalled && !hasSeenInstallGuide) {
+                setTimeout(() => {
+                    pubsub.publish(EVENTS.INSTALL_APP_CLICK)
+                    localStorage.setItem('pwa-install-guide-seen', 'true')
+                }, 3000)
+            }
+        }
+        
+        checkPWAInstallation()
+        
         return stop
     }, [])
 
@@ -91,6 +122,7 @@ export default function App() {
 
     return (
         <>
+            <OnboardingGuide />
             <TopNavBar />
             <BasicMap />
             <>
@@ -99,9 +131,11 @@ export default function App() {
                 {openedMenu === 'settings' && <SettingsPanel />}
                 {openedMenu === 'board' && <AirportBoard />}
                 <PilotInfoPanel />
+                <ControllerInfoPanel />
                 <AirportInfoPanel />
             </>
             <AboutPanel />
+            <InstallGuidePanel />
             <Toast />
         </>
     )

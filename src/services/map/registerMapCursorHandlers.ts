@@ -18,6 +18,9 @@ export default function registerMapCursorHandlers(map: mapboxgl.Map): void {
     const layers = [
         MAP_IDS.PILOT_LIST_LAYER,
         MAP_IDS.ACTIVE_AIRPORTS_LAYER,
+        MAP_IDS.CONTROLLER_MARKER_LAYER,
+        MAP_IDS.CONTROLLER_CIRCLE_FILL_LAYER,
+        MAP_IDS.CONTROLLER_POLYGON_FILL_LAYER,
     ]
 
     for (const layer of layers) {

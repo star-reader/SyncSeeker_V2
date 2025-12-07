@@ -16,6 +16,7 @@ import { Airplane } from '@icon-park/react'
  * @param size 图标尺寸 (默认 16)
  */
 export default ({ name, size = 16 }: { name: string, size?: number }) => {
-  const type = name as any
+  // 首字母大写转换
+  const type = name.charAt(0).toUpperCase() + name.slice(1) as any
   return ALL_ICON_KEYS.includes(type) ? <Icon type={type} size={size} /> : <Airplane size={size} />
 }

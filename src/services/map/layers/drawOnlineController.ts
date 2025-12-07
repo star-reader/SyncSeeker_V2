@@ -58,6 +58,16 @@ function parseCallsign(callsign: string): {
     sector: string | null; 
     fullMatch: string 
 } {
+    // 空值检查
+    if (!callsign || typeof callsign !== 'string') {
+        return {
+            type: 'OTHER',
+            prefix: '',
+            sector: null,
+            fullMatch: ''
+        }
+    }
+    
     const upper = callsign.toUpperCase()
     
     // 检测类型后缀
@@ -122,18 +132,28 @@ async function findFirBoundary(
         }
     }
     
-    if (!firCache || firCache.length === 0) return null
+    if (!firCache || firCache.length === 0) {
+        return null
+    }
 
     const features: GeoJSON.Feature[] = []
     
     // 特殊处理 PRC_FSS - 合并中国所有CTR
     if (callsign.toUpperCase() === 'PRC_FSS') {
         const chinaFirs = firCache.filter(fir => 
-            fir.type === 'fir' && fir.icao.startsWith('Z')
+            fir.type === 'fir' && fir.icao && fir.icao.startsWith('Z')
         )
         chinaFirs.forEach(fir => {
             if (fir.geojson?.features) {
                 features.push(...fir.geojson.features)
+            } else if ((fir as any).coordinates) {
+                const coords = (fir as any).coordinates as number[][]
+                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
+                features.push({
+                    type: 'Feature',
+                    properties: { icao: fir.icao, name: fir.name, type: fir.type },
+                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
+                })
             }
         })
         return features.length > 0 ? features : null
@@ -142,30 +162,74 @@ async function findFirBoundary(
     // 分扇格式: ZBAA_01_CTR -> 直接查找 ZBAA_01_CTR
     if (sector) {
         const fullName = `${prefix}_${sector}_${type}`
-        const match = firCache.find(fir => fir.name.toUpperCase() === fullName)
-        if (match?.geojson?.features) {
-            return match.geojson.features
+        const match = firCache.find(fir => fir.name && fir.name.toUpperCase() === fullName)
+        if (match) {
+            if (match.geojson?.features) {
+                return match.geojson.features
+            } else if ((match as any).coordinates) {
+                const coords = (match as any).coordinates as number[][]
+                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
+                return [{
+                    type: 'Feature',
+                    properties: { icao: match.icao, name: match.name, type: match.type },
+                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
+                }]
+            }
         }
     }
     
     // 非分扇格式: ZBAA_CTR -> 查找所有 ZBAA_*_CTR 分扇并合并
     // 或者直接匹配 ZBAA_CTR
     const directMatch = firCache.find(fir => 
-        fir.name.toUpperCase() === `${prefix}_${type}` ||
-        fir.icao.toUpperCase() === prefix
+        (fir.name && fir.name.toUpperCase() === `${prefix}_${type}`) ||
+        (fir.icao && fir.icao.toUpperCase() === prefix)
     )
     
-    if (directMatch?.geojson?.features) {
-        features.push(...directMatch.geojson.features)
+    if (directMatch) {
+        if (directMatch.geojson?.features) {
+            features.push(...directMatch.geojson.features)
+        } else if ((directMatch as any).coordinates) {
+            const coords = (directMatch as any).coordinates as number[][]
+            const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
+            features.push({
+                type: 'Feature',
+                properties: { icao: directMatch.icao, name: directMatch.name, type: directMatch.type },
+                geometry: { type: 'Polygon', coordinates: [polygonCoords] }
+            })
+        }
     }
     
     // 查找分扇
     const sectorPattern = new RegExp(`^${prefix}_\\d+_${type}$`, 'i')
-    const sectorMatches = firCache.filter(fir => sectorPattern.test(fir.name))
+    const sectorMatches = firCache.filter(fir => fir.name && sectorPattern.test(fir.name))
     
-    sectorMatches.forEach(fir => {
+    sectorMatches.forEach((fir) => {
+        // 支持 geojson.features 格式
         if (fir.geojson?.features) {
             features.push(...fir.geojson.features)
+        } 
+        // 支持直接的 coordinates 数组格式
+        else if ((fir as any).coordinates && Array.isArray((fir as any).coordinates)) {
+            const coords = (fir as any).coordinates as number[][]
+            
+            // 确保坐标格式正确（闭合的多边形）
+            const polygonCoords = coords[0] === coords[coords.length - 1] 
+                ? coords 
+                : [...coords, coords[0]]
+            
+            const feature: GeoJSON.Feature = {
+                type: 'Feature',
+                properties: {
+                    icao: fir.icao,
+                    name: fir.name,
+                    type: fir.type
+                },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [polygonCoords]
+                }
+            }
+            features.push(feature)
         }
     })
     
@@ -173,10 +237,20 @@ async function findFirBoundary(
     if (features.length === 0 && (type === 'CTR' || type === 'APP')) {
         const firType = type === 'CTR' ? 'fir' : 'app'
         const icaoMatch = firCache.find(fir => 
-            fir.icao.toUpperCase() === prefix && fir.type === firType
+            fir.icao && fir.icao.toUpperCase() === prefix && fir.type === firType
         )
-        if (icaoMatch?.geojson?.features) {
-            features.push(...icaoMatch.geojson.features)
+        if (icaoMatch) {
+            if (icaoMatch.geojson?.features) {
+                features.push(...icaoMatch.geojson.features)
+            } else if ((icaoMatch as any).coordinates) {
+                const coords = (icaoMatch as any).coordinates as number[][]
+                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
+                features.push({
+                    type: 'Feature',
+                    properties: { icao: icaoMatch.icao, name: icaoMatch.name, type: icaoMatch.type },
+                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
+                })
+            }
         }
     }
     
@@ -318,10 +392,13 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
     
     for (const controller of controllers) {
         const { type, prefix, sector } = parseCallsign(controller.callsign)
+        
         const colors = CONTROLLER_COLORS[type] || CONTROLLER_COLORS.OTHER
         
         // 跳过不需要绘制的类型
-        if (type === 'ATIS' || type === 'OBS') continue
+        if (type === 'ATIS' || type === 'OBS') {
+            continue
+        }
         
         // 尝试获取polygon边界（CTR/APP/FSS）
         if (type === 'CTR' || type === 'APP' || type === 'FSS') {

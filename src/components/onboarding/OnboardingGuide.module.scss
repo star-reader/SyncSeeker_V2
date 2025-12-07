@@ -1,0 +1,351 @@
+@use '../../themes/breakpoints' as *;
+@use '../../themes/variables' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  
+  // 桌面端：遮罩层效果
+  @include screen-up(md) {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.container {
+  background: var(--sky-bg-color-base);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  overflow: hidden;
+  
+  // 移动端：从底部弹出的面板
+  @include screen-down(md) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 90vh;
+    border-radius: 24px 24px 0 0;
+    animation: slideUpMobile 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    // 允许下拉回弹效果
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // 桌面端：居中的卡片
+  @include screen-up(md) {
+    border-radius: 16px;
+    max-width: 700px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  @include screen-up(lg) {
+    max-width: 800px;
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// 步骤内容切换动画
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stepContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  
+  &.slideInRight {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  &.slideInLeft {
+    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 16px 16px;
+  
+  @include screen-up(md) {
+    padding: 28px;
+  }
+}
+
+// 步骤指示器
+.indicators {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+  
+  @include screen-up(md) {
+    margin-bottom: 16px;
+  }
+}
+
+.indicator {
+  width: 32px;
+  height: 4px;
+  background: var(--sky-border-color);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  
+  &.active {
+    background: var(--sky-color-primary);
+  }
+}
+
+// 图片区域
+.imageWrapper {
+  flex: 1;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // 移动端竖向 3:4
+  @include screen-down(md) {
+    border-radius: 8px;
+  }
+  
+  @include screen-up(md) {
+    margin-bottom: 16px;
+    max-height: 320px;
+  }
+}
+
+.imagePlaceholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.image {
+  width: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  border-radius: 10px;
+  overflow: hidden;
+
+  &.imageLoaded {
+    opacity: 1;
+  }
+
+  @include screen-down(md) {
+    width: 70%;
+  }
+}
+
+// 文字内容
+.textContent {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 12px;
+  
+  @include screen-up(md) {
+    margin-bottom: 16px;
+  }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--sky-text-color-primary);
+  margin: 0 0 8px 0;
+  
+  @include screen-up(md) {
+    font-size: 24px;
+    margin: 0 0 10px 0;
+  }
+}
+
+.description {
+  font-size: 13px;
+  color: var(--sky-text-color-secondary);
+  line-height: 1.4;
+  margin: 0;
+  
+  @include screen-up(md) {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
+
+// 按钮区域
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  
+  // 移动端：垂直排列，按钮更大
+  @include screen-down(md) {
+    flex-direction: column;
+    
+    button {
+      width: 80%;
+      left: 10%;
+      height: 44px !important;
+      font-size: 15px !important;
+      font-weight: 500 !important;
+      border-radius: 50%;
+    }
+  }
+  
+  // 桌面端：水平排列，两端对齐
+  @include screen-up(md) {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.skipButton {
+  color: var(--sky-text-color-secondary) !important;
+  
+  // 移动端隐藏跳过按钮
+  @include screen-down(md) {
+    display: none !important;
+  }
+}
+
+.prevButton {
+  border-color: var(--sky-border-color) !important;
+  color: var(--sky-text-color-primary) !important;
+  border-radius: 12px !important;
+  
+  @include screen-up(md) {
+    margin-right: auto !important;
+    border-radius: 8px !important;
+  }
+}
+
+.nextButton,
+.downloadButton {
+  background: var(--sky-color-primary) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  
+  @include screen-down(md) {
+    height: 44px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    border-radius: 14px !important;
+  }
+  
+  @include screen-up(md) {
+    min-width: 120px;
+  }
+  
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:disabled {
+    background: var(--sky-border-color) !important;
+    color: var(--sky-text-color-disabled) !important;
+  }
+}
+
+// .downloadSection {
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 12px;
+
+//   @include screen-up(md) {
+//     width: 80%;
+//   }
+// }
+
+.downloadButton {
+  width: 100%;
+  
+  @include screen-up(md) {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+.errorText {
+  color: var(--sky-color-danger);
+  font-size: 14px;
+  margin: 0;
+}

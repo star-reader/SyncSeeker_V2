@@ -84,6 +84,11 @@ export default function AirportInfoPanel() {
     handleClose()
   }
 
+  const handleControllerClick = (controller: OnlineController) => {
+    pubsub.publish(EVENTS.CONTROLLER_ICON_CLICK, { callsign: controller.callsign })
+    handleClose()
+  }
+
   const handleTouchStart = (e: React.TouchEvent) => {
     if (snapPosition === 'full' && detailsRef.current && detailsRef.current.contains(e.target as Node)) {
       const el = detailsRef.current
@@ -143,7 +148,11 @@ export default function AirportInfoPanel() {
   )
 
   const renderControllerItem = (controller: OnlineController) => (
-    <div key={controller.session_id} className={styles.atcItem}>
+    <div 
+      key={controller.session_id} 
+      className={styles.atcItem}
+      onClick={() => handleControllerClick(controller)}
+    >
       <div className={styles.atcCallsign}>{controller.callsign}</div>
       <div className={styles.atcFreq}>{controller.frequency}</div>
       <div className={styles.atcName}>{controller.name}</div>

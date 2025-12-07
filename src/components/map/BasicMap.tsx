@@ -7,7 +7,7 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import mapboxgl from 'mapbox-gl'
 import pubsub from 'pubsub-js'
 import style from './BasicMap.module.scss'
@@ -29,17 +29,35 @@ import asyncLoadGeneralAssets from "../../services/map/assets/asyncLoadGeneralAs
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
     const trackedCallsignRef = useRef<string | null>(null)
+    const [mapStyle, setMapStyle] = useState<'dynamic' | 'satellite'>('dynamic')
+
+    useEffect(() => {
+        // 从 localStorage 读取保存的地图主题
+        const savedStyle = localStorage.getItem('map-style') as 'dynamic' | 'satellite' | null
+        if (savedStyle) {
+            setMapStyle(savedStyle)
+        }
+    }, [])
 
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
+        
+        const getMapStyle = () => {
+            if (mapStyle === 'satellite') {
+                return 'mapbox://styles/mapbox/satellite-v9'
+            }
+            // 动态主题根据当前主题切换
+            return 'mapbox://styles/mapbox/standard'
+        }
+        
         mapRef.current = new mapboxgl.Map({
             container: 'map-container',
-            style: 'mapbox://styles/mapbox/standard',
+            style: getMapStyle(),
             center: [120.128029, 30.267153],
             zoom: 6,
             config: {
                 basemap: {
-                    lightPreset: useGetCurrentTheme() === 'dark' ? 'night' : 'day',
+                    lightPreset: mapStyle === 'satellite' ? 'day' : (useGetCurrentTheme() === 'dark' ? 'night' : 'day'),
                     showPointOfInterestLabels: false,
                 }
             }
@@ -51,21 +69,31 @@ export default function BasicMap() {
             mapRef.current?.remove()
             mapRef.current = null
         }
-    }, [])
+    }, [mapStyle])
 
     // pubsub监听事件
     useEffect(() => {
         const themeToken = pubsub.subscribe(EVENTS.THEME_CHANGE, (_, theme: string) => {
+            // 卫星模式不受日夜模式影响
+            if (mapStyle === 'satellite') return
+            
             if (theme === 'dark') {
                 mapRef.current?.setConfigProperty('basemap', 'lightPreset', 'night');
             } else {
                 mapRef.current?.setConfigProperty('basemap', 'lightPreset', 'day');
             }
         })
+        
+        const mapStyleToken = pubsub.subscribe(EVENTS.MAP_STYLE_CHANGE, (_, style: 'dynamic' | 'satellite') => {
+            setMapStyle(style)
+            localStorage.setItem('map-style', style)
+        })
+        
         return () => {
             pubsub.unsubscribe(themeToken)
+            pubsub.unsubscribe(mapStyleToken)
         }
-    }, [])
+    }, [mapStyle])
 
     // 航班追踪功能
     useEffect(() => {
@@ -187,6 +215,16 @@ export default function BasicMap() {
                         id, callsign: props.callsign
                     })
                     return // 处理后退出
+                }
+                // 管制员标记点击（marker, circle, polygon都可以触发）
+                if ((i.layer.id === MAP_IDS.CONTROLLER_MARKER_LAYER || 
+                     i.layer.id === MAP_IDS.CONTROLLER_CIRCLE_FILL_LAYER ||
+                     i.layer.id === MAP_IDS.CONTROLLER_POLYGON_FILL_LAYER) && i.properties) {
+                    const callsign = i.properties.callsign
+                    if (callsign) {
+                        pubsub.publish(EVENTS.CONTROLLER_ICON_CLICK, { callsign })
+                        return // 处理后退出
+                    }
                 }
                 // 机场点或标签点击
                 if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {

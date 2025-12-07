@@ -116,6 +116,7 @@
   height: 28px;
   border-radius: 50%;
   border: none;
+  background: color-mix(in srgb, var(--sky-text-color-primary) 5%, transparent);
   // background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
   color: var(--sky-text-color-regular);
   display: grid;
@@ -124,7 +125,11 @@
   transition: all 0.2s;
   flex-shrink: 0;
 }
-.shareBtn:hover {
+.trackBtn.tracking {
+  background: color-mix(in srgb, var(--sky-color-primary) 20%, transparent);
+  color: var(--sky-color-primary);
+}
+.shareBtn:hover, .trackBtn:hover {
   background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
   color: var(--sky-color-primary);
 }
