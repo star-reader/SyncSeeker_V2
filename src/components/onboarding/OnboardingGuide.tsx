@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { Button, CircularProgress } from '@mui/material'
 import styles from './OnboardingGuide.module.scss'
 import { fetchAndStoreNavData } from '../../apis/fetchStorageData'
+import { isAccessedViaShareLink } from '../../utils/flightSharing'
 
 // 引入图片
 import pc_1 from '../../assets/onboarding/pc/1.png'
@@ -135,6 +136,13 @@ export default function OnboardingGuide() {
 
   const checkOnboardingStatus = async () => {
     try {
+      // 如果通过分享链接访问，临时跳过导航数据下载和引导（但不标记为完成）
+      if (isAccessedViaShareLink()) {
+        console.log('Accessed via share link, temporarily skipping onboarding and nav data download')
+        setIsVisible(false)
+        return
+      }
+
       // 检查是否已完成引导
       const hasCompletedOnboarding = localStorage.getItem('onboarding-completed')
       if (hasCompletedOnboarding === 'true') {
