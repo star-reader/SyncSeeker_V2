@@ -1,5 +1,5 @@
-const current_version = '0.1.0-beta'
-const release_date = '2025-12-06'
+const current_version = '0.1.1-beta'
+const release_date = '2025-12-08'
 
 export default {
     version_basic: {
@@ -25,6 +25,14 @@ export default {
     {
       version: current_version,
       date: release_date,
+      changes: [
+        '修复 iOS APP航班链接分享地址解析问题',
+        '修复 航班分享进入后导航数据下载与初始化逻辑'
+      ]
+    },
+    {
+      version: 'v0.1.0 beta',
+      date: '2025-12-06',
       changes: [
         '全新的 UI 设计，更现代的视觉体验',
         '基础地图与机组、管制员显示',
