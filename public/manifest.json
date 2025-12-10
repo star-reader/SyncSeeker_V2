@@ -1,6 +1,6 @@
 {
-    "name": "SKYline SyncSeeker",
-    "short_name": "SyncSeeker",
+    "name": "SyncSeeker Beta",
+    "short_name": "SyncSeeker Beta",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#4682B4",
