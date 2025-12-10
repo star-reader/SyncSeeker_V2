@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import pubsub from 'pubsub-js'
+import { isTauri as _isTauri } from '@tauri-apps/api/core'
 import BasicMap from './components/map/BasicMap'
 import TopNavBar from './components/navBar/TopNavBar'
 // import PilotList from './components/statistics/PilotList'
@@ -34,7 +35,7 @@ export default function App() {
         // 检查PWA安装状态，首次访问时提示安装
         const checkPWAInstallation = () => {
             // 检查是否是Tauri应用
-            const isTauri = '__TAURI__' in window
+            const isTauri = _isTauri()
             
             // 检查是否已安装为PWA
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches

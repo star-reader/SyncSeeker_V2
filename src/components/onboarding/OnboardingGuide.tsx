@@ -192,6 +192,10 @@ export default function OnboardingGuide() {
     }
   }
 
+  const handleSkip = () => {
+    setIsVisible(false)
+  }
+
   if (!isVisible) {
     return null
   }
@@ -266,6 +270,24 @@ export default function OnboardingGuide() {
                   >
                     下载完成
                   </Button>
+                ) : downloadError ? (
+                  <>
+                    <Button
+                      variant="contained"
+                      onClick={handleDownload}
+                      className={styles.downloadButton}
+                    >
+                      重试
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={handleSkip}
+                      className={styles.skipButton}
+                    >
+                      跳过
+                    </Button>
+                    <p className={styles.errorText}>下载失败，请重试或跳过此步骤</p>
+                  </>
                 ) : (
                   <Button
                     variant="contained"
@@ -276,9 +298,6 @@ export default function OnboardingGuide() {
                   >
                     {isDownloading ? '下载中...' : '开始下载'}
                   </Button>
-                )}
-                {downloadError && (
-                  <p className={styles.errorText}>下载失败，请重试</p>
                 )}
               </div>
             )}

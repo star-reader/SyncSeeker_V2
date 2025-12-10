@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 import { SettingTwo, Moon, SunOne, Info, 
   ListTop, RadarThree, Airplane, More, DownloadOne } from '@icon-park/react'
 import pubsub from 'pubsub-js'
+import { isTauri as _isTauri } from '@tauri-apps/api/core'
 import navfulllogo from '../../assets/logo/nav-full-logo.png'
 // import LiquidGlassWrapper from '../common/LiquidGlassWarpper'
 import styles from './TopNavBar.module.scss'
@@ -42,17 +43,11 @@ export default function TopNavBar() {
     const el = document.getElementById('root')
     if (el) el.setAttribute('theme', theme)
     
-    // 检测是否需要显示"安装应用"按钮
     const checkShowInstall = () => {
-      // 检查是否是Tauri应用
-      const isTauri = '__TAURI__' in window
-      
-      // 检查是否已安装为PWA
+      const isTauri = _isTauri()
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       const isIOSStandalone = (window.navigator as any).standalone === true
       const isPWA = isStandalone || isIOSStandalone
-      
-      // 如果不是Tauri且不是PWA，则显示安装按钮
       setShowInstallButton(!isTauri && !isPWA)
     }
     

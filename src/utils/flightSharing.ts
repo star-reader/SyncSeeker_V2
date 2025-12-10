@@ -7,11 +7,13 @@
  * @date 2025-12-05
  */
 
+import { isTauri } from '@tauri-apps/api/core'
+
 /**
  * 检查是否在 Tauri 应用环境中
  */
 const isTauriApp = (): boolean => {
-    return '__TAURI__' in window
+    return isTauri()
 }
 
 /**
