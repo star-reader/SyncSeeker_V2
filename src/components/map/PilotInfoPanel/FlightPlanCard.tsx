@@ -25,7 +25,7 @@ export default function FlightPlanCard({
                 <div className={styles.kvLine}>
                     <div className={styles.kvLabel}>规则</div>
                     <div className={styles.kvValueLine}>
-                        {flightRules === 'I' ? 'IFR' : 'VFR'}
+                        {flightRules}
                     </div>
                 </div>
                 <div className={styles.kvLine}>

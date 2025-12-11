@@ -23,6 +23,16 @@ let cachedArrivalIcao: string | null = null;
 let cachedAirportCoords: [number, number] | null = null;
 
 /**
+ * 清除涂层source和layer，是hide不是clear，因为第一步init初始化图层
+ */
+const hideRouteSourceAndLayer = (map: mapboxgl.Map) => {
+    const geojson: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+    const source = map.getSource(MAP_IDS.SELECTED_PILOT_ROUTE_SOURCE) as mapboxgl.GeoJSONSource
+    if (source) source.setData(geojson)
+    return
+}
+
+/**
  * 绘制选中飞行员的航线
  */
 const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null, callsign: string | null, currentPos?: [number, number]) => {
@@ -34,15 +44,17 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null, calls
     currentSelectedCallsign = callsign
 
     // 如果没有ID，清空图层
+    // v0.1.2 bugfix/jerry 没有飞行计划的也应该被清除
     if (!pilotId) {
-        const geojson: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
-        const source = map.getSource(MAP_IDS.SELECTED_PILOT_ROUTE_SOURCE) as mapboxgl.GeoJSONSource
-        if (source) source.setData(geojson)
+        hideRouteSourceAndLayer(map)
         return
     }
 
     const pilot = useOnlineDataStore.getState().getPilotById(pilotId)
-    if (!pilot || !pilot.flight_plan?.arrival) return
+    if (!pilot || !pilot.flight_plan?.arrival){
+        hideRouteSourceAndLayer(map)
+        return
+    }
 
     try {
         let end: [number, number]

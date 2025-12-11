@@ -286,7 +286,7 @@ export default function OnboardingGuide() {
                     >
                       跳过
                     </Button>
-                    <p className={styles.errorText}>下载失败，请重试或跳过此步骤</p>
+                    <p className={styles.errorText}>下载失败</p>
                   </>
                 ) : (
                   <Button
