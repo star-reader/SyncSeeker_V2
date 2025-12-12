@@ -1,5 +1,5 @@
-const current_version = '0.1.1-beta'
-const release_date = '2025-12-08'
+const current_version = '0.1.2-beta'
+const release_date = '2025-12-11'
 
 export default {
     version_basic: {
@@ -25,6 +25,15 @@ export default {
     {
       version: current_version,
       date: release_date,
+      changes: [
+        '修复 飞行计划始终显示VFR的bug',
+        '修复 航迹切换偶尔不消失的bug',
+        '修复 部分显示和性能问题'
+      ]
+    },
+    {
+      version: 'v0.1.1 beta',
+      date: '2025-12-08',
       changes: [
         '修复 iOS APP航班链接分享地址解析问题',
         '修复 航班分享进入后导航数据下载与初始化逻辑'
