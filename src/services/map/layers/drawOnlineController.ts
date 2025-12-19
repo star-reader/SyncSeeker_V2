@@ -308,7 +308,8 @@ export default function drawOnlineController(map: MapboxMap) {
             source: MAP_IDS.CONTROLLER_POLYGON_SOURCE,
             paint: {
                 'fill-color': ['get', 'fillColor'],
-                'fill-opacity': 1
+                'fill-opacity': 1,
+                'fill-emissive-strength': 1
             }
         })
     }
@@ -322,7 +323,8 @@ export default function drawOnlineController(map: MapboxMap) {
             paint: {
                 'line-color': ['get', 'lineColor'],
                 'line-width': 1.5,
-                'line-opacity': 1
+                'line-opacity': 1,
+                'line-emissive-strength': 1,
             }
         })
     }
@@ -335,7 +337,8 @@ export default function drawOnlineController(map: MapboxMap) {
             source: MAP_IDS.CONTROLLER_CIRCLE_SOURCE,
             paint: {
                 'fill-color': ['get', 'fillColor'],
-                'fill-opacity': 1
+                'fill-opacity': 1,
+                'fill-emissive-strength': 1
             }
         })
     }
@@ -349,7 +352,8 @@ export default function drawOnlineController(map: MapboxMap) {
             paint: {
                 'line-color': ['get', 'lineColor'],
                 'line-width': 1.5,
-                'line-dasharray': [3, 2]
+                'line-dasharray': [3, 2],
+                'line-emissive-strength': 1
             }
         })
     }
@@ -364,7 +368,7 @@ export default function drawOnlineController(map: MapboxMap) {
                 'icon-image': 'marker.atc',
                 'icon-size': 0.75,
                 'icon-allow-overlap': true,
-                'icon-ignore-placement': true
+                'icon-ignore-placement': true,
             }
         })
     }
