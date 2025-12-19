@@ -70,7 +70,7 @@ npm install
 #### Web 开发
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 #### Tauri 开发（桌面应用）
@@ -102,7 +102,7 @@ VITE_CONTACT_EMAIL=your-email@example.com
 #### 构建 Web 应用
 
 ```bash
-npm run dev
+npm run build
 ```
 
 构建产物位于 `dist/` 目录。
