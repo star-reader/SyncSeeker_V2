@@ -13,6 +13,7 @@ import { Close, RoadSign, ThumbsUp, Lightning,
 import styles from './AboutPanel.module.scss'
 import { EVENTS } from '../../configs/constants'
 import aboutStasticInfo from '../../configs/aboutStasticInfo'
+import { useReleaseInfoStore } from '../../stores/useReleaseInfoStore'
 import logo from '../../assets/logo/nav-full-logo.png'
 
 type TabKey = 'roadmap' | 'credits' | 'changelog' | 'about' | 'privacy'
@@ -116,13 +117,15 @@ function AboutContent() {
 }
 
 function RoadmapContent() {
+  const roadMap = useReleaseInfoStore(state => state.roadMap)
+  
   return (
     <div className={styles.roadmapSection}>
       <p className={styles.roadmapIntro}>
         以下是我们计划中的功能更新，实际发布时间可能会有所调整。
       </p>
       <div className={styles.roadmapList}>
-        {aboutStasticInfo.road_map.map((item, idx) => (
+        {roadMap.map((item, idx) => (
           <div key={idx} className={styles.roadmapItem} data-status={item.status}>
             <div className={styles.roadmapVersion}>{item.version} <br /> 
               {item.status === 'released' ?  '已发布' : item.status === 'beta' ? '内测中' : item.status === 'planned' ? '计划中' : '未来'} 
@@ -139,9 +142,11 @@ function RoadmapContent() {
 }
 
 function ChangelogContent() {
+  const changelogs = useReleaseInfoStore(state => state.changelogs)
+  
   return (
     <div className={styles.changelogSection}>
-      {aboutStasticInfo.changelogs.map((log, idx) => (
+      {changelogs.map((log, idx) => (
         <div key={idx} className={styles.changelogItem}>
           <div className={styles.changelogHeader}>
             <span className={styles.changelogVersion}>{log.version}</span>
@@ -159,12 +164,14 @@ function ChangelogContent() {
 }
 
 function CreditsContent() {
+  const thirdParty = useReleaseInfoStore(state => state.thirdParty)
+  
   return (
     <div className={styles.creditsSection}>
       <div className={styles.creditsGroup}>
         <h3>开源库</h3>
         <div className={styles.creditsList}>
-          {aboutStasticInfo.third_party.map((lib, idx) => (
+          {thirdParty.map((lib, idx) => (
             <a key={idx} href={lib.url} target="_blank" rel="noopener noreferrer" className={styles.creditItem}>
               <span className={styles.creditName}>{lib.name}</span>
               <span className={styles.creditDesc}>{lib.desc}</span>
@@ -191,7 +198,7 @@ function PrivacyContent() {
       <h3>第三方服务</h3>
       <p>
         本应用使用的第三方服务可能会通过Cookie、LocalStorage储存其对应的服务信息以提升用户体验。
-        数据可能会随网络请求携带上传，但全部数据收集均为匿名，且不包含任何个人身份信息。可能手机信息的服务有：
+        数据可能会随网络请求携带上传，但全部数据收集均为匿名，且不包含任何个人身份信息。可能收集信息的服务有：
       </p>
       <ul>
         <li><strong>Mapbox</strong> - 地图服务，受Mapbox服务条款约束</li>

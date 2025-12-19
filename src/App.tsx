@@ -20,6 +20,7 @@ import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
 import { initializeFonts } from './utils/fontLoader'
+import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -29,6 +30,9 @@ export default function App() {
     useEffect(() => {
         // 初始化字体加载
         initializeFonts()
+        
+        // 初始化发布信息
+        useReleaseInfoStore.getState().initialize()
         
         const stop = pollingData()
         

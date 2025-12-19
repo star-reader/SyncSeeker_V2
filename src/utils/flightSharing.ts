@@ -24,7 +24,7 @@ const isTauriApp = (): boolean => {
 export const generateShareUrl = (callsign: string): string => {
     // 在 Tauri 环境中，使用生产环境的 web URL
     if (isTauriApp()) {
-        const webUrl = 'https://beta.map.skylineflyleague.cn'
+        const webUrl = 'https://map.skylineflyleague.cn'
         const url = new URL(webUrl)
         url.searchParams.set('track', callsign)
         return url.toString()
