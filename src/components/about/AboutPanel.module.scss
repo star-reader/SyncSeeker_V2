@@ -1,3 +1,5 @@
+@use '../../themes/breakpoints' as *;
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -397,8 +399,7 @@
   }
 }
 
-/* Mobile Responsive */
-@media (max-width: 680px) {
+@include screen-down(md) {
   .overlay {
     padding: 0;
     place-items: end center;

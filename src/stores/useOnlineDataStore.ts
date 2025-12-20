@@ -21,6 +21,8 @@ interface OnlineDataStore {
   getFlights: () => OnlinePilot[],
   getControllers: () => OnlineController[],
   getAtis: () => OnlineController[],
+  getControllersWithAtis: () => OnlineController[],
+  
 }
 
 /**
@@ -54,6 +56,9 @@ export const useOnlineDataStore = create<OnlineDataStore>((set, get) => ({
   },
   getAtis: () => {
     return get().onlineData?.atis || []
+  },
+  getControllersWithAtis: () => {
+    return [...(get().onlineData?.controllers || []), ...(get().onlineData?.atis || [])]
   },
   setOnlineData: (data: OnlineData) => {
     if (data && data.flights) {

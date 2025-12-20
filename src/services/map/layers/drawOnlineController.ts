@@ -13,38 +13,21 @@ import type { OnlineController, OnlineData } from '../../../types/fsd'
 import type { IndexedDBFIRs } from '../../../types/types'
 import { MAP_IDS, EVENTS } from '../../../configs/constants'
 import syncSeekerDB from '../../localDB/indexedDB'
+import { CIRCLE_RADIUS_METERS } from '../../../configs/atc/controllerRadius'
+import { CONTROLLER_COLORS_DAY, CONTROLLER_COLORS_NIGHT } from '../../../configs/atc/controllerColors'
+import { useGetCurrentTheme } from '../../../hooks/theme/useTheme'
 
-// 管制员类型
-type ControllerType = 'CTR' | 'APP' | 'TWR' | 'GND' | 'DEL' | 'FSS' | 'ATIS' | 'OBS' | 'OTHER'
-
-// 颜色配置
-const CONTROLLER_COLORS: Record<ControllerType, { fill: string; line: string }> = {
-    CTR: { fill: 'rgba(191, 219, 254, 0.35)', line: 'rgba(59, 130, 246, 0.8)' },   // 蓝色
-    APP: { fill: 'rgba(252, 231, 243, 0.35)', line: 'rgba(236, 72, 153, 0.8)' },   // 粉色
-    FSS: { fill: 'rgba(221, 214, 254, 0.35)', line: 'rgba(139, 92, 246, 0.8)' },   // 紫色
-    TWR: { fill: 'rgba(167, 243, 208, 0.35)', line: 'rgba(16, 185, 129, 0.7)' },   // 绿色
-    GND: { fill: 'rgba(254, 243, 199, 0.35)', line: 'rgba(245, 158, 11, 0.7)' },   // 黄色
-    DEL: { fill: 'rgba(254, 215, 170, 0.35)', line: 'rgba(249, 115, 22, 0.7)' },   // 橙色
-    ATIS: { fill: 'transparent', line: 'transparent' },
-    OBS: { fill: 'transparent', line: 'transparent' },
-    OTHER: { fill: 'rgba(229, 231, 235, 0.35)', line: 'rgba(156, 163, 175, 0.7)' } // 灰色
-}
-
-// 圆圈半径配置（米）- 用于没有FIR数据的管制员
-const CIRCLE_RADIUS_METERS: Record<ControllerType, number> = {
-    FSS: 1092800,   // ~590 NM
-    CTR: 441120,    // ~238 NM
-    APP: 221520,    // ~120 NM
-    TWR: 10820,     // ~5.8 NM
-    GND: 3700,      // ~2 NM
-    DEL: 2408,      // ~1.3 NM
-    ATIS: 0,
-    OBS: 0,
-    OTHER: 5000
-}
 
 // 缓存FIR数据
 let firCache: IndexedDBFIRs[] | null = null
+
+/**
+ * 根据当前主题获取管制员颜色配置
+ */
+function getControllerColors() {
+    const theme = useGetCurrentTheme()
+    return theme === 'dark' ? CONTROLLER_COLORS_NIGHT : CONTROLLER_COLORS_DAY
+}
 
 /**
  * 解析管制员callsign获取类型和ICAO前缀
@@ -374,12 +357,21 @@ export default function drawOnlineController(map: MapboxMap) {
     }
     
     // 订阅数据更新
-    const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, async (_, data: OnlineData) => {
+    const dataToken = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, async (_, data: OnlineData) => {
         await updateControllers(map, data.controllers)
     })
     
+    // 订阅主题变化
+    const themeToken = pubsub.subscribe(EVENTS.THEME_CHANGE, async () => {
+        // 主题切换时，重新绘制所有管制员以应用新颜色
+        const onlineData = (await import('../../../stores/useOnlineDataStore')).useOnlineDataStore.getState()
+        const controllers = onlineData.getControllers()
+        await updateControllers(map, controllers)
+    })
+    
     return () => {
-        pubsub.unsubscribe(token)
+        pubsub.unsubscribe(dataToken)
+        pubsub.unsubscribe(themeToken)
     }
 }
 
@@ -397,6 +389,7 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
     for (const controller of controllers) {
         const { type, prefix, sector } = parseCallsign(controller.callsign)
         
+        const CONTROLLER_COLORS = getControllerColors()
         const colors = CONTROLLER_COLORS[type] || CONTROLLER_COLORS.OTHER
         
         // 跳过不需要绘制的类型

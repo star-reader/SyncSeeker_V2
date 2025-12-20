@@ -97,6 +97,8 @@ export interface APIResponsePilotData {
     transponder: number;
 }
 
+export type ControllerType = 'CTR' | 'APP' | 'TWR' | 'GND' | 'DEL' | 'FSS' | 'ATIS' | 'OBS' | 'OTHER'
+
 declare global {
     type Log = import('./types').Log;
     type IndexedDBAirlines = import('./types').IndexedDBAirlines;
@@ -105,4 +107,5 @@ declare global {
     type NavDataVersion = import('./types').NavDataVersion;
     type TargetPilotData = import('./types').TargetPilotData;
     type APIResponsePilotData = import('./types').APIResponsePilotData;
+    type ControllerType = import('./types').ControllerType;
 }
