@@ -16,6 +16,7 @@ import ControllerDetailOverlay from './ControllerDetailOverlay'
 import IconByName from '../common/IconByName'
 import { EVENTS } from '../../configs/constants'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
+import atcRating from '../../configs/atc/atcRating'
 
 const EMPTY_CONTROLLERS: OnlineController[] = []
 
@@ -34,9 +35,9 @@ export default () => {
 
   useEffect(() => {
     const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
-      setControllers(useOnlineDataStore.getState().getControllers())
+      setControllers(useOnlineDataStore.getState().getControllersWithAtis())
     })
-    setControllers(useOnlineDataStore.getState().getControllers())
+    setControllers(useOnlineDataStore.getState().getControllersWithAtis())
     return () => {
       pubsub.unsubscribe(token)
     }
@@ -68,8 +69,8 @@ export default () => {
               </div>
               <div className={styles.meta}>
                 <span className={styles.chip}><IconByName name="BroadcastOne" /> {c.frequency}</span>
-                <span className={styles.chip}><IconByName name="RadarThree" /> 设施 {c.facility}</span>
-                <span className={styles.chip}><IconByName name="ListTop" /> 评级 {c.rating}</span>
+                {/* <span className={styles.chip}><IconByName name="RadarThree" /> 设施 {c.facility}</span> */}
+                <span className={styles.chip}><IconByName name="ListTop" /> {atcRating(c.rating)}</span>
                 <span className={styles.chip}><IconByName name="Time" /> {onlineTime(c.logon_time)}</span>
               </div>
             </div>

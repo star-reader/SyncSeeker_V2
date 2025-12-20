@@ -1,3 +1,5 @@
+@use '../../themes/breakpoints' as *;
+
 .container {
   position: fixed;
   left: 0;
@@ -5,7 +7,7 @@
   height: calc(100vh - 56px - env(safe-area-inset-top));
   top: calc(56px + env(safe-area-inset-top));
   display: flex;
-  // justify-content: center;
+  justify-content: center;
   // align-items: center;
   background: color-mix(in srgb, var(--sky-fill-color) 45%, transparent);
   backdrop-filter: blur(10px);
@@ -20,6 +22,10 @@
   -webkit-user-select: none;
   overflow: auto;
   overflow-x: hidden;
+
+  @include screen-down(md) {
+    justify-content: left;
+  }
 }
 
 .inner {
@@ -427,7 +433,7 @@
   word-break: break-word;
 }
 
-@media (max-width: 760px) {
+@include screen-down(md) {
   .hero {
     font-size: 22px;
   }
@@ -485,7 +491,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@include screen-down(xs) {
   .modalHeader {
     padding: 12px;
   }

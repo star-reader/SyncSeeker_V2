@@ -1,15 +1,17 @@
+@use '../../themes/breakpoints' as *;
+
 .container {
   position: fixed;
-  top: 72px;
+  top: calc(92px + env(safe-area-inset-top, 0px));
   right: 20px;
   width: 360px;
-  max-height: calc(100vh - 92px);
+  max-height: calc(100vh - 92px - env(safe-area-inset-top, 0px) - 60px);
   background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
-  box-shadow: 
+  box-shadow:
     0 4px 24px color-mix(in srgb, var(--sky-color-black) 8%, transparent),
     0 1px 2px color-mix(in srgb, var(--sky-color-black) 4%, transparent);
   z-index: 900;
@@ -88,7 +90,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.subchip svg { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+
+.subchip svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
 
 .headerActions {
   display: flex;
@@ -106,12 +114,28 @@
   flex-shrink: 0;
 }
 
-.status--departing { color: #0984e3; background: rgba(9, 132, 227, 0.1); }
-.status--cruising { color: #00b894; background: rgba(0, 184, 148, 0.1); }
-.status--arriving { color: #e17055; background: rgba(225, 112, 85, 0.1); }
-.status--ground { color: #636e72; background: rgba(99, 110, 114, 0.1); }
+.status--departing {
+  color: #0984e3;
+  background: rgba(9, 132, 227, 0.1);
+}
 
-.shareBtn, .trackBtn {
+.status--cruising {
+  color: #00b894;
+  background: rgba(0, 184, 148, 0.1);
+}
+
+.status--arriving {
+  color: #e17055;
+  background: rgba(225, 112, 85, 0.1);
+}
+
+.status--ground {
+  color: #636e72;
+  background: rgba(99, 110, 114, 0.1);
+}
+
+.shareBtn,
+.trackBtn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -125,14 +149,18 @@
   transition: all 0.2s;
   flex-shrink: 0;
 }
+
 .trackBtn.tracking {
   background: color-mix(in srgb, var(--sky-color-primary) 20%, transparent);
   color: var(--sky-color-primary);
 }
-.shareBtn:hover, .trackBtn:hover {
+
+.shareBtn:hover,
+.trackBtn:hover {
   background: color-mix(in srgb, var(--sky-color-primary) 15%, transparent);
   color: var(--sky-color-primary);
 }
+
 .shareBtn.shared {
   background: color-mix(in srgb, var(--sky-color-success) 20%, transparent);
   color: var(--sky-color-success);
@@ -151,6 +179,7 @@
   transition: background 0.2s;
   flex-shrink: 0;
 }
+
 .closeBtn:hover {
   background: color-mix(in srgb, var(--sky-text-color-primary) 10%, transparent);
 }
@@ -166,7 +195,10 @@
   gap: 12px;
   overscroll-behavior: contain;
 }
-.body::-webkit-scrollbar { display: none; }
+
+.body::-webkit-scrollbar {
+  display: none;
+}
 
 /* Route Card */
 .routeCard {
@@ -227,7 +259,12 @@
   align-items: center;
   justify-content: center;
 }
-.routeArrow svg { width: 20px; height: 20px; opacity: 0.6; }
+
+.routeArrow svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+}
 
 /* Track Bar */
 .trackBar {
@@ -243,7 +280,8 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 50%; /* Dynamic width would go here */
+  width: 50%;
+  /* Dynamic width would go here */
   background: var(--sky-color-primary);
   border-radius: 999px;
 }
@@ -251,7 +289,8 @@
 .trackPlane {
   position: absolute;
   top: 50%;
-  left: 50%; /* Dynamic position */
+  left: 50%;
+  /* Dynamic position */
   transform: translate(-50%, -50%) rotate(90deg);
   background: var(--sky-bg-color-base);
   color: var(--sky-color-primary);
@@ -260,10 +299,14 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
-.trackPlane svg { width: 12px; height: 12px; }
+
+.trackPlane svg {
+  width: 12px;
+  height: 12px;
+}
 
 /* Panel Cards */
 .panelCard {
@@ -285,7 +328,12 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.panelTitle svg { width: 14px; height: 14px; opacity: 0.7; }
+
+.panelTitle svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
 
 .toggle3dBtn {
   display: flex;
@@ -338,7 +386,10 @@
   opacity: 0.8;
   white-space: nowrap;
 }
-.statLabel svg { display: none; } 
+
+.statLabel svg {
+  display: none;
+}
 
 .statValue {
   font-size: 16px;
@@ -420,10 +471,15 @@
   padding: 2px 6px;
   border-radius: 4px;
 }
+
 .copyBtn:hover {
   background: color-mix(in srgb, var(--sky-color-primary) 10%, transparent);
 }
-.copyBtn svg { width: 12px; height: 12px; }
+
+.copyBtn svg {
+  width: 12px;
+  height: 12px;
+}
 
 .codeContent {
   padding: 10px;
@@ -438,8 +494,7 @@
   overflow-y: auto;
 }
 
-/* Mobile Responsive */
-@media (max-width: 680px) {
+@include screen-down(md) {
   .container {
     top: auto;
     bottom: 0;
@@ -456,13 +511,14 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     touch-action: none;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth spring-like transition */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Smooth spring-like transition */
   }
-  
+
   .container[data-dragging="true"] {
     transition: none !important;
   }
-  
+
   .handleBar {
     display: flex;
   }
@@ -498,14 +554,16 @@
     pointer-events: auto;
   }
 
-  .airportBig { font-size: 32px; }
-  
+  .airportBig {
+    font-size: 32px;
+  }
+
   .statsRow {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
 
-@media (max-width: 380px) {
+@include screen-down(md) {
   .statsRow {
     grid-template-columns: 1fr 1fr;
   }

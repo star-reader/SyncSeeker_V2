@@ -232,7 +232,7 @@
   background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
 }
 
-@media (max-width: 680px) {
+@include screen-down(md) {
   .overlay {
     place-items: end center;
   }

@@ -67,7 +67,7 @@ export default ({ open, controller, onClose }: ControllerDetailOverlayProps) => 
                 <div className={styles.routeBadges}>
                   <span className={styles.badge}><IconByName name="BroadcastOne" /> {controller.frequency}</span>
                   {/* <span className={styles.badge}><IconByName name="RadarThree" /> 设施 {controller.facility}</span> */}
-                  <span className={styles.badge}><IconByName name="ListTop" /> 等级 {atcRating(controller.rating)}</span>
+                  <span className={styles.badge}><IconByName name="ListTop" /> {atcRating(controller.rating)}</span>
                 </div>
               </div>
               <div className={styles.routeBadges}>
