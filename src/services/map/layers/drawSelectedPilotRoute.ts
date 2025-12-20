@@ -71,6 +71,12 @@ const updateRouteLayer = async (map: mapboxgl.Map, pilotId: string | null, calls
             cachedAirportCoords = end
         }
 
+        // v0.2.1 bugfix/jerry 如果没有终点信息（数据库不存在的非公开机场，也应该不显示）
+        if (!end || !end[0] || !end[1]) {
+            hideRouteSourceAndLayer(map)
+            return
+        }
+
         const start: [number, number] = currentPos || [pilot.longitude, pilot.latitude]
         // 生成大圆路径点
         const routeCoords = getGreatCircleRoute(start, end)
