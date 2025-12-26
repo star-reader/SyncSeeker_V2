@@ -2,6 +2,7 @@ import IconByName from '../../common/IconByName'
 import FlightChart from '../FlightChart'
 import type { RealtimeStatsProps } from './types'
 import styles from '../PilotInfoPanel.module.scss'
+import { formatNumberToString } from '../../../utils/numberUtils'
 
 export default function RealtimeStats({
     pilot,
@@ -46,7 +47,9 @@ export default function RealtimeStats({
                 <div className={styles.statItem}>
                     <div className={styles.statLabel}>应答机</div>
                     <div className={styles.statValue}>
-                        {pilot?.transponder || 0}
+                        {
+                            formatNumberToString(pilot?.transponder || 0)
+                        }
                     </div>
                 </div>
             </div>
