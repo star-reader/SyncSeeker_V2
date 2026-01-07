@@ -29,30 +29,72 @@ import asyncLoadGeneralAssets from "../../services/map/assets/asyncLoadGeneralAs
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
     const trackedCallsignRef = useRef<string | null>(null)
-    const [mapStyle, setMapStyle] = useState<'dynamic' | 'satellite'>('dynamic')
+    // 惰性初始化 state，直接读取 localStorage，确保初始渲染状态正确
+    const [mapStyle, setMapStyle] = useState<'dynamic' | 'satellite'>(() => {
+        return (localStorage.getItem('map-style') as 'dynamic' | 'satellite') || 'dynamic'
+    })
+    const isInitialMount = useRef(true)
 
-    useEffect(() => {
-        // 从 localStorage 读取保存的地图主题
-        const savedStyle = localStorage.getItem('map-style') as 'dynamic' | 'satellite' | null
-        if (savedStyle) {
-            setMapStyle(savedStyle)
-        }
-    }, [])
+    // bugfix/jerry v0.2.3 改用更新raster layer来切换卫星图，避免加载卫星图后机组图标显示错误还有地图闪烁问题
+    // 删掉了这个useEffect 更新return，防止出现每次更新都被新地图替换从而丢失layers的问题
+    const updateMapVisuals = (map: mapboxgl.Map, currentStyle: 'dynamic' | 'satellite') => {
+        try {
+            if (currentStyle === 'satellite') {
+                // 1. 设置底图配置
+                map.setConfigProperty('basemap', 'showRoadsAndTransit', false)
+                map.setConfigProperty('basemap', 'showPlaceLabels', false)
+                map.setConfigProperty('basemap', 'showRoadLabels', false)
+                
+                // 2. 添加/显示卫星图层
+                const layers = map.getStyle().layers
+                if (layers) {
+                    if (!map.getSource('mapbox-satellite')) {
+                        map.addSource('mapbox-satellite', {
+                            type: 'raster',
+                            url: 'mapbox://mapbox.satellite',
+                            tileSize: 256
+                        })
+                    }
+                    
+                    if (!map.getLayer('satellite-raster')) {
+                        const firstSymbolId = layers.find(l => l.type === 'symbol')?.id
+                        map.addLayer({
+                            id: 'satellite-raster',
+                            type: 'raster',
+                            source: 'mapbox-satellite',
+                            paint: {
+                                'raster-fade-duration': 0
+                            }
+                        }, firstSymbolId || undefined)
+                    } else {
+                        map.setLayoutProperty('satellite-raster', 'visibility', 'visible')
+                    }
+                }
+            } else {
+                // 1. 恢复底图配置
+                map.setConfigProperty('basemap', 'showRoadsAndTransit', true)
+                map.setConfigProperty('basemap', 'showPlaceLabels', true)
+                map.setConfigProperty('basemap', 'showRoadLabels', true)
+                
+                // 2. 隐藏卫星图层
+                if (map.getLayer('satellite-raster')) {
+                    map.setLayoutProperty('satellite-raster', 'visibility', 'none')
+                }
+                
+                // 3. 应用日夜主题
+                const theme = useGetCurrentTheme()
+                map.setConfigProperty('basemap', 'lightPreset', theme === 'dark' ? 'night' : 'day')
+            }
+        } catch (e) {}
+    }
 
+    // 初始化地图(仅一次)
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
-        
-        const getMapStyle = () => {
-            if (mapStyle === 'satellite') {
-                return 'mapbox://styles/mapbox/satellite-v9'
-            }
-            // 动态主题根据当前主题切换
-            return 'mapbox://styles/mapbox/standard'
-        }
-        
+        // 始终使用 standard 样式作为基础，通过 overlay 实现卫星图
         mapRef.current = new mapboxgl.Map({
             container: 'map-container',
-            style: getMapStyle(),
+            style: 'mapbox://styles/mapbox/standard',
             center: [120.128029, 30.267153],
             zoom: 6,
             config: {
@@ -62,13 +104,28 @@ export default function BasicMap() {
                 }
             }
         })
+        
         initMapCoord()
         addMapControls()
         bindMapEventListener()
+        
         return () => {
             mapRef.current?.remove()
             mapRef.current = null
         }
+    }, []) // 只在组件挂载时初始化一次
+
+    // 处理样式切换
+    useEffect(() => {
+        // 跳过首次渲染，因为在 on('load') 中已经处理了
+        if (isInitialMount.current) {
+            isInitialMount.current = false
+            return
+        }
+
+        if (!mapRef.current) return
+        const map = mapRef.current
+        updateMapVisuals(map, mapStyle)
     }, [mapStyle])
 
     // pubsub监听事件
@@ -201,6 +258,9 @@ export default function BasicMap() {
             addWeatherRadar(map)
             registerMapCursorHandlers(map)
             updateMapWithUserSetting(map)
+            
+            // 初始加载完成后，应用当前的地图样式设置
+            updateMapVisuals(map, mapStyle)
         })
 
         map.on('click', (e) => {
@@ -236,31 +296,6 @@ export default function BasicMap() {
                 }
             }
         })
-
-        // // 悬浮在地图也展示机场流量
-        // map.on('mousemove', (e) => {
-        //     const layers = map.queryRenderedFeatures(e.point)
-        //     for (let i of layers) {
-        //         if (!i.layer || !i.layer.id) continue
-        //         if ((i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) && i.properties) {
-        //             const icao = i.properties.icao
-        //             if (icao) {
-        //                 pubsub.publish(EVENTS.AIRPORT_CLICK, { icao, hoverOnly: true })
-        //             }
-        //         }
-        //     }
-        // })
-
-        // // 移除触发AIRPORT_INFO_CLOSE
-        // map.on('mouseleave', (e) => {
-        //     const layers = map.queryRenderedFeatures(e.point)
-        //     for (let i of layers){
-        //         if (!i.layer || !i.layer.id) continue
-        //         if (i.layer.id === MAP_IDS.ACTIVE_AIRPORTS_LAYER || i.layer.id === `${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`) {
-        //             pubsub.publish(EVENTS.AIRPORT_INFO_CLOSE)
-        //         }
-        //     }
-        // })
     }
 
     return (
