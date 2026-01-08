@@ -8,6 +8,7 @@
  * @date 2025-11-29
  */
 import type { OnlinePilot } from "../types/fsd";
+import threshold from "../configs/statusThreshold";
 
 const lastSamples = new Map<string, { t: number, alt: number, gs: number }>()
 
@@ -50,28 +51,40 @@ function getVerticalSpeedFtMin(p: OnlinePilot): number | null {
 function getStatus(p: OnlinePilot): string {
     const vs = getVerticalSpeedFtMin(p)
     const planned = parsePlannedAltitude(p.flight_plan?.altitude)
-    const taxiMax = 30
-    const takeoffMin = 70
-    const altGround = 50
-    const altTakeoffMax = 1500
-    const altApproach = 3000
-    const climbVs = 300
-    const descentVs = -300
-    const levelVs = 200
 
-    if (p.groundspeed <= 1 && p.altitude <= altGround) return '停机位'
-    if (p.groundspeed > 1 && p.groundspeed < taxiMax && p.altitude <= altTakeoffMax) return '滑行中'
-    if (p.groundspeed >= takeoffMin && p.altitude <= altTakeoffMax) return '起飞'
+    // bugfix/jerry 2026-01-08: 更新判断逻辑，优化状态识别准确性
+    // 现在会从statusThreshold中读取阈值，而且为了应对高高原机场问题，修改了GROUND_ALT_MAX的判断阈值和逻辑
+    if (
+        p.groundspeed <= threshold.GROUND_SPEED_MAX && 
+        p.altitude <= threshold.GROUND_ALT_MAX
+    ) return '停机位'
+    if (
+        p.groundspeed > threshold.GROUND_SPEED_MAX &&
+        p.groundspeed < threshold.TAXI_SPEED_MAX
+    ) return '滑行中'
+    if (
+        p.groundspeed >= threshold.TAKEOFF_SPEED_MIN 
+        && p.altitude <= threshold.TAKEOFF_ALT_MIN
+    ) return '起飞'
 
     if (vs !== null) {
-        if (vs > climbVs && p.altitude > altTakeoffMax && (!planned || p.altitude < planned - 500)) return '爬升'
-        if (Math.abs(vs) <= levelVs && ((planned && Math.abs(p.altitude - planned) <= 1000) || p.altitude > 20000)) return '巡航中'
-        if (vs < descentVs && p.altitude > altApproach) return '下降'
-        if (vs < descentVs && p.altitude <= altApproach) return '下降'
+        if (
+            vs > threshold.CLIMB_VS_MIN && 
+            (!planned || p.altitude < planned - 500)
+        ) return '爬升'
+        if (
+            Math.abs(vs) <= threshold.LEVEL_VS_MAX && 
+            ((planned && Math.abs(p.altitude - planned) <= 1000) || p.altitude > 20000)
+        ) return '巡航中'
+        if (
+            vs < threshold.DESCENT_VS_MAX && 
+            p.altitude > threshold.APPROACH_ALT_MAX
+        ) return '下降'
+        if (vs < threshold.DESCENT_VS_MAX) return '下降'
     }
 
     if (p.altitude > 20000) return '巡航中'
-    if (p.altitude > altTakeoffMax) return '爬升'
+    if (p.altitude > threshold.TAKEOFF_ALT_MIN) return '爬升'
     // 默认返回飞行中
     return '进行中'
 }
