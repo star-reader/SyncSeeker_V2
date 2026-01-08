@@ -52,6 +52,8 @@ function getStatus(p: OnlinePilot): string {
     const vs = getVerticalSpeedFtMin(p)
     const planned = parsePlannedAltitude(p.flight_plan?.altitude)
 
+    // bugfix/jerry 2026-01-08: 更新判断逻辑，优化状态识别准确性
+    // 现在会从statusThreshold中读取阈值，而且为了应对高高原机场问题，修改了GROUND_ALT_MAX的判断阈值和逻辑
     if (
         p.groundspeed <= threshold.GROUND_SPEED_MAX && 
         p.altitude <= threshold.GROUND_ALT_MAX
