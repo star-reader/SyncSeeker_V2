@@ -8,6 +8,7 @@
  * @date 2025-11-29
  */
 import type { OnlinePilot } from "../types/fsd";
+import threshold from "../configs/statusThreshold";
 
 const lastSamples = new Map<string, { t: number, alt: number, gs: number }>()
 
