@@ -10,6 +10,14 @@ import { showToast } from '../../common/Toast'
 import type { OnlinePilot } from '../../../types/fsd'
 import syncSeekerDB from '../../../services/localDB/indexedDB'
 import type { IndexedDBAirlines, IndexedDBAirports } from '../../../types/types'
+import {
+    buildLiveActivityPayload,
+    canUseIOSLiveActivity,
+    shouldEnableLiquidGlass,
+    startIOSLiveActivity,
+    stopIOSLiveActivity,
+    updateIOSLiveActivity
+} from '../../../services/native/iosNative'
 import PilotHeader from './PilotHeader'
 import RouteCard from './RouteCard'
 import RealtimeStats from './RealtimeStats'
@@ -31,6 +39,7 @@ export default function PilotInfoPanel() {
     const [progress, setProgress] = useState(50)
     const [expanded, setExpanded] = useState(false)
     const detailsRef = useRef<HTMLDivElement>(null)
+    const activeLiveActivityCallsignRef = useRef<string | null>(null)
     
     const [trackData, setTrackData] = useState<{ altitudeArray: number[], speedArray: number[] }>({
         altitudeArray: [],
@@ -40,6 +49,8 @@ export default function PilotInfoPanel() {
     const [dragging, setDragging] = useState(false)
     const [translateY, setTranslateY] = useState(0)
     const [startY, setStartY] = useState(0)
+    const isNativeTrackingSupported = canUseIOSLiveActivity()
+    const useLiquidGlass = shouldEnableLiquidGlass()
 
     useEffect(() => {
         const token = pubsub.subscribe(EVENTS.PILOT_ICON_CLICK, (_, data: { id: string, callsign: string, autoTrack?: boolean }) => {
@@ -55,7 +66,9 @@ export default function PilotInfoPanel() {
             if (data.autoTrack) {
                 setIsTracking(true)
                 pubsub.publish(EVENTS.TOGGLE_FLIGHT_TRACKING, { callsign: data.callsign, enabled: true })
+                pubsub.publish(EVENTS.TRACKED_FLIGHT_CHANGE, { callsign: data.callsign, enabled: true })
             } else {
+                pubsub.publish(EVENTS.TRACKED_FLIGHT_CHANGE, { callsign: null, enabled: false })
                 setIsTracking(false)
             }
         })
@@ -183,11 +196,16 @@ export default function PilotInfoPanel() {
         setId(null)
         // 关闭面板时停止追踪
         if (isTracking) {
+            if (pilot?.callsign) {
+                stopIOSLiveActivity(pilot.callsign)
+            }
+            activeLiveActivityCallsignRef.current = null
             setIsTracking(false)
             pubsub.publish(EVENTS.STOP_FLIGHT_TRACKING)
+            pubsub.publish(EVENTS.TRACKED_FLIGHT_CHANGE, { callsign: null, enabled: false })
         }
         pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
-    }, [isTracking])
+    }, [isTracking, pilot?.callsign])
 
     const handleCopyRoute = useCallback(() => {
         const routeText = fp?.route
@@ -208,20 +226,55 @@ export default function PilotInfoPanel() {
         }
     }, [pilot?.callsign])
 
-    const handleToggleTracking = useCallback(() => {
+    const handleToggleTracking = useCallback(async () => {
         if (!pilot?.callsign) return
+
         const newTracking = !isTracking
         setIsTracking(newTracking)
         pubsub.publish(EVENTS.TOGGLE_FLIGHT_TRACKING, { 
             callsign: pilot.callsign, 
             enabled: newTracking 
         })
+        pubsub.publish(EVENTS.TRACKED_FLIGHT_CHANGE, {
+            callsign: newTracking ? pilot.callsign : null,
+            enabled: newTracking
+        })
+
         if (newTracking) {
+            if (!isNativeTrackingSupported) {
+                showToast('已开启追踪', 'info', 'Tips')
+            }
+
+            if (isNativeTrackingSupported) {
+                const payload = buildLiveActivityPayload(pilot, progress, status)
+                const started = await startIOSLiveActivity(payload)
+                if (!started) {
+                    console.error('[PilotInfoPanel] startIOSLiveActivity failed', payload)
+                } else {
+                    activeLiveActivityCallsignRef.current = pilot.callsign
+                }
+            }
+
             showToast(`正在追踪 ${pilot.callsign}`, 'info', 'LocalTwo')
         } else {
+            if (isNativeTrackingSupported) {
+                stopIOSLiveActivity(pilot.callsign)
+            }
+            activeLiveActivityCallsignRef.current = null
             showToast(`已取消追踪`, 'info', 'Local')
         }
-    }, [pilot?.callsign, isTracking])
+    }, [pilot, isTracking, isNativeTrackingSupported, progress, status])
+
+    useEffect(() => {
+        if (!pilot || !isTracking || !isNativeTrackingSupported) return
+        const payload = buildLiveActivityPayload(pilot, progress, status)
+        if (activeLiveActivityCallsignRef.current !== pilot.callsign) {
+            startIOSLiveActivity(payload)
+            activeLiveActivityCallsignRef.current = pilot.callsign
+            return
+        }
+        updateIOSLiveActivity(payload)
+    }, [pilot, progress, status, isTracking, isNativeTrackingSupported])
 
     const handleExpand = useCallback(() => {
         if (!expanded) setExpanded(true)
@@ -233,6 +286,7 @@ export default function PilotInfoPanel() {
             data-open={open ? 'true' : 'false'}
             data-expanded={expanded ? 'true' : 'false'}
             data-dragging={dragging ? 'true' : 'false'}
+            data-liquid-glass={useLiquidGlass ? 'true' : 'false'}
             style={{ '--drag-offset': `${translateY}px` } as React.CSSProperties}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -252,6 +306,7 @@ export default function PilotInfoPanel() {
                     isSharing={isSharing}
                     onToggleTracking={handleToggleTracking}
                     isTracking={isTracking}
+                    isNativeTrackingSupported={isNativeTrackingSupported}
                 />
             </div>
 

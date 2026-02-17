@@ -12,6 +12,7 @@ export interface PilotHeaderProps {
     isSharing?: boolean
     onToggleTracking?: () => void
     isTracking?: boolean
+    isNativeTrackingSupported?: boolean
 }
 
 export interface RouteCardProps {
