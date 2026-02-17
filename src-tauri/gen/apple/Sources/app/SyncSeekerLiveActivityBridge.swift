@@ -227,3 +227,23 @@ public func syncseeker_ios_sync_widget_snapshot(_ payload: UnsafePointer<CChar>?
   guard let json = decodeJSONString(payload) else { return -1 }
   return storeSharedPayload(json, key: kSyncSeekerWidgetSnapshotKey, postWidgetReload: true)
 }
+
+@_cdecl("ios_start_live_activity")
+public func ios_start_live_activity(_ payload: UnsafePointer<CChar>?) -> Int32 {
+  syncseeker_ios_start_live_activity(payload)
+}
+
+@_cdecl("ios_update_live_activity")
+public func ios_update_live_activity(_ payload: UnsafePointer<CChar>?) -> Int32 {
+  syncseeker_ios_update_live_activity(payload)
+}
+
+@_cdecl("ios_stop_live_activity")
+public func ios_stop_live_activity(_ payload: UnsafePointer<CChar>?) -> Int32 {
+  syncseeker_ios_stop_live_activity(payload)
+}
+
+@_cdecl("ios_sync_widget_snapshot")
+public func ios_sync_widget_snapshot(_ payload: UnsafePointer<CChar>?) -> Int32 {
+  syncseeker_ios_sync_widget_snapshot(payload)
+}

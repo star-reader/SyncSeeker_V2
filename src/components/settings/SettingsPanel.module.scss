@@ -232,6 +232,73 @@
   background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
 }
 
+.logSheetMask {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: color-mix(in srgb, var(--sky-color-black) 36%, transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.logSheet {
+  width: min(900px, calc(100vw - 24px));
+  max-height: min(78vh, 760px);
+  margin-bottom: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--sky-border-color);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 96%, transparent);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--sky-color-black) 20%, transparent);
+  display: flex;
+  flex-direction: column;
+}
+
+.logSheetHeader {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--sky-border-color);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.logSheetTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sky-text-color-primary);
+}
+
+.logSheetMeta {
+  font-size: 12px;
+  color: var(--sky-text-color-tertiary);
+}
+
+.logBody {
+  flex: 1;
+  padding: 10px 12px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--sky-text-color-secondary);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+}
+
+.logActions {
+  padding: 10px 12px;
+  border-top: 1px solid var(--sky-border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 @include screen-down(md) {
   .overlay {
     place-items: end center;
@@ -250,5 +317,13 @@
   .colorInput {
     max-width: 100%;
     width: 140px;
+  }
+
+  .logSheet {
+    width: 100%;
+    margin: 0;
+    max-height: 82vh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
   }
 }

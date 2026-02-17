@@ -23,6 +23,7 @@ import { initializeFonts } from './utils/fontLoader'
 import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
 import getPilotStatusOf from './utils/getPilotStatusOf'
 import { buildWidgetFlightItem, syncIOSWidgetSnapshot } from './services/native/iosNative'
+import { installDebugLogCapture } from './services/debug/debugLogStore'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -31,6 +32,8 @@ export default function App() {
     const trackCancelled = useRef(false)
 
     useEffect(() => {
+        installDebugLogCapture()
+
         // 初始化字体加载
         initializeFonts()
         

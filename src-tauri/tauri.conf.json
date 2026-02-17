@@ -35,8 +35,8 @@
       "icons/icon.png"
     ],
     "iOS": {
-      "bundleVersion": "101",
-      "developmentTeam": "2S577ZVVWZ"
+      "developmentTeam": "2S577ZVVWZ",
+      "bundleVersion": "101"
     }
   }
 }

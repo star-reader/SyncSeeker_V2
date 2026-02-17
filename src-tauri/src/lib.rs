@@ -27,15 +27,33 @@ fn resolve_ios_symbol(symbol: &str) -> Result<IOSBridgeFn, String> {
 
 #[cfg(target_os = "ios")]
 fn forward_to_ios(command: &str, payload: String) -> Result<(), String> {
-  let symbol = match command {
-    "start" => "syncseeker_ios_start_live_activity",
-    "update" => "syncseeker_ios_update_live_activity",
-    "stop" => "syncseeker_ios_stop_live_activity",
-    "widget" => "syncseeker_ios_sync_widget_snapshot",
+  let symbols: &[&str] = match command {
+    "start" => &["ios_start_live_activity", "syncseeker_ios_start_live_activity"],
+    "update" => &["ios_update_live_activity", "syncseeker_ios_update_live_activity"],
+    "stop" => &["ios_stop_live_activity", "syncseeker_ios_stop_live_activity"],
+    "widget" => &["ios_sync_widget_snapshot", "syncseeker_ios_sync_widget_snapshot"],
     _ => return Err("unsupported ios command".to_string()),
   };
 
-  let native_fn = resolve_ios_symbol(symbol)?;
+  let mut last_error = String::new();
+  let mut selected_symbol: Option<&str> = None;
+  let mut native_fn: Option<IOSBridgeFn> = None;
+
+  for symbol in symbols {
+    match resolve_ios_symbol(symbol) {
+      Ok(func) => {
+        selected_symbol = Some(symbol);
+        native_fn = Some(func);
+        break;
+      }
+      Err(e) => {
+        last_error = e;
+      }
+    }
+  }
+
+  let symbol = selected_symbol.ok_or(last_error)?;
+  let native_fn = native_fn.ok_or("native symbol resolver failed".to_string())?;
   let payload_c = CString::new(payload).map_err(|_| "invalid payload".to_string())?;
   log::info!("[ios-bridge] invoke command={command} symbol={symbol}");
   let result = unsafe { native_fn(payload_c.as_ptr()) };

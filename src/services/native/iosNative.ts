@@ -1,5 +1,6 @@
 import { invoke, isTauri } from '@tauri-apps/api/core'
 import type { OnlinePilot } from '../../types/fsd'
+import { pushDebugLog } from '../debug/debugLogStore'
 
 export interface LiveActivityFlightPayload {
   callsign: string
@@ -75,19 +76,37 @@ const canInvokeIOSNative = (): boolean => {
   return isTauri()
 }
 
+const debugLogIOSNative = (level: 'debug' | 'info' | 'warn' | 'error', message: string, details?: unknown) => {
+  pushDebugLog({
+    level,
+    source: 'ios.native',
+    message,
+    details: details ? JSON.stringify(details) : undefined
+  })
+}
+
 const safeInvoke = async (command: string, payload: unknown): Promise<boolean> => {
   if (!canInvokeIOSNative()) {
     console.info(`[iosNative] skip ${command}: non-tauri runtime`)
+    debugLogIOSNative('warn', `skip ${command}: non-tauri runtime`, {
+      command,
+      isTauri: isTauri(),
+      userAgent: navigator.userAgent
+    })
     return false
   }
 
   const jsonPayload = JSON.stringify(payload)
+  debugLogIOSNative('info', `invoke ${command} start`, { command, payload })
+
   try {
     await invoke(command, { payload: jsonPayload })
     console.info(`[iosNative] ${command} success`, payload)
+    debugLogIOSNative('info', `invoke ${command} success`, { command, payload })
     return true
   } catch (error) {
     console.error(`[iosNative] ${command} failed`, { payload: jsonPayload, error })
+    debugLogIOSNative('error', `invoke ${command} failed`, { command, payload: jsonPayload, error })
     return false
   }
 }

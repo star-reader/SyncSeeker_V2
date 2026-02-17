@@ -66,6 +66,7 @@ targets:
         VALID_ARCHS: arm64 
         OTHER_LDFLAGS:
           - "$(inherited)"
+          - "-Wl,-export_dynamic"
           - "-Wl,-u,_syncseeker_ios_start_live_activity"
           - "-Wl,-u,_syncseeker_ios_update_live_activity"
           - "-Wl,-u,_syncseeker_ios_stop_live_activity"
