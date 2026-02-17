@@ -37,6 +37,7 @@ private struct SnapshotProvider: TimelineProvider {
 
 private struct SnapshotWidgetView: View {
   let entry: SnapshotProvider.Entry
+  @Environment(\.widgetFamily) private var family
 
   private func statusColor(_ status: String) -> Color {
     let lower = status.lowercased()
@@ -79,7 +80,81 @@ private struct SnapshotWidgetView: View {
     return entry.payload.topFlights
   }
 
-  var body: some View {
+  private var primaryFlight: SSWidgetFlightItem? {
+    displayFlights.first
+  }
+
+  @ViewBuilder
+  private var smallBody: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(alignment: .firstTextBaseline) {
+        Text("ONLINE")
+          .font(.system(size: 10, weight: .semibold, design: .monospaced))
+          .foregroundStyle(Color.white.opacity(0.72))
+        Spacer()
+        Text("\(entry.payload.totalFlights)")
+          .font(.system(size: 17, weight: .bold, design: .rounded))
+          .foregroundStyle(.white)
+      }
+
+      if let flight = primaryFlight {
+        VStack(alignment: .leading, spacing: 6) {
+          HStack(spacing: 6) {
+            Circle()
+              .fill(statusColor(flight.status))
+              .frame(width: 6, height: 6)
+            Text(flight.callsign)
+              .font(.system(size: 14, weight: .bold, design: .monospaced))
+              .foregroundStyle(.white)
+              .lineLimit(1)
+          }
+
+          Text("\(airportCode(flight.departure))→\(airportCode(flight.arrival))")
+            .font(.system(size: 12, weight: .semibold, design: .monospaced))
+            .foregroundStyle(Color.white.opacity(0.9))
+            .lineLimit(1)
+
+          HStack(spacing: 8) {
+            Text(aircraftText(flight.aircraft))
+              .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
+            Text(altitudeText(flight.altitude))
+              .foregroundStyle(Color.white.opacity(0.78))
+            Text("\(flight.groundspeed)kt")
+              .foregroundStyle(Color.white.opacity(0.78))
+          }
+          .font(.system(size: 10, weight: .semibold, design: .monospaced))
+
+          VStack(spacing: 2) {
+            ForEach(Array(displayFlights.dropFirst().prefix(2).enumerated()), id: \.offset) { _, item in
+              HStack(spacing: 6) {
+                Circle()
+                  .fill(statusColor(item.status))
+                  .frame(width: 4, height: 4)
+                Text(item.callsign)
+                  .font(.system(size: 9, weight: .bold, design: .monospaced))
+                  .foregroundStyle(Color.white.opacity(0.88))
+                  .lineLimit(1)
+                Spacer(minLength: 0)
+                Text("\(airportCode(item.departure))→\(airportCode(item.arrival))")
+                  .font(.system(size: 9, weight: .medium, design: .monospaced))
+                  .foregroundStyle(Color.white.opacity(0.62))
+                  .lineLimit(1)
+              }
+            }
+          }
+        }
+      } else {
+        Spacer(minLength: 0)
+        Text("暂无在线航班")
+          .font(.system(size: 12, weight: .medium, design: .rounded))
+          .foregroundStyle(Color.white.opacity(0.66))
+        Spacer(minLength: 0)
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var mediumBody: some View {
     VStack(alignment: .leading, spacing: 6) {
       HStack(alignment: .firstTextBaseline) {
         Text("ONLINE")
@@ -135,6 +210,16 @@ private struct SnapshotWidgetView: View {
             .foregroundStyle(Color.white.opacity(0.66))
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+      }
+    }
+  }
+
+  var body: some View {
+    Group {
+      if family == .systemSmall {
+        smallBody
+      } else {
+        mediumBody
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
