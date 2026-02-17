@@ -31,7 +31,14 @@ struct SSWidgetSnapshotPayload: Codable {
 }
 
 enum SSSharedStore {
-  static let appGroup = "group.cn.skylineflyleague.map.beta"
+  static var appGroup: String {
+    let bundleId = Bundle.main.bundleIdentifier ?? "cn.skylineflyleague.map.beta"
+    let suffixes = [".SyncSeekerWidgetExtensionExtension", ".SyncSeekerWidgetExtension"]
+    let baseId = suffixes.first(where: { bundleId.hasSuffix($0) })
+      .map { String(bundleId.dropLast($0.count)) }
+      ?? bundleId
+    return "group.\(baseId)"
+  }
   static let liveActivityKey = "syncseeker.live_activity.payload"
   static let widgetSnapshotKey = "syncseeker.widget.snapshot.payload"
 

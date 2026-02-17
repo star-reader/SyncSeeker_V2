@@ -381,8 +381,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = app_iOS/app_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = "2S577ZVVWZ";
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -411,8 +412,15 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 0.3.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-Wl,-u,_syncseeker_ios_start_live_activity",
+					"-Wl,-u,_syncseeker_ios_update_live_activity",
+					"-Wl,-u,_syncseeker_ios_stop_live_activity",
+					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = "SyncSeeker";
+				PRODUCT_NAME = SyncSeeker;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
 				SWIFT_VERSION = 6.0;
@@ -486,8 +494,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = app_iOS/app_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = "2S577ZVVWZ";
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -516,8 +525,15 @@
 					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
 				);
 				MARKETING_VERSION = 0.3.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-Wl,-u,_syncseeker_ios_start_live_activity",
+					"-Wl,-u,_syncseeker_ios_update_live_activity",
+					"-Wl,-u,_syncseeker_ios_stop_live_activity",
+					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = "SyncSeeker";
+				PRODUCT_NAME = SyncSeeker;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

@@ -5,10 +5,25 @@ import WidgetKit
 import ActivityKit
 #endif
 
-private let kSyncSeekerWidgetAppGroup = "group.cn.skylineflyleague.map.beta"
 private let kSyncSeekerLiveActivityKey = "syncseeker.live_activity.payload"
 private let kSyncSeekerWidgetSnapshotKey = "syncseeker.widget.snapshot.payload"
-private let kSyncSeekerWidgetReloadNotification = "cn.skylineflyleague.map.beta.widget.reload"
+
+private func syncSeekerBaseBundleIdentifier() -> String {
+  let bundleId = Bundle.main.bundleIdentifier ?? "cn.skylineflyleague.map.beta"
+  let suffixes = [".SyncSeekerWidgetExtensionExtension", ".SyncSeekerWidgetExtension"]
+  for suffix in suffixes where bundleId.hasSuffix(suffix) {
+    return String(bundleId.dropLast(suffix.count))
+  }
+  return bundleId
+}
+
+private func syncSeekerWidgetAppGroup() -> String {
+  "group.\(syncSeekerBaseBundleIdentifier())"
+}
+
+private func syncSeekerWidgetReloadNotification() -> String {
+  "\(syncSeekerBaseBundleIdentifier()).widget.reload"
+}
 
 private struct SSFlightLivePayload: Codable {
   let callsign: String
@@ -34,7 +49,9 @@ private func decodeJSONString(_ raw: UnsafePointer<CChar>?) -> String? {
 }
 
 private func storeSharedPayload(_ value: String, key: String, postWidgetReload: Bool) -> Int32 {
-  guard let defaults = UserDefaults(suiteName: kSyncSeekerWidgetAppGroup) else {
+  let appGroup = syncSeekerWidgetAppGroup()
+  guard let defaults = UserDefaults(suiteName: appGroup) else {
+    print("[SyncSeeker] invalid app group: \(appGroup)")
     return -3
   }
 
@@ -42,9 +59,10 @@ private func storeSharedPayload(_ value: String, key: String, postWidgetReload: 
   defaults.synchronize()
 
   if postWidgetReload {
+    let notificationName = syncSeekerWidgetReloadNotification()
     CFNotificationCenterPostNotification(
       CFNotificationCenterGetDarwinNotifyCenter(),
-      CFNotificationName(kSyncSeekerWidgetReloadNotification as CFString),
+      CFNotificationName(notificationName as CFString),
       nil,
       nil,
       true
