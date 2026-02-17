@@ -62,6 +62,7 @@ struct SyncSeekerFlightAttributes: ActivityAttributes {
     var callsign: String
     var departure: String
     var arrival: String
+    var aircraft: String
     var altitude: Int
     var groundspeed: Int
     var heading: Int
@@ -79,6 +80,28 @@ private func findActivity(callsign: String) -> Activity<SyncSeekerFlightAttribut
 }
 
 @available(iOS 16.1, *)
+private func endActivity(callsign: String) {
+  Task {
+    guard let activity = findActivity(callsign: callsign) else { return }
+    if #available(iOS 16.2, *) {
+      await activity.end(nil, dismissalPolicy: .immediate)
+    } else {
+      await activity.end(using: activity.contentState, dismissalPolicy: .immediate)
+    }
+  }
+}
+
+@available(iOS 16.1, *)
+private func endAllActivities(except callsign: String? = nil) {
+  for activity in Activity<SyncSeekerFlightAttributes>.activities {
+    if let callsign = callsign, activity.attributes.flightKey == callsign {
+      continue
+    }
+    endActivity(callsign: activity.attributes.flightKey)
+  }
+}
+
+@available(iOS 16.1, *)
 private func startOrUpdateActivity(_ payload: SSFlightLivePayload) -> Int32 {
   guard ActivityAuthorizationInfo().areActivitiesEnabled else {
     print("[SyncSeeker] Live Activities disabled by system")
@@ -90,6 +113,7 @@ private func startOrUpdateActivity(_ payload: SSFlightLivePayload) -> Int32 {
     callsign: payload.callsign,
     departure: payload.departure,
     arrival: payload.arrival,
+    aircraft: payload.aircraft,
     altitude: payload.altitude,
     groundspeed: payload.groundspeed,
     heading: payload.heading,
@@ -99,11 +123,14 @@ private func startOrUpdateActivity(_ payload: SSFlightLivePayload) -> Int32 {
   )
 
   if let activity = findActivity(callsign: payload.callsign) {
+    let callsign = activity.attributes.flightKey
     Task {
-      await activity.update(using: state)
+      guard let existing = findActivity(callsign: callsign) else { return }
+      await existing.update(using: state)
     }
     return 0
   } else {
+    endAllActivities()
     do {
       _ = try Activity.request(attributes: attributes, contentState: state, pushType: nil)
       return 0
@@ -121,17 +148,12 @@ private func stopActivity(_ payload: SSFlightStopPayload) -> Int32 {
     return -10
   }
 
-  guard let activity = findActivity(callsign: payload.callsign) else {
+  guard findActivity(callsign: payload.callsign) != nil else {
+    endAllActivities()
     return 0
   }
 
-  Task {
-    if #available(iOS 16.2, *) {
-      await activity.end(nil, dismissalPolicy: .immediate)
-    } else {
-      await activity.end(using: activity.contentState, dismissalPolicy: .immediate)
-    }
-  }
+  endActivity(callsign: payload.callsign)
 
   return 0
 }

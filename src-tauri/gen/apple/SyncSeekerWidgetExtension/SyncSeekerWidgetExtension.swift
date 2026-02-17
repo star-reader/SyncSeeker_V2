@@ -40,13 +40,36 @@ private struct SnapshotWidgetView: View {
 
   private func statusColor(_ status: String) -> Color {
     let lower = status.lowercased()
-    if lower.contains("air") || lower.contains("cruise") {
-      return Color(red: 0.29, green: 0.76, blue: 0.97)
+    if lower.contains("ground") || lower.contains("taxi") || lower.contains("park") || status.contains("停机") || status.contains("滑行") || status.contains("地面") {
+      return Color(red: 0.95, green: 0.33, blue: 0.33)
     }
-    if lower.contains("taxi") || lower.contains("ground") {
-      return Color(red: 0.96, green: 0.71, blue: 0.28)
+    if lower.contains("climb") || lower.contains("desc") || status.contains("爬升") || status.contains("下降") || status.contains("起飞") {
+      return Color(red: 0.35, green: 0.67, blue: 1.0)
     }
-    return Color(red: 0.55, green: 0.89, blue: 0.55)
+    if lower.contains("cruise") || lower.contains("air") || lower.contains("enroute") || status.contains("巡航") {
+      return Color(red: 0.37, green: 0.86, blue: 0.49)
+    }
+    return Color.white.opacity(0.72)
+  }
+
+  private func airportCode(_ raw: String) -> String {
+    let code = raw.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+    if code.isEmpty || code == "N/A" || code == "----" {
+      return "----"
+    }
+    return String(code.prefix(4))
+  }
+
+  private func aircraftText(_ raw: String?) -> String {
+    let value = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    return value.isEmpty || value == "N/A" ? "--" : String(value.prefix(6)).uppercased()
+  }
+
+  private func altitudeText(_ altitude: Int) -> String {
+    if altitude < 18000 {
+      return "\(max(0, altitude))ft"
+    }
+    return "FL\(max(180, altitude / 100))"
   }
 
   private var displayFlights: [SSWidgetFlightItem] {
@@ -57,51 +80,46 @@ private struct SnapshotWidgetView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: 6) {
       HStack(alignment: .firstTextBaseline) {
         Text("ONLINE")
           .font(.system(size: 11, weight: .semibold, design: .monospaced))
           .foregroundStyle(Color.white.opacity(0.72))
         Spacer()
         Text("\(entry.payload.totalFlights)")
-          .font(.system(size: 22, weight: .bold, design: .rounded))
+          .font(.system(size: 18, weight: .bold, design: .rounded))
           .foregroundStyle(.white)
       }
 
-      VStack(spacing: 8) {
+      VStack(spacing: 4) {
         ForEach(Array(displayFlights.prefix(3).enumerated()), id: \.offset) { index, flight in
-          VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-              Circle()
-                .fill(statusColor(flight.status))
-                .frame(width: 6, height: 6)
-              Text(flight.callsign)
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
-                .frame(width: 72, alignment: .leading)
-              Text("\(flight.departure) → \(flight.arrival)")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundStyle(Color.white.opacity(0.92))
-                .lineLimit(1)
-              Spacer(minLength: 0)
-              Text("\(flight.groundspeed)kt")
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(Color.white.opacity(0.7))
-            }
-
-            HStack(spacing: 8) {
-              Text(flight.aircraft ?? "N/A")
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
-              Text("FL \(max(0, flight.altitude / 100))")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                .foregroundStyle(Color.white.opacity(0.62))
-              Spacer(minLength: 0)
-              Text(flight.status)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-                .foregroundStyle(statusColor(flight.status))
-                .lineLimit(1)
-            }
+          HStack(spacing: 6) {
+            Circle()
+              .fill(statusColor(flight.status))
+              .frame(width: 5, height: 5)
+            Text(flight.callsign)
+              .font(.system(size: 10, weight: .bold, design: .monospaced))
+              .foregroundStyle(.white)
+              .frame(width: 60, alignment: .leading)
+            Text("\(airportCode(flight.departure))→\(airportCode(flight.arrival))")
+              .font(.system(size: 10, weight: .semibold, design: .monospaced))
+              .foregroundStyle(Color.white.opacity(0.9))
+              .frame(width: 84, alignment: .leading)
+              .lineLimit(1)
+            Text(aircraftText(flight.aircraft))
+              .font(.system(size: 10, weight: .medium, design: .rounded))
+              .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
+              .frame(width: 42, alignment: .leading)
+              .lineLimit(1)
+            Spacer(minLength: 0)
+            Text(altitudeText(flight.altitude))
+              .font(.system(size: 10, weight: .medium, design: .monospaced))
+              .foregroundStyle(Color.white.opacity(0.68))
+              .frame(width: 52, alignment: .trailing)
+            Text("\(flight.groundspeed)kt")
+              .font(.system(size: 10, weight: .medium, design: .monospaced))
+              .foregroundStyle(Color.white.opacity(0.68))
+              .frame(width: 48, alignment: .trailing)
           }
 
           if index < min(displayFlights.count, 3) - 1 {
@@ -120,7 +138,8 @@ private struct SnapshotWidgetView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(14)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 7)
     .containerBackground(for: .widget) {
       LinearGradient(
         colors: [Color(red: 0.11, green: 0.13, blue: 0.17), Color(red: 0.06, green: 0.07, blue: 0.10)],
