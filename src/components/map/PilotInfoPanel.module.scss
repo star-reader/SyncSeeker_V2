@@ -24,6 +24,16 @@
   overflow: hidden;
 }
 
+.container[data-liquid-glass="true"] {
+  background: color-mix(in srgb, var(--sky-bg-color-base) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sky-color-white) 35%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--sky-color-white) 50%, transparent),
+    0 16px 42px color-mix(in srgb, var(--sky-color-black) 20%, transparent);
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+}
+
 .handleBar {
   display: none;
   width: 100%;
@@ -153,6 +163,11 @@
 .trackBtn.tracking {
   background: color-mix(in srgb, var(--sky-color-primary) 20%, transparent);
   color: var(--sky-color-primary);
+}
+
+.trackBtn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .shareBtn:hover,

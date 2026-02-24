@@ -18,6 +18,8 @@ import syncSeekerDB from '../../services/localDB/indexedDB'
 import { fetchAndStoreNavData } from '../../apis/fetchStorageData'
 import { CheckOne, CloseOne, DownloadOne, Refresh } from '@icon-park/react'
 import type { WeatherRadarOpacity } from '../../services/map/layers/addWeatherRadar'
+import { clearDebugLogs, exportDebugLogsText, getDebugLogs } from '../../services/debug/debugLogStore'
+import { showToast } from '../common/Toast'
 
 export default function SettingsPanel() {
   const [open, setOpen] = useState(true)
@@ -35,6 +37,41 @@ export default function SettingsPanel() {
   const [hasData, setHasData] = useState(false)
   const [loading, setLoading] = useState(false)
   const [version, setVersion] = useState<NavDataVersion | null>(null)
+  const [logSheetOpen, setLogSheetOpen] = useState(false)
+  const [logText, setLogText] = useState('')
+  const [logCount, setLogCount] = useState(0)
+
+  const refreshLogs = () => {
+    const text = exportDebugLogsText()
+    const count = getDebugLogs().length
+    setLogText(text)
+    setLogCount(count)
+  }
+
+  const handleOpenLogSheet = () => {
+    refreshLogs()
+    setLogSheetOpen(true)
+  }
+
+  const handleCopyLogs = async () => {
+    if (!logText.trim()) {
+      showToast('暂无日志可复制', 'info')
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(logText)
+      showToast('日志已复制到剪贴板', 'success')
+    } catch {
+      showToast('复制失败，请检查系统剪贴板权限', 'error')
+    }
+  }
+
+  const handleClearLogs = () => {
+    clearDebugLogs()
+    setLogText('')
+    setLogCount(0)
+    showToast('日志已清空', 'success')
+  }
 
   useEffect(() => {
     const s = getPilotSchema()
@@ -56,6 +93,7 @@ export default function SettingsPanel() {
     setWeatherRadarOpacity(radarOpacity)
     
     checkDataStatus()
+    setLogCount(getDebugLogs().length)
 
     const token = pubsub.subscribe(EVENTS.NAVDATA_UPDATE, (_: any, data: NavDataVersion) => {
         checkDataStatus()
@@ -284,12 +322,52 @@ export default function SettingsPanel() {
               </Button>
             </div>
           </section>
+
+          <section className={styles.section} style={{display:'none', visibility:'hidden'}} area-hidden="true">
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionTitle}>调试日志</span>
+              <span className={styles.sectionSubtitle}>{logCount} 条</span>
+            </div>
+            <div className={styles.dataRow}>
+              <div className={styles.dataInfo}>
+                <div className={styles.dataText}>导出系统 / Apple 调用 / Rust 桥接日志</div>
+              </div>
+              <Button
+                variant="text"
+                size="small"
+                onClick={handleOpenLogSheet}
+                sx={{ minWidth: 'auto', fontSize: 13 }}
+              >
+                查看
+              </Button>
+            </div>
+          </section>
         </div>
         <div className={styles.actions}>
           <Button variant="outlined" size="small" onClick={handleCancel}>取消</Button>
           <Button variant="contained" size="small" onClick={handleSave}>保存</Button>
         </div>
       </div>
+
+      {logSheetOpen && (
+        <div className={styles.logSheetMask} onClick={() => setLogSheetOpen(false)}>
+          <div className={styles.logSheet} onClick={e => e.stopPropagation()}>
+            <div className={styles.logSheetHeader}>
+              <div className={styles.logSheetTitle}>调试日志</div>
+              <div className={styles.logSheetMeta}>{logCount} 条 · 可滚动查看</div>
+            </div>
+            <div className={styles.logBody}>
+              <pre>{logText || '暂无日志'}</pre>
+            </div>
+            <div className={styles.logActions}>
+              <Button variant="text" size="small" onClick={refreshLogs}>刷新</Button>
+              <Button variant="outlined" size="small" onClick={handleCopyLogs}>复制</Button>
+              <Button color="error" variant="outlined" size="small" onClick={handleClearLogs}>清空</Button>
+              <Button variant="contained" size="small" onClick={() => setLogSheetOpen(false)}>关闭</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

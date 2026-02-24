@@ -8,7 +8,7 @@ export default function FlightPlanCard({
     copyingRoute
 }: FlightPlanCardProps) {
     const fp = flightPlan
-    const flightRules = fp?.flight_rules || 'I'
+    const flightRules = fp?.flight_rules === 'I' ? "IFR" : fp?.flight_rules === 'V' ? "VFR" : "-"
     const deptime = fp?.deptime || '-'
     const enroute = fp?.enroute_time || '-'
     const cruiseAlt = fp?.altitude || '-'

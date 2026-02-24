@@ -12,7 +12,8 @@ export default function PilotHeader({
     onShare,
     isSharing,
     onToggleTracking,
-    isTracking
+    isTracking,
+    isNativeTrackingSupported = true
 }: PilotHeaderProps) {
     return (
         <div className={styles.header}>
@@ -41,9 +42,9 @@ export default function PilotHeader({
                 </div>
                 {onToggleTracking && (
                     <button 
-                        className={`${styles.trackBtn} ${isTracking ? styles.tracking : ''}`} 
+                        className={`${styles.trackBtn} ${isTracking ? styles.tracking : ''}`}
                         onClick={(e) => { e.stopPropagation(); onToggleTracking(); }}
-                        title={isTracking ? "取消追踪" : "追踪航班（保持在屏幕中央）"}
+                        title={isNativeTrackingSupported ? (isTracking ? "取消追踪" : "追踪航班（实时活动 / 灵动岛）") : (isTracking ? "取消追踪" : "追踪航班（当前设备不支持实时活动）")}
                     >
                         <IconByName name={isTracking ? "Local" : "LocalTwo"} />
                     </button>

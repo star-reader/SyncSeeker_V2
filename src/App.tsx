@@ -21,13 +21,19 @@ import { useOnlineDataStore } from './stores/useOnlineDataStore'
 import { getTrackParamFromUrl, clearTrackParam } from './utils/flightSharing'
 import { initializeFonts } from './utils/fontLoader'
 import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
+import getPilotStatusOf from './utils/getPilotStatusOf'
+import { buildWidgetFlightItem, syncIOSWidgetSnapshot } from './services/native/iosNative'
+import { installDebugLogCapture } from './services/debug/debugLogStore'
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
+    const [trackedCallsign, setTrackedCallsign] = useState<string | null>(null)
     const trackAttempted = useRef(false)
     const trackCancelled = useRef(false)
 
     useEffect(() => {
+        installDebugLogCapture()
+
         // 初始化字体加载
         initializeFonts()
         
@@ -111,6 +117,47 @@ export default function App() {
             clearTimeout(timeout)
         }
     }, [])
+
+    useEffect(() => {
+        const token = pubsub.subscribe(EVENTS.TRACKED_FLIGHT_CHANGE, (_, data: { callsign: string | null, enabled: boolean }) => {
+            setTrackedCallsign(data?.enabled ? (data.callsign || null) : null)
+        })
+        return () => {
+            pubsub.unsubscribe(token)
+        }
+    }, [])
+
+    useEffect(() => {
+        const syncWidget = async () => {
+            const flights = useOnlineDataStore.getState().getFlights()
+
+            const trackedFlight = trackedCallsign
+                ? flights.find(f => f.callsign.toUpperCase() === trackedCallsign.toUpperCase())
+                : null
+
+            const topFlights = flights.slice(0, 3).map(p => buildWidgetFlightItem(p, getPilotStatusOf(p)))
+            await syncIOSWidgetSnapshot({
+                totalFlights: flights.length,
+                trackedFlight: trackedFlight ? buildWidgetFlightItem(trackedFlight, getPilotStatusOf(trackedFlight)) : null,
+                topFlights,
+                updatedAt: new Date().toISOString()
+            })
+        }
+
+        const tokenOnline = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
+            syncWidget()
+        })
+        const tokenTracked = pubsub.subscribe(EVENTS.TRACKED_FLIGHT_CHANGE, () => {
+            syncWidget()
+        })
+
+        syncWidget()
+
+        return () => {
+            pubsub.unsubscribe(tokenOnline)
+            pubsub.unsubscribe(tokenTracked)
+        }
+    }, [trackedCallsign])
 
     useEffect(() => {
         const token1 = pubsub.subscribe(EVENTS.MENU_SELECT, (_, data) => {

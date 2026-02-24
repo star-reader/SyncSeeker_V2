@@ -21,7 +21,8 @@ export const EVENTS = {
   MAP_STYLE_CHANGE: 'map-style-change',
   CONTROLLER_ICON_CLICK: 'controller-icon-click',
   CONTROLLER_INFO_CLOSE: 'controller-info-close',
-  INSTALL_APP_CLICK: 'install-app-click'
+  INSTALL_APP_CLICK: 'install-app-click',
+  TRACKED_FLIGHT_CHANGE: 'tracked-flight-change'
 }
 
 export const MAP_IDS = {
