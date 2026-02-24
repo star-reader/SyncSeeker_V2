@@ -155,62 +155,68 @@ private struct SnapshotWidgetView: View {
 
   @ViewBuilder
   private var mediumBody: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      HStack(alignment: .firstTextBaseline) {
-        Text("ONLINE")
-          .font(.system(size: 11, weight: .semibold, design: .monospaced))
-          .foregroundStyle(Color.white.opacity(0.72))
-        Spacer()
-        Text("\(entry.payload.totalFlights)")
-          .font(.system(size: 18, weight: .bold, design: .rounded))
-          .foregroundStyle(.white)
-      }
+    GeometryReader { proxy in
+      let maxRows = proxy.size.height >= 170 ? 5 : 4
+      let flights = Array(displayFlights.prefix(maxRows))
 
-      VStack(spacing: 4) {
-        ForEach(Array(displayFlights.prefix(3).enumerated()), id: \.offset) { index, flight in
-          HStack(spacing: 6) {
-            Circle()
-              .fill(statusColor(flight.status))
-              .frame(width: 5, height: 5)
-            Text(flight.callsign)
-              .font(.system(size: 10, weight: .bold, design: .monospaced))
-              .foregroundStyle(.white)
-              .frame(width: 60, alignment: .leading)
-            Text("\(airportCode(flight.departure))→\(airportCode(flight.arrival))")
-              .font(.system(size: 10, weight: .semibold, design: .monospaced))
-              .foregroundStyle(Color.white.opacity(0.9))
-              .frame(width: 84, alignment: .leading)
-              .lineLimit(1)
-            Text(aircraftText(flight.aircraft))
-              .font(.system(size: 10, weight: .medium, design: .rounded))
-              .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
-              .frame(width: 42, alignment: .leading)
-              .lineLimit(1)
-            Spacer(minLength: 0)
-            Text(altitudeText(flight.altitude))
-              .font(.system(size: 10, weight: .medium, design: .monospaced))
-              .foregroundStyle(Color.white.opacity(0.68))
-              .frame(width: 52, alignment: .trailing)
-            Text("\(flight.groundspeed)kt")
-              .font(.system(size: 10, weight: .medium, design: .monospaced))
-              .foregroundStyle(Color.white.opacity(0.68))
-              .frame(width: 48, alignment: .trailing)
-          }
-
-          if index < min(displayFlights.count, 3) - 1 {
-            Rectangle()
-              .fill(Color.white.opacity(0.12))
-              .frame(height: 1)
-          }
+      VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .firstTextBaseline) {
+          Text("ONLINE")
+            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+            .foregroundStyle(Color.white.opacity(0.72))
+          Spacer()
+          Text("\(entry.payload.totalFlights)")
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundStyle(.white)
         }
 
-        if displayFlights.isEmpty {
-          Text("暂无在线航班")
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundStyle(Color.white.opacity(0.66))
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 4) {
+          ForEach(Array(flights.enumerated()), id: \.offset) { index, flight in
+            HStack(spacing: 6) {
+              Circle()
+                .fill(statusColor(flight.status))
+                .frame(width: 5, height: 5)
+              Text(flight.callsign)
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .foregroundStyle(.white)
+                .frame(width: 60, alignment: .leading)
+              Text("\(airportCode(flight.departure))→\(airportCode(flight.arrival))")
+                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.9))
+                .frame(width: 84, alignment: .leading)
+                .lineLimit(1)
+              Text(aircraftText(flight.aircraft))
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
+                .frame(width: 42, alignment: .leading)
+                .lineLimit(1)
+              Spacer(minLength: 0)
+              Text(altitudeText(flight.altitude))
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.68))
+                .frame(width: 52, alignment: .trailing)
+              Text("\(flight.groundspeed)kt")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.68))
+                .frame(width: 48, alignment: .trailing)
+            }
+
+            if index < flights.count - 1 {
+              Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .frame(height: 1)
+            }
+          }
+
+          if flights.isEmpty {
+            Text("暂无在线航班")
+              .font(.system(size: 12, weight: .medium, design: .rounded))
+              .foregroundStyle(Color.white.opacity(0.66))
+              .frame(maxWidth: .infinity, alignment: .leading)
+          }
         }
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
   }
 

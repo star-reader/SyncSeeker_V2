@@ -323,7 +323,7 @@ export default function SettingsPanel() {
             </div>
           </section>
 
-          <section className={styles.section}>
+          <section className={styles.section} style={{display:'none', visibility:'hidden'}} area-hidden="true">
             <div className={styles.sectionHeader}>
               <span className={styles.sectionTitle}>调试日志</span>
               <span className={styles.sectionSubtitle}>{logCount} 条</span>
