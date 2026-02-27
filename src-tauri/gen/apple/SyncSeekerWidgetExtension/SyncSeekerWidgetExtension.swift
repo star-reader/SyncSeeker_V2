@@ -156,55 +156,79 @@ private struct SnapshotWidgetView: View {
   @ViewBuilder
   private var mediumBody: some View {
     GeometryReader { proxy in
-      let maxRows = proxy.size.height >= 170 ? 5 : 4
+      let totalHeight = proxy.size.height
+      let headerHeight: CGFloat = 24
+      let rowHeight: CGFloat = 16
+      let rowSpacing: CGFloat = 4
+      let separatorHeight: CGFloat = 1
+      let listTopSpacing: CGFloat = 6
+      let available = max(0, totalHeight - headerHeight - listTopSpacing)
+      let unit = rowHeight + rowSpacing + separatorHeight
+      let computedRows = Int((available + rowSpacing) / max(1, unit))
+      let maxRows = max(2, min(computedRows, 8))
       let flights = Array(displayFlights.prefix(maxRows))
 
-      VStack(alignment: .leading, spacing: 6) {
+      VStack(alignment: .leading, spacing: listTopSpacing) {
         HStack(alignment: .firstTextBaseline) {
           Text("ONLINE")
             .font(.system(size: 11, weight: .semibold, design: .monospaced))
             .foregroundStyle(Color.white.opacity(0.72))
-          Spacer()
+          Spacer(minLength: 0)
           Text("\(entry.payload.totalFlights)")
             .font(.system(size: 18, weight: .bold, design: .rounded))
             .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
         }
 
-        VStack(spacing: 4) {
+        VStack(spacing: rowSpacing) {
           ForEach(Array(flights.enumerated()), id: \.offset) { index, flight in
             HStack(spacing: 6) {
               Circle()
                 .fill(statusColor(flight.status))
                 .frame(width: 5, height: 5)
+
               Text(flight.callsign)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
-                .frame(width: 60, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+                .layoutPriority(2)
+
               Text("\(airportCode(flight.departure))→\(airportCode(flight.arrival))")
                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.9))
-                .frame(width: 84, alignment: .leading)
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .layoutPriority(3)
+
               Text(aircraftText(flight.aircraft))
                 .font(.system(size: 10, weight: .medium, design: .rounded))
                 .foregroundStyle(Color(red: 0.68, green: 0.79, blue: 1.0))
-                .frame(width: 42, alignment: .leading)
                 .lineLimit(1)
+                .minimumScaleFactor(0.78)
+                .layoutPriority(1)
+
               Spacer(minLength: 0)
+
               Text(altitudeText(flight.altitude))
                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.68))
-                .frame(width: 52, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+
               Text("\(flight.groundspeed)kt")
                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.68))
-                .frame(width: 48, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             }
+            .frame(height: rowHeight)
 
             if index < flights.count - 1 {
               Rectangle()
                 .fill(Color.white.opacity(0.12))
-                .frame(height: 1)
+                .frame(height: separatorHeight)
             }
           }
 
@@ -212,7 +236,7 @@ private struct SnapshotWidgetView: View {
             Text("暂无在线航班")
               .font(.system(size: 12, weight: .medium, design: .rounded))
               .foregroundStyle(Color.white.opacity(0.66))
-              .frame(maxWidth: .infinity, alignment: .leading)
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
           }
         }
       }
@@ -229,8 +253,8 @@ private struct SnapshotWidgetView: View {
       }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    .padding(.horizontal, 8)
-    .padding(.vertical, 7)
+    .padding(.horizontal, 6)
+    .padding(.vertical, 5)
     .containerBackground(for: .widget) {
       LinearGradient(
         colors: [Color(red: 0.11, green: 0.13, blue: 0.17), Color(red: 0.06, green: 0.07, blue: 0.10)],
