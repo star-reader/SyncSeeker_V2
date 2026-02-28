@@ -1,4 +1,4 @@
-const current_version = '0.3.0' // 不带v
+const current_version = '0.3.1' // 不带v
 const release_date = '2026-02-24'
 
 export default {

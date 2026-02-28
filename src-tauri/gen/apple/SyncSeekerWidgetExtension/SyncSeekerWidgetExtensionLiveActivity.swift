@@ -46,10 +46,19 @@ struct SyncSeekerLiveActivityWidget: Widget {
         HStack(alignment: .firstTextBaseline) {
           Text(context.state.callsign)
             .font(.system(size: 20, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
           Spacer()
-          Text(context.state.aircraft)
-            .font(.system(size: 12, weight: .medium, design: .rounded))
-            .foregroundStyle(Color.white.opacity(0.74))
+          VStack(alignment: .trailing, spacing: 2) {
+            Text("SyncSeeker")
+              .font(.system(size: 12, weight: .semibold, design: .rounded))
+              .foregroundStyle(Color(red: 0.95, green: 0.83, blue: 0.42))
+            Text(context.state.aircraft)
+              .font(.system(size: 12, weight: .medium, design: .rounded))
+              .foregroundStyle(Color.white.opacity(0.74))
+              .lineLimit(1)
+              .minimumScaleFactor(0.8)
+          }
         }
 
         HStack(alignment: .center, spacing: 10) {
