@@ -33,6 +33,7 @@ export default function App() {
     const [trackedCallsign, setTrackedCallsign] = useState<string | null>(null)
     const trackAttempted = useRef(false)
     const trackCancelled = useRef(false)
+    const lastWidgetPayloadRef = useRef('')
 
     useEffect(() => {
         installDebugLogCapture()
@@ -131,7 +132,18 @@ export default function App() {
     }, [])
 
     useEffect(() => {
+        let disposed = false
+        let timer: ReturnType<typeof setTimeout> | null = null
+        let syncing = false
+        let pending = false
+
         const syncWidget = async () => {
+            if (disposed || syncing) {
+                pending = true
+                return
+            }
+
+            syncing = true
             const flights = useOnlineDataStore.getState().getFlights()
 
             const trackedFlight = trackedCallsign
@@ -139,26 +151,58 @@ export default function App() {
                 : null
 
             const topFlights = flights.slice(0, WIDGET_SYNC_FLIGHT_LIMIT).map(p => buildWidgetFlightItem(p, getPilotStatusOf(p)))
-            await syncIOSWidgetSnapshot({
+
+            const payload = {
                 totalFlights: flights.length,
                 trackedFlight: trackedFlight ? buildWidgetFlightItem(trackedFlight, getPilotStatusOf(trackedFlight)) : null,
                 topFlights,
                 updatedAt: new Date().toISOString(),
                 apiBaseUrl: API_BASE_URL || undefined,
                 trackedCallsign: trackedCallsign || null
-            })
+            }
+
+            const payloadKey = JSON.stringify(payload)
+            if (payloadKey === lastWidgetPayloadRef.current) {
+                syncing = false
+                return
+            }
+
+            try {
+                await syncIOSWidgetSnapshot(payload)
+                lastWidgetPayloadRef.current = payloadKey
+            } finally {
+                syncing = false
+                if (pending && !disposed) {
+                    pending = false
+                    scheduleSync(1200)
+                }
+            }
+        }
+
+        const scheduleSync = (delay = 500) => {
+            if (disposed) return
+            if (timer) clearTimeout(timer)
+            timer = setTimeout(() => {
+                timer = null
+                syncWidget()
+            }, delay)
         }
 
         const tokenOnline = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
-            syncWidget()
+            scheduleSync(500)
         })
         const tokenTracked = pubsub.subscribe(EVENTS.TRACKED_FLIGHT_CHANGE, () => {
-            syncWidget()
+            scheduleSync(200)
         })
 
-        syncWidget()
+        scheduleSync(0)
 
         return () => {
+            disposed = true
+            if (timer) {
+                clearTimeout(timer)
+                timer = null
+            }
             pubsub.unsubscribe(tokenOnline)
             pubsub.unsubscribe(tokenTracked)
         }

@@ -3,6 +3,7 @@ import SwiftUI
 import Foundation
 
 private let kDefaultWidgetAPIBaseURL = "https://go.api.skylineflyleague.cn"
+private let kWidgetTimelineRefreshInterval: TimeInterval = 5 * 60
 
 private struct SnapshotEntry: TimelineEntry {
   let date: Date
@@ -35,10 +36,12 @@ private struct SnapshotProvider: TimelineProvider {
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<SnapshotEntry>) -> Void) {
     let seed = SSSharedStore.readWidgetSnapshot() ?? emptyPayload()
+    print("[SyncSeekerWidget] getTimeline seedUpdatedAt=\(seed.updatedAt)")
     SSWidgetRemoteSyncService.fetchLatestSnapshot(seed: seed) { refreshedPayload in
       let payload = refreshedPayload ?? seed
       let entry = SnapshotEntry(date: Date(), payload: payload)
-      let refresh = Date().addingTimeInterval(45)
+      let refresh = Date().addingTimeInterval(kWidgetTimelineRefreshInterval)
+      print("[SyncSeekerWidget] timeline prepared total=\(payload.totalFlights) nextRefresh=\(refresh)")
       completion(Timeline(entries: [entry], policy: .after(refresh)))
     }
   }
@@ -88,6 +91,7 @@ private enum SSWidgetRemoteSyncService {
 
   static func fetchLatestSnapshot(seed: SSWidgetSnapshotPayload, completion: @escaping (SSWidgetSnapshotPayload?) -> Void) {
     guard let url = onlineListURL(from: seed.apiBaseUrl) else {
+      print("[SyncSeekerWidget] fetch skipped: invalid URL")
       completion(nil)
       return
     }
@@ -105,6 +109,11 @@ private enum SSWidgetRemoteSyncService {
       guard error == nil,
             let data,
             let response = try? JSONDecoder().decode(SSOnlineListResponse.self, from: data) else {
+        if let error {
+          print("[SyncSeekerWidget] fetch failed error=\(error.localizedDescription)")
+        } else {
+          print("[SyncSeekerWidget] fetch failed: decode error")
+        }
         completion(nil)
         return
       }
@@ -129,6 +138,7 @@ private enum SSWidgetRemoteSyncService {
       )
 
       SSSharedStore.writeWidgetSnapshot(payload)
+      print("[SyncSeekerWidget] fetch success total=\(payload.totalFlights)")
       completion(payload)
     }.resume()
   }

@@ -19,6 +19,9 @@ private let kSyncSeekerLiveActivityPushTokenKey = "syncseeker.live_activity.push
 private let kSyncSeekerWidgetAPIBaseURLKey = "syncseeker.widget.api_base_url"
 private let kSyncSeekerBackgroundRefreshTaskSuffix = ".bg.refresh"
 private let kSyncSeekerDefaultAPIBaseURL = "https://go.api.skylineflyleague.cn"
+private let kSyncSeekerWidgetReloadMinInterval: TimeInterval = 20
+private let kSyncSeekerScheduleMinInterval: TimeInterval = 60
+nonisolated(unsafe) private var gSyncSeekerLastWidgetReloadAt: Date?
 
 private func syncSeekerBaseBundleIdentifier() -> String {
   let bundleId = Bundle.main.bundleIdentifier ?? "cn.skylineflyleague.map.beta"
@@ -233,6 +236,7 @@ private enum SSWidgetBackgroundSyncService {
 
   private static func onlineListURL() -> URL? {
     let base = resolvedAPIBaseURL()
+    print("[SyncSeeker] background sync resolved base=\(base)")
     return URL(string: "\(base)/Map/GetOnlineList")
   }
 
@@ -284,7 +288,9 @@ private enum SSWidgetBackgroundSyncService {
   }
 
   static func performSync() async -> Bool {
+    print("[SyncSeeker] background sync start")
     guard let url = onlineListURL() else {
+      print("[SyncSeeker] background sync aborted: invalid URL")
       return false
     }
 
@@ -325,6 +331,7 @@ private enum SSWidgetBackgroundSyncService {
 
       let storeCode = storeSharedPayload(payloadJSON, key: kSyncSeekerWidgetSnapshotKey, postWidgetReload: true)
       if storeCode != 0 {
+        print("[SyncSeeker] background sync store failed code=\(storeCode)")
         return false
       }
 
@@ -334,6 +341,7 @@ private enum SSWidgetBackgroundSyncService {
       }
       #endif
 
+      print("[SyncSeeker] background sync success total=\(payload.totalFlights)")
       return true
     } catch {
       print("[SyncSeeker] background sync failed: \(error)")
@@ -347,7 +355,7 @@ private enum SSBackgroundRefreshCoordinator {
     #if os(iOS) && canImport(BackgroundTasks)
     if #available(iOS 13.0, *) {
       registerIfNeeded()
-      scheduleNextRefresh(afterMinutes: 8)
+      scheduleNextRefresh(afterMinutes: 8, force: true)
     }
     #endif
   }
@@ -355,7 +363,7 @@ private enum SSBackgroundRefreshCoordinator {
   static func onForegroundPayloadSync() {
     #if os(iOS) && canImport(BackgroundTasks)
     if #available(iOS 13.0, *) {
-      scheduleNextRefresh(afterMinutes: 8)
+      scheduleNextRefresh(afterMinutes: 8, force: false)
     }
     #endif
   }
@@ -365,9 +373,13 @@ private enum SSBackgroundRefreshCoordinator {
   nonisolated(unsafe) private static var registered = false
 
   @available(iOS 13.0, *)
+  nonisolated(unsafe) private static var lastScheduleAt: Date?
+
+  @available(iOS 13.0, *)
   private static func registerIfNeeded() {
     if registered { return }
     let taskId = syncSeekerBackgroundRefreshTaskId()
+    print("[SyncSeeker] BGTask register taskId=\(taskId)")
     let ok = BGTaskScheduler.shared.register(forTaskWithIdentifier: taskId, using: nil) { task in
       handle(task: task)
     }
@@ -375,16 +387,28 @@ private enum SSBackgroundRefreshCoordinator {
       print("[SyncSeeker] BGTask register failed: \(taskId)")
       return
     }
+    print("[SyncSeeker] BGTask register success: \(taskId)")
     registered = true
   }
 
   @available(iOS 13.0, *)
-  private static func scheduleNextRefresh(afterMinutes minutes: Int) {
+  private static func scheduleNextRefresh(afterMinutes minutes: Int, force: Bool) {
+    let now = Date()
+    if !force,
+       let last = lastScheduleAt,
+       now.timeIntervalSince(last) < kSyncSeekerScheduleMinInterval {
+      return
+    }
+    lastScheduleAt = now
+
     let taskId = syncSeekerBackgroundRefreshTaskId()
+    BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: taskId)
     let request = BGAppRefreshTaskRequest(identifier: taskId)
-    request.earliestBeginDate = Date().addingTimeInterval(TimeInterval(max(5, minutes)) * 60)
+    request.earliestBeginDate = now.addingTimeInterval(TimeInterval(max(5, minutes)) * 60)
+    print("[SyncSeeker] BGTask schedule taskId=\(taskId) at=\(String(describing: request.earliestBeginDate)) force=\(force)")
     do {
       try BGTaskScheduler.shared.submit(request)
+      print("[SyncSeeker] BGTask submit success")
     } catch {
       print("[SyncSeeker] BGTask submit failed: \(error)")
     }
@@ -392,7 +416,8 @@ private enum SSBackgroundRefreshCoordinator {
 
   @available(iOS 13.0, *)
   private static func handle(task: BGTask) {
-    scheduleNextRefresh(afterMinutes: 8)
+    print("[SyncSeeker] BGTask handle start")
+    scheduleNextRefresh(afterMinutes: 8, force: true)
 
     guard let refreshTask = task as? BGAppRefreshTask else {
       task.setTaskCompleted(success: false)
@@ -404,11 +429,13 @@ private enum SSBackgroundRefreshCoordinator {
     let worker = Task(priority: .background) {
       let success = await SSWidgetBackgroundSyncService.performSync()
       refreshTaskBox.value.setTaskCompleted(success: success)
+      print("[SyncSeeker] BGTask handle completed success=\(success)")
     }
 
     refreshTask.expirationHandler = {
       worker.cancel()
       refreshTaskBox.value.setTaskCompleted(success: false)
+      print("[SyncSeeker] BGTask expired")
     }
   }
   #endif
@@ -436,15 +463,28 @@ private func storeSharedPayload(_ value: String, key: String, postWidgetReload: 
   defaults.synchronize()
 
   if postWidgetReload {
-    let notificationName = syncSeekerWidgetReloadNotification()
-    CFNotificationCenterPostNotification(
-      CFNotificationCenterGetDarwinNotifyCenter(),
-      CFNotificationName(notificationName as CFString),
-      nil,
-      nil,
-      true
-    )
-    WidgetCenter.shared.reloadAllTimelines()
+    let now = Date()
+    let shouldReloadTimeline: Bool
+    if let last = gSyncSeekerLastWidgetReloadAt,
+       now.timeIntervalSince(last) < kSyncSeekerWidgetReloadMinInterval {
+      shouldReloadTimeline = false
+    } else {
+      gSyncSeekerLastWidgetReloadAt = now
+      shouldReloadTimeline = true
+    }
+
+    if shouldReloadTimeline {
+      let notificationName = syncSeekerWidgetReloadNotification()
+      CFNotificationCenterPostNotification(
+        CFNotificationCenterGetDarwinNotifyCenter(),
+        CFNotificationName(notificationName as CFString),
+        nil,
+        nil,
+        true
+      )
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+
     SSBackgroundRefreshCoordinator.onForegroundPayloadSync()
   }
 
