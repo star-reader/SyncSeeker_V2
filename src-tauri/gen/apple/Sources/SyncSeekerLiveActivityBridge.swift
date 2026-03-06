@@ -16,7 +16,9 @@ import ActivityKit
 private let kSyncSeekerLiveActivityKey = "syncseeker.live_activity.payload"
 private let kSyncSeekerWidgetSnapshotKey = "syncseeker.widget.snapshot.payload"
 private let kSyncSeekerLiveActivityPushTokenKey = "syncseeker.live_activity.push.token"
+private let kSyncSeekerWidgetAPIBaseURLKey = "syncseeker.widget.api_base_url"
 private let kSyncSeekerBackgroundRefreshTaskSuffix = ".bg.refresh"
+private let kSyncSeekerDefaultAPIBaseURL = "https://go.api.skylineflyleague.cn"
 
 private func syncSeekerBaseBundleIdentifier() -> String {
   let bundleId = Bundle.main.bundleIdentifier ?? "cn.skylineflyleague.map.beta"
@@ -165,6 +167,19 @@ private extension KeyedDecodingContainer {
 private enum SSWidgetBackgroundSyncService {
   private static let syncLimit = 12
 
+  private static func readPersistedAPIBaseURL() -> String? {
+    let appGroup = syncSeekerWidgetAppGroup()
+    guard let defaults = UserDefaults(suiteName: appGroup) else {
+      return nil
+    }
+    return normalizeBaseURL(defaults.string(forKey: kSyncSeekerWidgetAPIBaseURLKey))
+  }
+
+  private static func resolvedAPIBaseURL() -> String {
+    let runtimeBase = normalizeBaseURL(readWidgetRuntimeSnapshot()?.apiBaseUrl)
+    return runtimeBase ?? readPersistedAPIBaseURL() ?? kSyncSeekerDefaultAPIBaseURL
+  }
+
   private static func statusText(for pilot: SSOnlinePilot) -> String {
     if pilot.groundspeed <= 5 && pilot.altitude <= 500 {
       return "停机位"
@@ -217,10 +232,7 @@ private enum SSWidgetBackgroundSyncService {
   }
 
   private static func onlineListURL() -> URL? {
-    guard let runtime = readWidgetRuntimeSnapshot(),
-          let base = normalizeBaseURL(runtime.apiBaseUrl) else {
-      return nil
-    }
+    let base = resolvedAPIBaseURL()
     return URL(string: "\(base)/Map/GetOnlineList")
   }
 
@@ -233,6 +245,10 @@ private enum SSWidgetBackgroundSyncService {
     let fallback = runtime?.trackedFlight?.callsign.trimmingCharacters(in: .whitespacesAndNewlines)
     if let fallback, !fallback.isEmpty {
       return fallback
+    }
+    let liveCallsign = readLivePayload()?.callsign.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let liveCallsign, !liveCallsign.isEmpty {
+      return liveCallsign
     }
     return nil
   }
@@ -298,7 +314,7 @@ private enum SSWidgetBackgroundSyncService {
         trackedFlight: trackedFlight,
         topFlights: Array(flights.prefix(syncLimit).map(makeWidgetFlightItem)),
         updatedAt: currentISO8601(),
-        apiBaseUrl: runtime?.apiBaseUrl,
+        apiBaseUrl: normalizeBaseURL(runtime?.apiBaseUrl) ?? resolvedAPIBaseURL(),
         trackedCallsign: tracked
       )
 
@@ -411,6 +427,12 @@ private func storeSharedPayload(_ value: String, key: String, postWidgetReload: 
   }
 
   defaults.set(value, forKey: key)
+  if key == kSyncSeekerWidgetSnapshotKey,
+     let data = value.data(using: .utf8),
+     let snapshot = try? JSONDecoder().decode(SSWidgetSnapshotPayload.self, from: data),
+     let apiBaseURL = normalizeBaseURL(snapshot.apiBaseUrl) {
+    defaults.set(apiBaseURL, forKey: kSyncSeekerWidgetAPIBaseURLKey)
+  }
   defaults.synchronize()
 
   if postWidgetReload {

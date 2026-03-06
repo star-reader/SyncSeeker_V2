@@ -2,6 +2,8 @@ import WidgetKit
 import SwiftUI
 import Foundation
 
+private let kDefaultWidgetAPIBaseURL = "https://go.api.skylineflyleague.cn"
+
 private struct SnapshotEntry: TimelineEntry {
   let date: Date
   let payload: SSWidgetSnapshotPayload
@@ -14,7 +16,7 @@ private struct SnapshotProvider: TimelineProvider {
       trackedFlight: nil,
       topFlights: [],
       updatedAt: ISO8601DateFormatter().string(from: Date()),
-      apiBaseUrl: nil,
+      apiBaseUrl: kDefaultWidgetAPIBaseURL,
       trackedCallsign: nil
     )
   }
@@ -46,15 +48,10 @@ private enum SSWidgetRemoteSyncService {
   private static let isoFormatter = ISO8601DateFormatter()
   private static let syncLimit = 12
 
-  private static func normalizeBaseURL(_ raw: String?) -> String? {
-    guard let raw else { return nil }
-    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !trimmed.isEmpty else { return nil }
-    return trimmed.hasSuffix("/") ? String(trimmed.dropLast()) : trimmed
-  }
-
   private static func onlineListURL(from apiBaseURL: String?) -> URL? {
-    guard let base = normalizeBaseURL(apiBaseURL) else { return nil }
+    let base = SSSharedStore.normalizeBaseURL(apiBaseURL)
+      ?? SSSharedStore.readWidgetAPIBaseURL()
+      ?? kDefaultWidgetAPIBaseURL
     return URL(string: "\(base)/Map/GetOnlineList")
   }
 
@@ -94,6 +91,9 @@ private enum SSWidgetRemoteSyncService {
       completion(nil)
       return
     }
+    let resolvedAPIBaseURL = SSSharedStore.normalizeBaseURL(seed.apiBaseUrl)
+      ?? SSSharedStore.readWidgetAPIBaseURL()
+      ?? kDefaultWidgetAPIBaseURL
 
     let configuration = URLSessionConfiguration.ephemeral
     configuration.timeoutIntervalForRequest = 8
@@ -124,7 +124,7 @@ private enum SSWidgetRemoteSyncService {
         trackedFlight: trackedFlight,
         topFlights: Array(flights.prefix(syncLimit).map(makeWidgetFlightItem)),
         updatedAt: isoFormatter.string(from: Date()),
-        apiBaseUrl: seed.apiBaseUrl,
+        apiBaseUrl: resolvedAPIBaseURL,
         trackedCallsign: trackedCallsign
       )
 

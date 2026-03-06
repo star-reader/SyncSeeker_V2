@@ -111,6 +111,14 @@ enum SSSharedStore {
   }
   static let liveActivityKey = "syncseeker.live_activity.payload"
   static let widgetSnapshotKey = "syncseeker.widget.snapshot.payload"
+  static let widgetAPIBaseURLKey = "syncseeker.widget.api_base_url"
+
+  static func normalizeBaseURL(_ raw: String?) -> String? {
+    guard let raw else { return nil }
+    let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+    return trimmed.hasSuffix("/") ? String(trimmed.dropLast()) : trimmed
+  }
 
   static func readLivePayload() -> SSFlightLivePayload? {
     guard let defaults = UserDefaults(suiteName: appGroup),
@@ -137,6 +145,16 @@ enum SSSharedStore {
       return
     }
     defaults.set(json, forKey: widgetSnapshotKey)
+    if let apiBaseURL = normalizeBaseURL(payload.apiBaseUrl) {
+      defaults.set(apiBaseURL, forKey: widgetAPIBaseURLKey)
+    }
     defaults.synchronize()
+  }
+
+  static func readWidgetAPIBaseURL() -> String? {
+    guard let defaults = UserDefaults(suiteName: appGroup) else {
+      return nil
+    }
+    return normalizeBaseURL(defaults.string(forKey: widgetAPIBaseURLKey))
   }
 }
