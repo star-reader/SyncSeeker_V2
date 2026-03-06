@@ -24,6 +24,9 @@ import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
 import getPilotStatusOf from './utils/getPilotStatusOf'
 import { buildWidgetFlightItem, syncIOSWidgetSnapshot } from './services/native/iosNative'
 import { installDebugLogCapture } from './services/debug/debugLogStore'
+import { API_BASE_URL } from './configs/apiConfig'
+
+const WIDGET_SYNC_FLIGHT_LIMIT = 12
 
 export default function App() {
     const [openedMenu, setOpenedMenu] = useState('')
@@ -135,12 +138,14 @@ export default function App() {
                 ? flights.find(f => f.callsign.toUpperCase() === trackedCallsign.toUpperCase())
                 : null
 
-            const topFlights = flights.slice(0, 3).map(p => buildWidgetFlightItem(p, getPilotStatusOf(p)))
+            const topFlights = flights.slice(0, WIDGET_SYNC_FLIGHT_LIMIT).map(p => buildWidgetFlightItem(p, getPilotStatusOf(p)))
             await syncIOSWidgetSnapshot({
                 totalFlights: flights.length,
                 trackedFlight: trackedFlight ? buildWidgetFlightItem(trackedFlight, getPilotStatusOf(trackedFlight)) : null,
                 topFlights,
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
+                apiBaseUrl: API_BASE_URL || undefined,
+                trackedCallsign: trackedCallsign || null
             })
         }
 

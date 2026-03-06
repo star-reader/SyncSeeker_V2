@@ -31,6 +31,24 @@ interface ChartDataPoint {
   speed: number
 }
 
+const FLIGHT_LEVEL_THRESHOLD_FT = 18000
+
+const normalizeChartNumber = (value: number | string): number => {
+  const num = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(num) ? num : 0
+}
+
+const formatAltitudeAviation = (value: number | string, withUnit: boolean = false): string => {
+  const altitude = Math.max(0, Math.round(normalizeChartNumber(value)))
+  if (altitude >= FLIGHT_LEVEL_THRESHOLD_FT) {
+    return `FL${Math.round(altitude / 100)}`
+  }
+  if (withUnit) {
+    return `${altitude.toLocaleString()} ft`
+  }
+  return `${altitude}`
+}
+
 /**
  * 根据数据长度生成时间数组
  * 每个点间隔3秒，从当前时间倒推
@@ -132,7 +150,7 @@ export default function FlightChart({ altitudeArray, speedArray }: FlightChartPr
             tickLine={false}
             axisLine={false}
             domain={[0, Math.ceil(maxAltitude / 10000) * 10000]}
-            tickFormatter={(value) => `${Math.round(value / 1000)}k`}
+            tickFormatter={(value) => formatAltitudeAviation(value)}
           />
           
           <YAxis
@@ -155,7 +173,7 @@ export default function FlightChart({ altitudeArray, speedArray }: FlightChartPr
             }}
             labelStyle={{ color: 'var(--sky-text-color-primary)', marginBottom: '4px' }}
             formatter={(value: number, name: string) => {
-              if (name === 'altitude') return [`${Math.round(value).toLocaleString()} ft`, '高度']
+              if (name === 'altitude') return [formatAltitudeAviation(value, true), '高度']
               if (name === 'speed') return [`${Math.round(value)} kt`, '速度']
               return [value, name]
             }}

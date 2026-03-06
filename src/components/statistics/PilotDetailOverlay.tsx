@@ -32,7 +32,7 @@ export default ({ open, pilot, onClose }: PilotDetailOverlayProps) => {
 
   const copyText = (text: string, from: 'route' | 'remarks') => {
     if (!text) return
-    navigator.clipboard?.writeText(text).catch(() => {})
+    navigator.clipboard?.writeText(text).catch(() => { })
     if (from === 'route') {
       setRouteCopyText('已复制')
     } else {
@@ -106,7 +106,9 @@ export default ({ open, pilot, onClose }: PilotDetailOverlayProps) => {
             <div className={styles.section}>
               <div className={styles.sectionTitle}>飞行计划</div>
               <div className={styles.kvList}>
-                <div className={styles.kvItem}><div className={styles.kvKey}>规则</div><div className={styles.kvValue}>{pilot.flight_plan?.flight_rules || '-'}</div></div>
+                <div className={styles.kvItem}><div className={styles.kvKey}>规则</div><div className={styles.kvValue}>
+                  {pilot.flight_plan?.flight_rules === 'I' ? 'IFR' : pilot.flight_plan?.flight_rules === 'V' ? 'VFR' : '-'}
+                  </div></div>
                 <div className={styles.kvItem}><div className={styles.kvKey}>机型</div><div className={styles.kvValue}>{pilot.flight_plan?.aircraft || 'N/A'}</div></div>
                 <div className={styles.kvItem}><div className={styles.kvKey}>巡航速度</div><div className={styles.kvValue}>{pilot.flight_plan?.cruise_tas || '-'}</div></div>
                 <div className={styles.kvItem}><div className={styles.kvKey}>巡航高度</div><div className={styles.kvValue}>{pilot.flight_plan?.altitude || '-'}</div></div>
