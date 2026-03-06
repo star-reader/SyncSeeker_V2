@@ -30,6 +30,8 @@ export interface WidgetSnapshotPayload {
   trackedFlight?: WidgetFlightItem | null
   topFlights: WidgetFlightItem[]
   updatedAt: string
+  apiBaseUrl?: string
+  trackedCallsign?: string | null
 }
 
 const IOS_NATIVE_COMMANDS = {

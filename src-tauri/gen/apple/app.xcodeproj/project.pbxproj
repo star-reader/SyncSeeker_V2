@@ -384,7 +384,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = "2S577ZVVWZ";
+				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -425,7 +425,7 @@
 					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = "SyncSeeker";
+				PRODUCT_NAME = SyncSeeker;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
@@ -503,7 +503,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = "2S577ZVVWZ";
+				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -544,7 +544,7 @@
 					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = "SyncSeeker";
+				PRODUCT_NAME = SyncSeeker;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
@@ -657,7 +657,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 101;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -688,7 +688,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.3.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -747,7 +747,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 101;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 2S577ZVVWZ;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -772,7 +772,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 0.3.1;
+				MARKETING_VERSION = 0.3.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta.SyncSeekerWidgetExtension;
