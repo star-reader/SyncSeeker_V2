@@ -20,7 +20,7 @@
     "@mui/material": "^7.3.5",
     "@tauri-apps/api": "^2.9.1",
     "@turf/turf": "^7.3.1",
-    "axios": "^1.13.5",
+    "axios": "^1.15.0",
     "liquid-web": "^1.1.1",
     "mapbox-gl": "^3.16.0",
     "mui-color-input": "^7.0.0",
