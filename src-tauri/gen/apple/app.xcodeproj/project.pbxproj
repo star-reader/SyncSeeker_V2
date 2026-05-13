@@ -384,7 +384,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = 2S577ZVVWZ;
+				DEVELOPMENT_TEAM = "2S577ZVVWZ";
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -425,7 +425,7 @@
 					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = SyncSeeker;
+				PRODUCT_NAME = "SyncSeeker";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
@@ -503,7 +503,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 101;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = 2S577ZVVWZ;
+				DEVELOPMENT_TEAM = "2S577ZVVWZ";
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -544,7 +544,7 @@
 					"-Wl,-u,_syncseeker_ios_sync_widget_snapshot",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.skylineflyleague.map.beta;
-				PRODUCT_NAME = SyncSeeker;
+				PRODUCT_NAME = "SyncSeeker";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/app_iOS-Bridging-Header.h";
