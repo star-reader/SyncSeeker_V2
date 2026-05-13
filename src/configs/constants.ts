@@ -22,7 +22,8 @@ export const EVENTS = {
   CONTROLLER_ICON_CLICK: 'controller-icon-click',
   CONTROLLER_INFO_CLOSE: 'controller-info-close',
   INSTALL_APP_CLICK: 'install-app-click',
-  TRACKED_FLIGHT_CHANGE: 'tracked-flight-change'
+  TRACKED_FLIGHT_CHANGE: 'tracked-flight-change',
+  NAVDATA_STARTUP_UPDATED: 'navdata-startup-updated'
 }
 
 export const MAP_IDS = {

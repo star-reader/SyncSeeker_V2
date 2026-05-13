@@ -15,7 +15,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: 14px;
   background: var(--sky-bg-color-overlay);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-size: 14px;
@@ -42,28 +42,24 @@
 }
 
 .success {
-  border-left: 2px solid var(--sky-color-success);
 }
 .success svg {
   color: var(--sky-color-success);
 }
 
 .info {
-  border-left: 2px solid var(--sky-color-primary);
 }
 .info svg {
   color: var(--sky-color-primary);
 }
 
 .warning {
-  border-left: 2px solid var(--sky-color-warning);
 }
 .warning svg {
   color: var(--sky-color-warning);
 }
 
 .error {
-  border-left: 2px solid var(--sky-color-danger);
 }
 .error svg {
   color: var(--sky-color-danger);
