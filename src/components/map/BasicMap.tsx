@@ -35,6 +35,28 @@ export default function BasicMap() {
     })
     const isInitialMount = useRef(true)
 
+    const hidePoliticalLayers = (map: mapboxgl.Map) => {
+        const layers = map.getStyle().layers ?? []
+        const exactHiddenLayerIds = new Set([
+            'country-label'
+        ])
+        const politicalIdPatterns = [
+            'boundary',
+            'capital',
+            'admin-0',
+            'c'
+        ]
+        for (const layer of layers) {
+            const layerId = layer.id.toLowerCase()
+            const isPoliticalLayer = exactHiddenLayerIds.has(layerId) || politicalIdPatterns.some(pattern => layerId.includes(pattern))
+            if (!isPoliticalLayer) continue
+            if (!map.getLayer(layer.id)) continue
+            try {
+                map.setLayoutProperty(layer.id, 'visibility', 'none')
+            } catch {}
+        }
+    }
+
     // bugfix/jerry v0.2.3 改用更新raster layer来切换卫星图，避免加载卫星图后机组图标显示错误还有地图闪烁问题
     // 删掉了这个useEffect 更新return，防止出现每次更新都被新地图替换从而丢失layers的问题
     const updateMapVisuals = (map: mapboxgl.Map, currentStyle: 'dynamic' | 'satellite') => {
@@ -44,6 +66,9 @@ export default function BasicMap() {
                 map.setConfigProperty('basemap', 'showRoadsAndTransit', false)
                 map.setConfigProperty('basemap', 'showPlaceLabels', false)
                 map.setConfigProperty('basemap', 'showRoadLabels', false)
+                map.setConfigProperty('basemap', 'showAdminBoundaries', false)
+                map.setConfigProperty('basemap', 'showLandmarkIcons', false)
+                map.setConfigProperty('basemap', 'showLandmarkIconLabels', false)
                 
                 // 2. 添加/显示卫星图层
                 const layers = map.getStyle().layers
@@ -73,8 +98,11 @@ export default function BasicMap() {
             } else {
                 // 1. 恢复底图配置
                 map.setConfigProperty('basemap', 'showRoadsAndTransit', true)
-                map.setConfigProperty('basemap', 'showPlaceLabels', true)
+                map.setConfigProperty('basemap', 'showPlaceLabels', false)
                 map.setConfigProperty('basemap', 'showRoadLabels', true)
+                map.setConfigProperty('basemap', 'showAdminBoundaries', false)
+                map.setConfigProperty('basemap', 'showLandmarkIcons', false)
+                map.setConfigProperty('basemap', 'showLandmarkIconLabels', false)
                 
                 // 2. 隐藏卫星图层
                 if (map.getLayer('satellite-raster')) {
@@ -85,6 +113,7 @@ export default function BasicMap() {
                 const theme = useGetCurrentTheme()
                 map.setConfigProperty('basemap', 'lightPreset', theme === 'dark' ? 'night' : 'day')
             }
+            hidePoliticalLayers(map)
         } catch (e) {}
     }
 
@@ -101,6 +130,10 @@ export default function BasicMap() {
                 basemap: {
                     lightPreset: mapStyle === 'satellite' ? 'day' : (useGetCurrentTheme() === 'dark' ? 'night' : 'day'),
                     showPointOfInterestLabels: false,
+                    showPlaceLabels: false,
+                    showAdminBoundaries: false,
+                    showLandmarkIcons: false,
+                    showLandmarkIconLabels: false,
                 }
             }
         })
@@ -245,6 +278,7 @@ export default function BasicMap() {
             localStorage.setItem('map-center', JSON.stringify(map.getCenter().toArray()))
         })
         map.once('style.load', async () => {
+            hidePoliticalLayers(map)
             // asyncLoadAssets改在drawOnlinePilot中进行
             // await asyncLoadAssets(map)
             await asyncLoadControllerAssets(map)   
