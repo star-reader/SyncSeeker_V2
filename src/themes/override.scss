@@ -41,3 +41,9 @@ div[data-container-name] input, div[data-container-name] div {
     z-index: 100002 !important;
   }
 }
+
+/* Keep mapbox controls/logos above iOS home indicator area. */
+.mapboxgl-ctrl-bottom-left,
+.mapboxgl-ctrl-bottom-right {
+  bottom: calc(var(--app-safe-bottom, env(safe-area-inset-bottom, 0px)) + 8px) !important;
+}

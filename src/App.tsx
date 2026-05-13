@@ -23,6 +23,7 @@ import { initializeFonts } from './utils/fontLoader'
 import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
 import getPilotStatusOf from './utils/getPilotStatusOf'
 import { buildWidgetFlightItem, syncIOSWidgetSnapshot } from './services/native/iosNative'
+import { isIOSDevice } from './services/native/iosNative'
 import { installDebugLogCapture } from './services/debug/debugLogStore'
 import { API_BASE_URL } from './configs/apiConfig'
 
@@ -37,6 +38,12 @@ export default function App() {
 
     useEffect(() => {
         installDebugLogCapture()
+
+        const root = document.getElementById('root')
+        if (root) {
+            const runtime = _isTauri() && isIOSDevice() ? 'tauri-ios' : 'web'
+            root.setAttribute('data-runtime', runtime)
+        }
 
         // 初始化字体加载
         initializeFonts()

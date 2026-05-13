@@ -23,6 +23,9 @@ html, body {
 }
 
 :root {
+  --app-vh: 100vh;
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --sky-color-primary: #409EFF;
   --sky-color-success: #67C23A;
   --sky-color-warning: #E6A23C;
@@ -52,6 +55,17 @@ html, body {
   --sky-color-black: #000000;
   --sky-color-white: #FFFFFF;
   --sky-color-transparent: transparent;
+}
+
+#root[data-runtime="tauri-ios"] {
+  --app-vh: 100dvh;
+  /* iOS Tauri native container already offsets top safe area, avoid double inset */
+  --app-safe-top: 0px;
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+#root {
+  height: var(--app-vh);
 }
 
 #root {

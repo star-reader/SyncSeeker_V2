@@ -5,7 +5,18 @@
     right: 0;
     bottom: 0;
     width: 100%;
-    height: 100vh;
+    height: var(--app-vh, 100vh);
     z-index: 1;
     overflow: hidden;
+}
+
+:global(.syncseeker-reset-view-ctrl) {
+    background-image: none !important;
+    font-size: 16px;
+    line-height: 29px;
+    text-align: center;
+}
+
+:global(.syncseeker-reset-view-ctrl::before) {
+    content: '◎';
 }
