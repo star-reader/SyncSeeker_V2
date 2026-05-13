@@ -317,9 +317,9 @@ export default function BasicMap() {
             unit: 'metric'
         })
         const resetView = new ResetViewControl()
+        mapRef.current.addControl(scale, 'bottom-right')
         mapRef.current.addControl(navigation, 'bottom-right')
         mapRef.current.addControl(resetView, 'bottom-right')
-        mapRef.current.addControl(scale, 'bottom-right')
     }
 
     const bindMapEventListener = () => {
