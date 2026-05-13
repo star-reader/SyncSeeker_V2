@@ -12,6 +12,34 @@ import pubsub from 'pubsub-js'
 import syncSeekerDB from '../services/localDB/indexedDB'
 import { EVENTS } from '../configs/constants'
 
+export interface NavDataUpdateCheckResult {
+    hasUpdate: boolean
+    remoteVersion: NavDataVersion | null
+    localVersion: NavDataVersion | null
+}
+
+/**
+ * 仅检查导航数据版本是否有更新，不执行下载
+ */
+export const checkNavDataUpdate = async (): Promise<NavDataUpdateCheckResult> => {
+    const baseUrl = import.meta.env.VITE_PUBLIC_NAVDATA_URL
+    if (!baseUrl) {
+        console.warn('VITE_PUBLIC_NAVDATA_URL not configured')
+        return { hasUpdate: false, remoteVersion: null, localVersion: null }
+    }
+
+    await syncSeekerDB.init()
+    const versionRes = await axios.get<NavDataVersion>(`${baseUrl}/version.json?t=${Date.now()}`)
+    const remoteVersion = versionRes.data
+    const localVersion = await syncSeekerDB.getNavDataVersion()
+
+    const hasUpdate = !localVersion ||
+        localVersion.bundle_id !== remoteVersion.bundle_id ||
+        localVersion.version_id !== remoteVersion.version_id
+
+    return { hasUpdate, remoteVersion, localVersion }
+}
+
 /**
  * 获取并存储导航数据
  * 请求 version.json 检查版本，若有更新则请求 airports.json, airlines.json, firs.json, app.json 并存入 IndexedDB
@@ -28,17 +56,12 @@ export const fetchAndStoreNavData = async (): Promise<boolean> => {
         // 确保数据库已初始化
         await syncSeekerDB.init()
 
-        // 1. 获取远程版本信息
-        const versionRes = await axios.get<NavDataVersion>(`${baseUrl}/version.json`)
-        const remoteVersion = versionRes.data
-
-        // 2. 获取本地版本信息
-        const localVersion = await syncSeekerDB.getNavDataVersion()
+        // 1. 获取远程/本地版本信息
+        const { hasUpdate, remoteVersion, localVersion } = await checkNavDataUpdate()
+        if (!remoteVersion) return false
 
         // 3. 比较版本，如果一致则跳过下载
-        if (localVersion && 
-            localVersion.bundle_id === remoteVersion.bundle_id && 
-            localVersion.version_id === remoteVersion.version_id) {
+        if (!hasUpdate && localVersion) {
             console.log('Nav data is up to date:', localVersion.version_id)
             return false
         }
@@ -82,5 +105,4 @@ export const fetchAndStoreNavData = async (): Promise<boolean> => {
         throw error
     }
 }
-
 

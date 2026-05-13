@@ -259,7 +259,6 @@
     
     button {
       width: 80%;
-      left: 10%;
       height: 44px !important;
       font-size: 15px !important;
       font-weight: 500 !important;
@@ -326,10 +325,19 @@
 .downloadSection {
   width: 100%;
   display: flex;
-  // flex-direction: column;
-  // justify-content: center;
+  justify-content: center;
   align-items: center;
   gap: 12px;
+
+  @include screen-down(md) {
+    flex-direction: column;
+
+    button {
+      width: 80% !important;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+  }
 
   @include screen-up(md) {
     width: auto;
@@ -355,6 +363,25 @@
   @include screen-up(md) {
     width: auto;
     min-width: 100px;
+  }
+}
+
+.cancelButton {
+  background: #ffffff !important;
+  color: var(--sky-text-color-primary) !important;
+  border: 1px solid var(--sky-border-color) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+
+  &:hover {
+    background: #f7f8fa !important;
+    opacity: 1 !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  &:disabled {
+    background: #ffffff !important;
+    color: var(--sky-text-color-disabled) !important;
+    border-color: var(--sky-border-color) !important;
   }
 }
 

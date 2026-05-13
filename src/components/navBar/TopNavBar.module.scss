@@ -7,7 +7,7 @@
   right: 0;
   z-index: 1100;
   /* Total height includes safe area */
-  height: calc(56px + env(safe-area-inset-top, 0px));
+  height: calc(56px + var(--app-safe-top, env(safe-area-inset-top, 0px)));
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -205,6 +205,6 @@
     position: fixed;
     left: 8px;
     right: 8px;
-    top: calc(56px + env(safe-area-inset-top));
+    top: calc(56px + var(--app-safe-top, env(safe-area-inset-top, 0px)));
   }
 }

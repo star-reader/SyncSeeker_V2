@@ -2,7 +2,7 @@
 
 .container {
   position: fixed;
-  top: calc(56px + env(safe-area-inset-top));
+  top: calc(56px + var(--app-safe-top, env(safe-area-inset-top, 0px)));
   left: 0;
   right: 0;
   bottom: 0;

@@ -26,6 +26,47 @@ import drawOnlineController from "../../services/map/layers/drawOnlineController
 import addWeatherRadar from "../../services/map/layers/addWeatherRadar"
 import asyncLoadGeneralAssets from "../../services/map/assets/asyncLoadGeneralAssets"
 
+const DEFAULT_MAP_VIEW = {
+    center: [120.128029, 30.267153] as [number, number],
+    zoom: 6,
+    bearing: 0,
+    pitch: 0
+}
+
+class ResetViewControl implements mapboxgl.IControl {
+    private map: mapboxgl.Map | null = null
+    private container!: HTMLDivElement
+
+    onAdd(map: mapboxgl.Map): HTMLElement {
+        this.map = map
+        this.container = document.createElement('div')
+        this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group'
+
+        const button = document.createElement('button')
+        button.className = 'mapboxgl-ctrl-icon syncseeker-reset-view-ctrl'
+        button.type = 'button'
+        button.setAttribute('aria-label', '回中')
+        button.title = '回中'
+        button.addEventListener('click', () => {
+            this.map?.easeTo({
+                center: DEFAULT_MAP_VIEW.center,
+                zoom: DEFAULT_MAP_VIEW.zoom,
+                bearing: DEFAULT_MAP_VIEW.bearing,
+                pitch: DEFAULT_MAP_VIEW.pitch,
+                duration: 450
+            })
+        })
+
+        this.container.appendChild(button)
+        return this.container
+    }
+
+    onRemove(): void {
+        this.container.remove()
+        this.map = null
+    }
+}
+
 export default function BasicMap() {
     const mapRef = useRef<mapboxgl.Map | null>(null)
     const trackedCallsignRef = useRef<string | null>(null)
@@ -124,8 +165,11 @@ export default function BasicMap() {
         mapRef.current = new mapboxgl.Map({
             container: 'map-container',
             style: 'mapbox://styles/mapbox/standard',
-            center: [120.128029, 30.267153],
-            zoom: 6,
+            center: DEFAULT_MAP_VIEW.center,
+            zoom: DEFAULT_MAP_VIEW.zoom,
+            bearing: DEFAULT_MAP_VIEW.bearing,
+            pitch: DEFAULT_MAP_VIEW.pitch,
+            dragRotate: true,
             config: {
                 basemap: {
                     lightPreset: mapStyle === 'satellite' ? 'day' : (useGetCurrentTheme() === 'dark' ? 'night' : 'day'),
@@ -139,6 +183,9 @@ export default function BasicMap() {
         })
         
         initMapCoord()
+        mapRef.current.dragRotate.enable()
+        mapRef.current.touchZoomRotate.enable()
+        mapRef.current.touchZoomRotate.enableRotation()
         addMapControls()
         bindMapEventListener()
         
@@ -253,18 +300,26 @@ export default function BasicMap() {
                 if (Array.isArray(arr) && arr.length === 2) mapRef.current?.setCenter([arr[0], arr[1]])
             } catch {}
         } else {
-            const c = mapRef.current?.getCenter().toArray() || [120.128029, 30.267153]
+            const c = mapRef.current?.getCenter().toArray() || DEFAULT_MAP_VIEW.center
             localStorage.setItem('map-center', JSON.stringify(c))
         }
     }
 
     const addMapControls = () => {
         if (!mapRef.current) return
+        const navigation = new mapboxgl.NavigationControl({
+            visualizePitch: true,
+            showCompass: true,
+            showZoom: true
+        })
         const scale = new mapboxgl.ScaleControl({
             maxWidth: 100,
             unit: 'metric'
         })
+        const resetView = new ResetViewControl()
         mapRef.current.addControl(scale, 'bottom-right')
+        mapRef.current.addControl(navigation, 'bottom-right')
+        mapRef.current.addControl(resetView, 'bottom-right')
     }
 
     const bindMapEventListener = () => {

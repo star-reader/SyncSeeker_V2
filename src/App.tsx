@@ -15,6 +15,7 @@ import AirportBoard from './components/airport/AirportBoard'
 import AboutPanel from './components/about/AboutPanel'
 import Toast from './components/common/Toast'
 import OnboardingGuide from './components/onboarding/OnboardingGuide'
+import NavDataUpdateGuide from './components/onboarding/NavDataUpdateGuide'
 import InstallGuidePanel from './components/install/InstallGuidePanel'
 import { EVENTS } from './configs/constants'
 import { useOnlineDataStore } from './stores/useOnlineDataStore'
@@ -23,8 +24,10 @@ import { initializeFonts } from './utils/fontLoader'
 import { useReleaseInfoStore } from './stores/useReleaseInfoStore'
 import getPilotStatusOf from './utils/getPilotStatusOf'
 import { buildWidgetFlightItem, syncIOSWidgetSnapshot } from './services/native/iosNative'
+import { isIOSDevice } from './services/native/iosNative'
 import { installDebugLogCapture } from './services/debug/debugLogStore'
 import { API_BASE_URL } from './configs/apiConfig'
+import { checkNavDataUpdate } from './apis/fetchStorageData'
 
 const WIDGET_SYNC_FLIGHT_LIMIT = 12
 
@@ -38,11 +41,34 @@ export default function App() {
     useEffect(() => {
         installDebugLogCapture()
 
+        const root = document.getElementById('root')
+        if (root) {
+            const runtime = _isTauri() && isIOSDevice() ? 'tauri-ios' : 'web'
+            root.setAttribute('data-runtime', runtime)
+        }
+
         // 初始化字体加载
         initializeFonts()
         
         // 初始化发布信息
         useReleaseInfoStore.getState().initialize()
+
+        // 应用启动时检查导航数据版本（读取 version.json），有更新时先弹确认引导
+        const checkNavDataUpdatesOnStartup = async () => {
+            try {
+                const hasCompletedOnboarding = localStorage.getItem('onboarding-completed') === 'true'
+                if (!hasCompletedOnboarding) {
+                    return
+                }
+                const { hasUpdate } = await checkNavDataUpdate()
+                if (hasUpdate) {
+                    pubsub.publish(EVENTS.NAVDATA_STARTUP_UPDATED)
+                }
+            } catch (error) {
+                console.error('Failed to check nav data updates on startup:', error)
+            }
+        }
+        checkNavDataUpdatesOnStartup()
         
         const stop = pollingData()
         
@@ -224,6 +250,7 @@ export default function App() {
     return (
         <>
             <OnboardingGuide />
+            <NavDataUpdateGuide />
             <TopNavBar />
             <BasicMap />
             <>

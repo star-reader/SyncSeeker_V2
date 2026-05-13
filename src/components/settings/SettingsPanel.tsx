@@ -126,12 +126,13 @@ export default function SettingsPanel() {
     try {
         const updated = await fetchAndStoreNavData()
         if (!updated) {
-            // 这里可以添加一个提示，告诉用户已经是最新版本
-            // 由于没有引入Toast组件，暂时只在控制台输出
-            console.log('Already up to date')
+            showToast('当前导航数据已是最新版本', 'info')
+            return
         }
+        showToast('地图数据和导航数据已更新', 'success')
     } catch (e) {
         console.error(e)
+        showToast('导航数据更新失败，请稍后重试', 'error')
     } finally {
         setLoading(false)
     }

@@ -2,10 +2,10 @@
 
 .container {
   position: fixed;
-  top: calc(72px + env(safe-area-inset-top, 0px));
+  top: calc(72px + var(--app-safe-top, env(safe-area-inset-top, 0px)));
   right: 20px;
   width: 380px;
-  max-height: calc(100vh - 92px - env(safe-area-inset-top, 0px) - 60px);
+  max-height: calc(100vh - 92px - var(--app-safe-top, env(safe-area-inset-top, 0px)) - 60px);
   background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
