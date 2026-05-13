@@ -59,8 +59,8 @@ html, body {
 
 #root[data-runtime="tauri-ios"] {
   --app-vh: 100dvh;
-  /* iOS Tauri native container already offsets top safe area, avoid double inset */
-  --app-safe-top: 0px;
+  /* Keep system top inset for navbar/layout calculations */
+  --app-safe-top: env(safe-area-inset-top, 0px);
   --app-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
