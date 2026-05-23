@@ -94,7 +94,6 @@ export default function ControllerInfoPanel() {
     return () => { pubsub.unsubscribe(token) }
   }, [])
 
-  // Touch handlers for mobile
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setDragging(true)
     setStartY(e.touches[0].clientY)
@@ -204,10 +203,7 @@ export default function ControllerInfoPanel() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Mobile handle bar */}
       <div className={styles.handleBar} />
-
-      {/* Header */}
       <div className={styles.header}>
         <div className={styles.title}>
           <div className={styles.callsign}>{titleText}</div>
@@ -238,7 +234,6 @@ export default function ControllerInfoPanel() {
         </div>
       </div>
 
-      {/* Content */}
       <div className={styles.content}>
         {selectedControllers.map((item, index) => {
           const itemRating = getAtcRating(item.rating)
