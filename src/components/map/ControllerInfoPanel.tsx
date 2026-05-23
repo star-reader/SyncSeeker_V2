@@ -94,7 +94,6 @@ export default function ControllerInfoPanel() {
     return () => { pubsub.unsubscribe(token) }
   }, [])
 
-  // Touch handlers for mobile
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setDragging(true)
     setStartY(e.touches[0].clientY)
@@ -121,20 +120,41 @@ export default function ControllerInfoPanel() {
     setTranslateY(0)
   }, [expanded, translateY])
 
-  const controller: OnlineController | null = useMemo(() => {
-    if (!callsign || !onlineData) return null
-    return onlineData.controllers.find(c => c.callsign === callsign) || null
+  const selectedControllers: OnlineController[] = useMemo(() => {
+    if (!callsign || !onlineData) return []
+
+    const selected = onlineData.controllers.find(c => c.callsign === callsign)
+    if (!selected) return []
+
+    const parsed = parseCallsign(selected.callsign)
+    const isSectorController = (parsed.type === 'CTR' || parsed.type === 'APP') && !!parsed.sector
+
+    const candidates = isSectorController
+      ? onlineData.controllers.filter(controller => {
+          const current = parseCallsign(controller.callsign)
+          return current.prefix === parsed.prefix && current.type === parsed.type
+        })
+      : [selected]
+
+    return [...candidates].sort((a, b) => {
+      if (a.callsign === callsign) return -1
+      if (b.callsign === callsign) return 1
+      return a.callsign.localeCompare(b.callsign)
+    })
   }, [callsign, onlineData])
 
-  const onlineTime = useMemo(() => {
-    if (!controller) return '0h 0m'
+  const controller: OnlineController | null = useMemo(() => {
+    return selectedControllers[0] || null
+  }, [selectedControllers])
+
+  const onlineTime = useCallback((controller: OnlineController) => {
     const logonTime = new Date(controller.logon_time)
     const now = new Date()
     const diff = now.getTime() - logonTime.getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
     return `${hours}h ${minutes}m`
-  }, [controller])
+  }, [])
 
   const facilityName = useMemo(() => {
     if (!controller) return ''
@@ -152,6 +172,15 @@ export default function ControllerInfoPanel() {
     if (!controller) return ''
     return getAtcRating(controller.rating)
   }, [controller])
+
+  const titleText = useMemo(() => {
+    if (!controller) return ''
+    const parsed = parseCallsign(controller.callsign)
+    if (selectedControllers.length > 1) {
+      return `${parsed.prefix}_${parsed.type}`
+    }
+    return controller.callsign
+  }, [controller, selectedControllers])
 
   const handleClose = () => {
     setOpen(false)
@@ -174,21 +203,18 @@ export default function ControllerInfoPanel() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Mobile handle bar */}
       <div className={styles.handleBar} />
-
-      {/* Header */}
       <div className={styles.header}>
         <div className={styles.title}>
-          <div className={styles.callsign}>{controller.callsign}</div>
+          <div className={styles.callsign}>{titleText}</div>
           <div className={styles.submeta}>
             <span className={styles.subchip}>
               <IconByName name="Person" />
-              {controller.name}
+              {selectedControllers.length > 1 ? `${selectedControllers.length} 名管制员在线` : controller.name}
             </span>
             <span className={styles.subchip}>
               <IconByName name="Badge" />
-              {rating}
+              {selectedControllers.length > 1 ? facilityName : rating}
             </span>
           </div>
         </div>
@@ -208,61 +234,83 @@ export default function ControllerInfoPanel() {
         </div>
       </div>
 
-      {/* Content */}
       <div className={styles.content}>
-        {/* Frequency Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <IconByName name="Radio" />
-            <span>频率</span>
-          </div>
-          <div className={styles.cardContent}>
-            <div className={styles.frequencyDisplay}>
-              {controller.frequency}
-            </div>
-          </div>
-        </div>
+        {selectedControllers.map((item, index) => {
+          const itemRating = getAtcRating(item.rating)
+          const showAtis = item.text_atis && item.text_atis.length > 0
 
-        {/* Connection Info */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <IconByName name="Info" />
-            <span>管制员信息</span>
-          </div>
-          <div className={styles.cardContent}>
-            <div className={styles.infoRow}>
-              <span className={styles.infoLabel}>CID</span>
-              <span className={styles.infoValue}>{controller.cid}</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.infoLabel}>服务器</span>
-              <span className={styles.infoValue}>{controller.server}</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.infoLabel}>在线时间</span>
-              <span className={styles.infoValue}>{onlineTime}</span>
-            </div>
-          </div>
-        </div>
+          return (
+            <div key={item.callsign} className={styles.controllerBlock}>
+              {selectedControllers.length > 1 && (
+                <div className={styles.blockTitle}>
+                  <span>{item.callsign}</span>
+                  <span className={styles.blockMeta}>{item.name}</span>
+                </div>
+              )}
 
-        {/* ATIS */}
-        {controller.text_atis && controller.text_atis.length > 0 && (
-          <div className={styles.card}>
-            <div className={styles.cardHeader}>
-              <IconByName name="List" />
-              <span>ATIS</span>
-            </div>
-            <div className={styles.cardContent}>
-              <div className={styles.atisContent}>
-                {controller.text_atis.map((line, index) => (
-                  <div key={index} className={styles.atisLine}>
-                    {line}
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <IconByName name="Radio" />
+                  <span>频率</span>
+                </div>
+                <div className={styles.cardContent}>
+                  <div className={styles.frequencyDisplay}>
+                    {item.frequency}
                   </div>
-                ))}
+                </div>
               </div>
+
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <IconByName name="Info" />
+                  <span>管制员信息</span>
+                </div>
+                <div className={styles.cardContent}>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>姓名</span>
+                    <span className={styles.infoValue}>{item.name}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>等级</span>
+                    <span className={styles.infoValue}>{itemRating}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>CID</span>
+                    <span className={styles.infoValue}>{item.cid}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>服务器</span>
+                    <span className={styles.infoValue}>{item.server}</span>
+                  </div>
+                  <div className={styles.infoRow}>
+                    <span className={styles.infoLabel}>在线时间</span>
+                    <span className={styles.infoValue}>{onlineTime(item)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {showAtis && (
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <IconByName name="List" />
+                    <span>ATIS</span>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <div className={styles.atisContent}>
+                      {item.text_atis.map((line, lineIndex) => (
+                        <div key={`${item.callsign}-${lineIndex}`} className={styles.atisLine}>
+                          {line}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {index < selectedControllers.length - 1 && <div className={styles.blockDivider} />}
             </div>
-          </div>
-        )}
+          )
+        })}
       </div>
     </div>
   )

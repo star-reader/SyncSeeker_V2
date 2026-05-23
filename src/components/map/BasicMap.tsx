@@ -85,7 +85,7 @@ export default function BasicMap() {
             'boundary',
             'capital',
             'admin-0',
-            'c'
+            'country'
         ]
         for (const layer of layers) {
             const layerId = layer.id.toLowerCase()
