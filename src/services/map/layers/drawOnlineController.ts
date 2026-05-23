@@ -20,6 +20,113 @@ import { useGetCurrentTheme } from '../../../hooks/theme/useTheme'
 
 // 缓存FIR数据
 let firCache: IndexedDBFIRs[] | null = null
+const DEBUG_ONLINE_CONTROLLER = true
+
+function logController(...args: unknown[]) {
+    if (DEBUG_ONLINE_CONTROLLER) {
+        console.log('[drawOnlineController]', ...args)
+    }
+}
+
+function isFiniteCoordinate(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isPointPair(value: unknown): value is [number, number] {
+    return Array.isArray(value) &&
+        value.length >= 2 &&
+        isFiniteCoordinate(value[0]) &&
+        isFiniteCoordinate(value[1])
+}
+
+function cloneFeature(feature: GeoJSON.Feature): GeoJSON.Feature | null {
+    if (!feature.geometry) {
+        return null
+    }
+
+    return {
+        ...feature,
+        properties: feature.properties ? { ...feature.properties } : {}
+    }
+}
+
+function buildPolygonFeature(
+    coords: number[][],
+    properties: Record<string, unknown>
+): GeoJSON.Feature | null {
+    const validCoords = coords.filter(isPointPair)
+    if (validCoords.length < 3) {
+        return null
+    }
+
+    const first = validCoords[0]
+    const last = validCoords[validCoords.length - 1]
+    const polygonCoords = first[0] === last[0] && first[1] === last[1]
+        ? validCoords
+        : [...validCoords, first]
+
+    return {
+        type: 'Feature',
+        properties,
+        geometry: {
+            type: 'Polygon',
+            coordinates: [polygonCoords]
+        }
+    }
+}
+
+function extractFirFeatures(fir: IndexedDBFIRs): GeoJSON.Feature[] {
+    const geojson = (fir as any).geojson
+
+    if (geojson?.type === 'FeatureCollection' && Array.isArray(geojson.features)) {
+        return geojson.features
+            .map((feature: GeoJSON.Feature) => cloneFeature(feature))
+            .filter((feature: GeoJSON.Feature | null): feature is GeoJSON.Feature => feature !== null)
+    }
+
+    if (geojson?.type === 'Feature') {
+        const feature = cloneFeature(geojson as GeoJSON.Feature)
+        return feature ? [feature] : []
+    }
+
+    const coordinates = (fir as any).coordinates
+    if (Array.isArray(coordinates)) {
+        const polygon = buildPolygonFeature(coordinates as number[][], {
+            icao: fir.icao,
+            name: fir.name,
+            type: fir.type
+        })
+        return polygon ? [polygon] : []
+    }
+
+    return []
+}
+
+function getFirIdentifiers(fir: IndexedDBFIRs): string[] {
+    return [fir.icao, fir.name]
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        .map(value => value.toUpperCase())
+}
+
+function matchesExactControllerArea(fir: IndexedDBFIRs, expected: string) {
+    return getFirIdentifiers(fir).some(value => value === expected)
+}
+
+function matchesAirportPrefix(fir: IndexedDBFIRs, prefix: string) {
+    const upperPrefix = prefix.toUpperCase()
+    return getFirIdentifiers(fir).some(value =>
+        value === upperPrefix ||
+        value.startsWith(`${upperPrefix}_`)
+    )
+}
+
+function getFeatureCountForFir(fir: IndexedDBFIRs) {
+    return extractFirFeatures(fir).length
+}
+
+function pickFirWithFeatures(candidates: IndexedDBFIRs[]) {
+    return candidates.find(fir => getFeatureCountForFir(fir) > 0) || null
+}
 
 /**
  * 根据当前主题获取管制员颜色配置
@@ -109,6 +216,16 @@ async function findFirBoundary(
         try {
             await syncSeekerDB.init()
             firCache = await syncSeekerDB.getAllFirs()
+            logController('loaded FIR cache', {
+                count: firCache?.length || 0,
+                sample: firCache?.slice(0, 5).map(item => ({
+                    type: item.type,
+                    icao: item.icao,
+                    name: item.name,
+                    geojsonType: (item as any).geojson?.type,
+                    featureCount: (item as any).geojson?.features?.length
+                }))
+            })
         } catch (e) {
             console.error('Failed to load FIR data:', e)
             return null
@@ -127,114 +244,119 @@ async function findFirBoundary(
             fir.type === 'fir' && fir.icao && fir.icao.startsWith('Z')
         )
         chinaFirs.forEach(fir => {
-            if (fir.geojson?.features) {
-                features.push(...fir.geojson.features)
-            } else if ((fir as any).coordinates) {
-                const coords = (fir as any).coordinates as number[][]
-                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
-                features.push({
-                    type: 'Feature',
-                    properties: { icao: fir.icao, name: fir.name, type: fir.type },
-                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
-                })
-            }
+            features.push(...extractFirFeatures(fir))
         })
+        logController('matched PRC_FSS', { callsign, featureCount: features.length })
         return features.length > 0 ? features : null
     }
     
     // 分扇格式: ZBAA_01_CTR -> 直接查找 ZBAA_01_CTR
     if (sector) {
         const fullName = `${prefix}_${sector}_${type}`
-        const match = firCache.find(fir => fir.name && fir.name.toUpperCase() === fullName)
+        const match = pickFirWithFeatures(
+            firCache.filter(fir => matchesExactControllerArea(fir, fullName))
+        )
         if (match) {
-            if (match.geojson?.features) {
-                return match.geojson.features
-            } else if ((match as any).coordinates) {
-                const coords = (match as any).coordinates as number[][]
-                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
-                return [{
-                    type: 'Feature',
-                    properties: { icao: match.icao, name: match.name, type: match.type },
-                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
-                }]
+            const matchFeatures = extractFirFeatures(match)
+            if (matchFeatures.length > 0) {
+                logController('matched sector boundary', {
+                    callsign,
+                    fullName,
+                    match: { type: match.type, icao: match.icao, name: match.name },
+                    featureCount: matchFeatures.length,
+                    sample: matchFeatures[0]
+                })
+                return matchFeatures
             }
         }
     }
     
     // 非分扇格式: ZBAA_CTR -> 查找所有 ZBAA_*_CTR 分扇并合并
     // 或者直接匹配 ZBAA_CTR
-    const directMatch = firCache.find(fir => 
-        (fir.name && fir.name.toUpperCase() === `${prefix}_${type}`) ||
-        (fir.icao && fir.icao.toUpperCase() === prefix)
-    )
+    const exactMatches = firCache.filter(fir => matchesExactControllerArea(fir, `${prefix}_${type}`))
+    const prefixMatches = firCache.filter(fir => matchesAirportPrefix(fir, prefix))
+    const directMatch = pickFirWithFeatures(exactMatches) || pickFirWithFeatures(prefixMatches)
     
     if (directMatch) {
-        if (directMatch.geojson?.features) {
-            features.push(...directMatch.geojson.features)
-        } else if ((directMatch as any).coordinates) {
-            const coords = (directMatch as any).coordinates as number[][]
-            const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
-            features.push({
-                type: 'Feature',
-                properties: { icao: directMatch.icao, name: directMatch.name, type: directMatch.type },
-                geometry: { type: 'Polygon', coordinates: [polygonCoords] }
-            })
-        }
+        features.push(...extractFirFeatures(directMatch))
+        logController('matched direct boundary', {
+            callsign,
+            prefix,
+            controllerType: type,
+            match: { type: directMatch.type, icao: directMatch.icao, name: directMatch.name },
+            featureCount: features.length,
+            exactCandidates: exactMatches.map(fir => ({
+                type: fir.type,
+                icao: fir.icao,
+                name: fir.name,
+                extractedFeatureCount: getFeatureCountForFir(fir),
+                geojsonType: (fir as any).geojson?.type
+            })),
+            prefixCandidates: prefixMatches.slice(0, 10).map(fir => ({
+                type: fir.type,
+                icao: fir.icao,
+                name: fir.name,
+                extractedFeatureCount: getFeatureCountForFir(fir),
+                geojsonType: (fir as any).geojson?.type
+            }))
+        })
     }
     
     // 查找分扇
     const sectorPattern = new RegExp(`^${prefix}_\\d+_${type}$`, 'i')
-    const sectorMatches = firCache.filter(fir => fir.name && sectorPattern.test(fir.name))
+    const sectorMatches = firCache.filter(fir =>
+        getFirIdentifiers(fir).some(value => sectorPattern.test(value))
+    )
     
     sectorMatches.forEach((fir) => {
-        // 支持 geojson.features 格式
-        if (fir.geojson?.features) {
-            features.push(...fir.geojson.features)
-        } 
-        // 支持直接的 coordinates 数组格式
-        else if ((fir as any).coordinates && Array.isArray((fir as any).coordinates)) {
-            const coords = (fir as any).coordinates as number[][]
-            
-            // 确保坐标格式正确（闭合的多边形）
-            const polygonCoords = coords[0] === coords[coords.length - 1] 
-                ? coords 
-                : [...coords, coords[0]]
-            
-            const feature: GeoJSON.Feature = {
-                type: 'Feature',
-                properties: {
-                    icao: fir.icao,
-                    name: fir.name,
-                    type: fir.type
-                },
-                geometry: {
-                    type: 'Polygon',
-                    coordinates: [polygonCoords]
-                }
-            }
-            features.push(feature)
-        }
+        features.push(...extractFirFeatures(fir))
     })
+    if (sectorMatches.length > 0) {
+        logController('matched split sectors', {
+            callsign,
+            prefix,
+            controllerType: type,
+            sectorMatchCount: sectorMatches.length,
+            featureCount: features.length
+        })
+    }
     
     // 如果没找到分扇，尝试按ICAO匹配FIR数据
     if (features.length === 0 && (type === 'CTR' || type === 'APP')) {
         const firType = type === 'CTR' ? 'fir' : 'app'
-        const icaoMatch = firCache.find(fir => 
-            fir.icao && fir.icao.toUpperCase() === prefix && fir.type === firType
+        const icaoMatch = pickFirWithFeatures(
+            firCache.filter(fir => fir.type === firType && matchesAirportPrefix(fir, prefix))
         )
         if (icaoMatch) {
-            if (icaoMatch.geojson?.features) {
-                features.push(...icaoMatch.geojson.features)
-            } else if ((icaoMatch as any).coordinates) {
-                const coords = (icaoMatch as any).coordinates as number[][]
-                const polygonCoords = coords[0] === coords[coords.length - 1] ? coords : [...coords, coords[0]]
-                features.push({
-                    type: 'Feature',
-                    properties: { icao: icaoMatch.icao, name: icaoMatch.name, type: icaoMatch.type },
-                    geometry: { type: 'Polygon', coordinates: [polygonCoords] }
-                })
-            }
+            features.push(...extractFirFeatures(icaoMatch))
+            logController('matched fallback airport prefix', {
+                callsign,
+                prefix,
+                firType,
+                match: { type: icaoMatch.type, icao: icaoMatch.icao, name: icaoMatch.name },
+                featureCount: features.length
+            })
         }
+    }
+
+    if (features.length === 0) {
+        logController('no boundary matched', {
+            callsign,
+            prefix,
+            sector,
+            controllerType: type,
+            candidates: firCache
+                .filter(fir => getFirIdentifiers(fir).some(value => value.includes(prefix)))
+                .slice(0, 10)
+                .map(fir => ({
+                    type: fir.type,
+                    icao: fir.icao,
+                    name: fir.name,
+                    extractedFeatureCount: getFeatureCountForFir(fir),
+                    geojsonType: (fir as any).geojson?.type,
+                    rawGeojson: (fir as any).geojson
+                }))
+        })
     }
     
     return features.length > 0 ? features : null
@@ -261,6 +383,10 @@ function createCirclePolygon(
  * 主绘制函数
  */
 export default function drawOnlineController(map: MapboxMap) {
+    const navdataToken = pubsub.subscribe(EVENTS.NAVDATA_UPDATE, () => {
+        firCache = null
+    })
+
     // 初始化sources
     if (!map.getSource(MAP_IDS.CONTROLLER_POLYGON_SOURCE)) {
         map.addSource(MAP_IDS.CONTROLLER_POLYGON_SOURCE, {
@@ -370,6 +496,7 @@ export default function drawOnlineController(map: MapboxMap) {
     })
     
     return () => {
+        pubsub.unsubscribe(navdataToken)
         pubsub.unsubscribe(dataToken)
         pubsub.unsubscribe(themeToken)
     }
@@ -420,6 +547,11 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
                                 lineColor: colors.line
                             }
                         })
+                    })
+                    logController('polygon features prepared', {
+                        callsign: controller.callsign,
+                        featureCount: boundaries.length,
+                        sample: boundaries[0]
                     })
                     continue
                 }
@@ -483,6 +615,13 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
             })
         }
     }
+
+    logController('update summary', {
+        controllerCount: controllers.length,
+        polygonFeatureCount: polygonFeatures.length,
+        circleFeatureCount: circleFeatures.length,
+        markerFeatureCount: markerFeatures.length
+    })
     
     // 更新地图sources
     const polygonSource = map.getSource(MAP_IDS.CONTROLLER_POLYGON_SOURCE) as GeoJSONSource
@@ -494,6 +633,10 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
             type: 'FeatureCollection',
             features: polygonFeatures
         })
+        logController('polygon source updated', {
+            featureCount: polygonFeatures.length,
+            sample: polygonFeatures[0]
+        })
     }
     
     if (circleSource) {
@@ -501,12 +644,20 @@ async function updateControllers(map: mapboxgl.Map, controllers: OnlineControlle
             type: 'FeatureCollection',
             features: circleFeatures
         })
+        logController('circle source updated', {
+            featureCount: circleFeatures.length,
+            sample: circleFeatures[0]
+        })
     }
     
     if (markerSource) {
         markerSource.setData({
             type: 'FeatureCollection',
             features: markerFeatures
+        })
+        logController('marker source updated', {
+            featureCount: markerFeatures.length,
+            sample: markerFeatures[0]
         })
     }
 }

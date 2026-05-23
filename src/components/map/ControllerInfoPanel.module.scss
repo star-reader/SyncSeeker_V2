@@ -179,6 +179,34 @@
   }
 }
 
+.controllerBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blockTitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--sky-text-color-primary);
+}
+
+.blockMeta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sky-text-color-secondary);
+}
+
+.blockDivider {
+  height: 1px;
+  background: color-mix(in srgb, var(--sky-border-color) 35%, transparent);
+  margin: 4px 0;
+}
+
 /* Card */
 .card {
   background: color-mix(in srgb, var(--sky-bg-color-overlay) 80%, transparent);

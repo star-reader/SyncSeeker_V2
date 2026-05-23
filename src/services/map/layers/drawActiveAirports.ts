@@ -9,6 +9,7 @@
 import pubsub from 'pubsub-js'
 import { EVENTS, MAP_IDS } from '../../../configs/constants'
 import type { OnlineData } from '../../../types/fsd'
+import type { IndexedDBAirports } from '../../../types/types'
 import syncSeekerDB from '../../../services/localDB/indexedDB'
 import { useGetUserColor } from '../../../hooks/theme/useTheme'
 
@@ -18,6 +19,46 @@ const airportCache = new Map<string, [number, number]>()
 const pendingQueries = new Set<string>()
 // 记录未找到的机场以避免重复无效查询
 const notFoundCache = new Set<string>()
+const DEBUG_ACTIVE_AIRPORTS = true
+
+function logActiveAirports(...args: unknown[]) {
+    if (DEBUG_ACTIVE_AIRPORTS) {
+        console.log('[drawActiveAirports]', ...args)
+    }
+}
+
+function isFiniteCoordinate(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value)
+}
+
+function normalizeAirportCoordinates(airport: IndexedDBAirports | null): [number, number] | null {
+    if (!airport) {
+        return null
+    }
+
+    const directCoordinates = (airport as any).coordinates
+    if (
+        Array.isArray(directCoordinates) &&
+        directCoordinates.length >= 2 &&
+        isFiniteCoordinate(directCoordinates[0]) &&
+        isFiniteCoordinate(directCoordinates[1])
+    ) {
+        return [directCoordinates[0], directCoordinates[1]]
+    }
+
+    const objectCoordinates = directCoordinates as
+        | { lng?: number; lat?: number; longitude?: number; latitude?: number }
+        | undefined
+
+    const lng = objectCoordinates?.lng ?? objectCoordinates?.longitude ?? (airport as any).longitude
+    const lat = objectCoordinates?.lat ?? objectCoordinates?.latitude ?? (airport as any).latitude
+
+    if (isFiniteCoordinate(lng) && isFiniteCoordinate(lat)) {
+        return [lng, lat]
+    }
+
+    return null
+}
 
 const initLayer = (map: mapboxgl.Map) => {
     if (!map.getSource(MAP_IDS.ACTIVE_AIRPORTS_SOURCE)) {
@@ -83,6 +124,8 @@ const updateActiveAirports = async (map: mapboxgl.Map, data: OnlineData) => {
         }
     })
 
+    logActiveAirports('active ICAOs', Array.from(activeICAOs))
+
     const features: GeoJSON.Feature[] = []
     const missingICAOs: string[] = []
 
@@ -113,6 +156,10 @@ const updateActiveAirports = async (map: mapboxgl.Map, data: OnlineData) => {
             type: 'FeatureCollection',
             features: features
         })
+        logActiveAirports('source updated', {
+            featureCount: features.length,
+            sample: features.slice(0, 3)
+        })
     }
 
     // 异步查询缺失的机场
@@ -131,10 +178,13 @@ const updateActiveAirports = async (map: mapboxgl.Map, data: OnlineData) => {
         Promise.all(missingICAOs.map(async (icao) => {
             try {
                 const airport = await syncSeekerDB.getAirportByIcao(icao)
-                if (airport) {
-                    airportCache.set(icao, airport.coordinates)
+                const coordinates = normalizeAirportCoordinates(airport)
+                if (coordinates) {
+                    airportCache.set(icao, coordinates)
+                    logActiveAirports('cached airport coordinates', { icao, coordinates, airport })
                 } else {
                     notFoundCache.add(icao)
+                    logActiveAirports('airport coordinates missing', { icao, airport })
                 }
             } catch (e) {
                 console.error(`Failed to fetch airport ${icao}`, e)
@@ -150,6 +200,12 @@ const updateActiveAirports = async (map: mapboxgl.Map, data: OnlineData) => {
 
 export default (map: mapboxgl.Map) => {
     initLayer(map)
+
+    const token0 = pubsub.subscribe(EVENTS.NAVDATA_UPDATE, () => {
+        airportCache.clear()
+        pendingQueries.clear()
+        notFoundCache.clear()
+    })
     
     const token1 = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, (_, data: OnlineData) => {
         updateActiveAirports(map, data)
@@ -160,13 +216,16 @@ export default (map: mapboxgl.Map) => {
         if (map.getLayer(MAP_IDS.ACTIVE_AIRPORTS_LAYER)) {
             const userColors = useGetUserColor()
             map.setPaintProperty(MAP_IDS.ACTIVE_AIRPORTS_LAYER, 'circle-color', userColors.label)
+            map.setPaintProperty(MAP_IDS.ACTIVE_AIRPORTS_LAYER, 'circle-stroke-color', map.getStyle()?.fog ? '#000000' : '#ffffff')
             map.setPaintProperty(`${MAP_IDS.ACTIVE_AIRPORTS_LAYER}-label`, 'text-color', userColors.label)
+            logActiveAirports('theme updated', { userColors })
         }
     })
 
     // 点击事件已在 BasicMap.tsx 中统一处理
 
     return () => {
+        pubsub.unsubscribe(token0)
         pubsub.unsubscribe(token1)
         pubsub.unsubscribe(token2)
     }
