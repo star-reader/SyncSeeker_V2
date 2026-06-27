@@ -16,17 +16,9 @@ import { getDepartures, getArrivals } from '../../services/airport/getAirportTra
 import syncSeekerDB from '../../services/localDB/indexedDB'
 import IconByName from '../common/IconByName'
 import type { OnlinePilot } from '../../types/fsd'
+import { getAirlineLogoUrl } from '../../utils/airlineLogo'
 
 type TabType = 'departures' | 'arrivals'
-
-const NAVDATA_URL = import.meta.env.VITE_PUBLIC_NAVDATA_URL
-
-// 获取航司Logo URL
-const getAirlineLogoUrl = (callsign: string): string | null => {
-  const match = callsign.match(/^[A-Z]{3}/)
-  if (!match) return null
-  return `${NAVDATA_URL}/airlines/${match[0]}.png`
-}
 
 // 格式化时间显示
 const formatTime = (logonTime: string): string => {

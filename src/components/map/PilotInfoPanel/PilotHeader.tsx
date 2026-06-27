@@ -1,6 +1,7 @@
 import IconByName from '../../common/IconByName'
 import type { PilotHeaderProps } from './types'
 import styles from '../PilotInfoPanel.module.scss'
+import { getAirlineIcaoFromCallsign, getAirlineLogoUrl } from '../../../utils/airlineLogo'
 
 export default function PilotHeader({
     pilot,
@@ -15,9 +16,24 @@ export default function PilotHeader({
     isTracking,
     isNativeTrackingSupported = true
 }: PilotHeaderProps) {
+    const airlineLogoUrl = getAirlineLogoUrl(pilot?.callsign)
+    const airlineIcao = getAirlineIcaoFromCallsign(pilot?.callsign)
+
     return (
         <div className={styles.header}>
             <div className={styles.title}>
+                {airlineLogoUrl && (
+                    <div className={styles.airlineLogoHeader} title={airline?.name || airlineIcao || 'Airline'}>
+                        {/* <span className={styles.airlineLogoFallback}>{airlineIcao}</span> */}
+                        <img
+                            src={airlineLogoUrl}
+                            alt={airline?.name || airlineIcao || 'Airline logo'}
+                            onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = 'none'
+                            }}
+                        />
+                    </div>
+                )}
                 <div className={styles.callsign}>{pilot?.callsign || '-'}</div>
                 <div className={styles.submeta}>
                     <div className={styles.subchip}>

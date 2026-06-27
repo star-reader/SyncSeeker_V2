@@ -17,6 +17,7 @@ import PilotDetailOverlay from './PilotDetailOverlay'
 import IconByName from '../common/IconByName'
 import { EVENTS } from '../../configs/constants'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
+import { getAirlineIcaoFromCallsign, getAirlineLogoUrl } from '../../utils/airlineLogo'
 
 const EMPTY_FLIGHTS: OnlinePilot[] = []
 
@@ -59,22 +60,40 @@ export default () => {
           </div>
         )}
         <div className={styles.list}>
-          {list.map(p => (
-            <div key={p.session_id} className={styles.card} onClick={() => setOpenId(p.session_id)}>
-              <div className={styles.title}>
-                <span className={styles.callsign}>{p.callsign}</span>
-                <span className={styles.name}>{p.name}</span>
-                <span className={`${styles.status} ${styles[`status--${getPilotStatusOfTag(p)}`]}`}>{getPilotStatusOf(p)}</span>
+          {list.map(p => {
+            const airlineLogoUrl = getAirlineLogoUrl(p.callsign)
+            const airlineIcao = getAirlineIcaoFromCallsign(p.callsign)
+
+            return (
+              <div key={p.session_id} className={styles.card} onClick={() => setOpenId(p.session_id)}>
+                <div className={styles.logoBox}>
+                  <span className={styles.logoFallback}>{airlineIcao || '---'}</span>
+                  {airlineLogoUrl && (
+                    <img
+                      src={airlineLogoUrl}
+                      alt={airlineIcao ? `${airlineIcao} logo` : 'Airline logo'}
+                      className={styles.airlineLogo}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none'
+                      }}
+                    />
+                  )}
+                </div>
+                <div className={styles.title}>
+                  <span className={styles.callsign}>{p.callsign}</span>
+                  <span className={styles.name}>{p.name}</span>
+                  <span className={`${styles.status} ${styles[`status--${getPilotStatusOfTag(p)}`]}`}>{getPilotStatusOf(p)}</span>
+                </div>
+                <div className={styles.meta}>
+                  <span className={styles.chip}><IconByName name="Airplane" /> {p.flight_plan?.aircraft || 'N/A'}</span>
+                  <span className={styles.chip}><IconByName name="LocalTwo" /> {p.flight_plan?.departure || '-'} → {p.flight_plan?.arrival || '-'}</span>
+                  <span className={styles.chip}><IconByName name="Speed" /> {Math.round(p.groundspeed)}kt</span>
+                  <span className={styles.chip}><IconByName name="SortAmountDown" /> {Math.round(p.altitude)} ft</span>
+                  <span className={styles.chip}><IconByName name="Time" /> {onlineTime(p.logon_time)}</span>
+                </div>
               </div>
-              <div className={styles.meta}>
-                <span className={styles.chip}><IconByName name="Airplane" /> {p.flight_plan?.aircraft || 'N/A'}</span>
-                <span className={styles.chip}><IconByName name="LocalTwo" /> {p.flight_plan?.departure || '-'} → {p.flight_plan?.arrival || '-'}</span>
-                <span className={styles.chip}><IconByName name="Speed" /> {Math.round(p.groundspeed)}kt</span>
-                <span className={styles.chip}><IconByName name="SortAmountDown" /> {Math.round(p.altitude)} ft</span>
-                <span className={styles.chip}><IconByName name="Time" /> {onlineTime(p.logon_time)}</span>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* 详情框 */}

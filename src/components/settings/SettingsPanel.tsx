@@ -6,7 +6,7 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import pubsub from 'pubsub-js'
 import { Button, CircularProgress, Switch, FormControl, Select, MenuItem, type SelectChangeEvent } from '@mui/material'
 import { MuiColorInput } from 'mui-color-input'
@@ -20,9 +20,16 @@ import { CheckOne, CloseOne, DownloadOne, Refresh } from '@icon-park/react'
 import type { WeatherRadarOpacity } from '../../services/map/layers/addWeatherRadar'
 import { clearDebugLogs, exportDebugLogsText, getDebugLogs } from '../../services/debug/debugLogStore'
 import { showToast } from '../common/Toast'
+import useClickOutside from '../../hooks/useClickOutside'
+
+const MUI_FLOATING_LAYER_SELECTORS = ['.MuiPopover-root', '.MuiPopper-root', '.MuiModal-root', '.MuiPaper-root']
+const CLOSE_ANIMATION_MS = 180
 
 export default function SettingsPanel() {
   const [open, setOpen] = useState(true)
+  const panelRef = useRef<HTMLDivElement | null>(null)
+  const logSheetRef = useRef<HTMLDivElement | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
   const [labelDay, setLabelDay] = useState('#008080')
   const [labelNight, setLabelNight] = useState('#87CEEB')
   const [iconDay, setIconDay] = useState('#EF8B33')
@@ -106,6 +113,14 @@ export default function SettingsPanel() {
     }
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+    }
+  }, [])
+
   const checkDataStatus = async () => {
     try {
         await syncSeekerDB.init()
@@ -160,21 +175,38 @@ export default function SettingsPanel() {
 
   const schemaMemo = useMemo(() => ({ label: { day: labelDay, night: labelNight }, icon: { day: iconDay, night: iconNight } }), [labelDay, labelNight, iconDay, iconNight])
 
+  const closeWithTransition = useCallback(() => {
+    if (closeTimerRef.current) return
+    setOpen(false)
+    closeTimerRef.current = window.setTimeout(() => {
+      pubsub.publish(EVENTS.RETURN_TO_MAP, 'settings')
+      closeTimerRef.current = null
+    }, CLOSE_ANIMATION_MS)
+  }, [])
+
   const handleSave = () => {
     // 统一通过 Store 更新：同步到内存与 localStorage，并发布事件
     useThemeStore.getState().setPilotSchema(schemaMemo)
-    setOpen(false)
-    pubsub.publish(EVENTS.RETURN_TO_MAP, 'settings')
+    closeWithTransition()
   }
 
-  const handleCancel = () => {
-    setOpen(false)
-    pubsub.publish(EVENTS.RETURN_TO_MAP, 'settings')
-  }
+  const handleCancel = useCallback(() => {
+    closeWithTransition()
+  }, [closeWithTransition])
+
+  useClickOutside(panelRef, handleCancel, {
+    enabled: open && !logSheetOpen,
+    ignoreSelectors: MUI_FLOATING_LAYER_SELECTORS
+  })
+
+  useClickOutside(logSheetRef, () => setLogSheetOpen(false), {
+    enabled: logSheetOpen,
+    ignoreSelectors: MUI_FLOATING_LAYER_SELECTORS
+  })
 
   return (
     <div className={styles.overlay} data-open={open ? 'true' : 'false'}>
-      <div className={styles.panel} data-container-name="settings">
+      <div ref={panelRef} className={styles.panel} data-container-name="settings">
         <div className={styles.header}>
           <div className={styles.title}>设置</div>
         </div>
@@ -324,7 +356,7 @@ export default function SettingsPanel() {
             </div>
           </section>
 
-          <section className={styles.section} style={{display:'none', visibility:'hidden'}} area-hidden="true">
+          <section className={styles.section} style={{display:'none', visibility:'hidden'}} aria-hidden="true">
             <div className={styles.sectionHeader}>
               <span className={styles.sectionTitle}>调试日志</span>
               <span className={styles.sectionSubtitle}>{logCount} 条</span>
@@ -351,8 +383,8 @@ export default function SettingsPanel() {
       </div>
 
       {logSheetOpen && (
-        <div className={styles.logSheetMask} onClick={() => setLogSheetOpen(false)}>
-          <div className={styles.logSheet} onClick={e => e.stopPropagation()}>
+        <div className={styles.logSheetMask}>
+          <div ref={logSheetRef} className={styles.logSheet}>
             <div className={styles.logSheetHeader}>
               <div className={styles.logSheetTitle}>调试日志</div>
               <div className={styles.logSheetMeta}>{logCount} 条 · 可滚动查看</div>

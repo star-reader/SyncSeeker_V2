@@ -70,10 +70,9 @@
 
 .card {
   display: grid;
-  grid-template-columns: 1.2fr 2fr auto;
+  grid-template-columns: 92px 1.15fr 2fr;
   align-items: center;
-  gap: 14px;
-  padding-left: 20px;
+  gap: 16px;
   width: calc(100% - 40px);
   padding: 12px 16px;
   border-radius: 12px;
@@ -88,6 +87,34 @@
   transform: translateY(-1px);
   box-shadow: 0 8px 18px color-mix(in srgb, var(--sky-color-black) 12%, transparent);
   background: color-mix(in srgb, var(--sky-fill-color) 70%, transparent);
+}
+
+.logoBox {
+  position: relative;
+  width: 84px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 72%, transparent);
+}
+
+.airlineLogo {
+  position: absolute;
+  inset: 5px 7px;
+  width: calc(100% - 14px);
+  height: calc(100% - 10px);
+  object-fit: contain;
+}
+
+.logoFallback {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: var(--sky-text-color-secondary);
 }
 
 .title {
@@ -472,9 +499,15 @@
 
   .card {
     width: 100%;
-    grid-template-columns: 1fr;
+    grid-template-columns: 72px 1fr;
     gap: 8px;
     padding: 16px;
+  }
+
+  .logoBox {
+    width: 64px;
+    height: 32px;
+    grid-row: span 2;
   }
 
   .title {
@@ -482,6 +515,7 @@
   }
 
   .meta {
+    grid-column: 2;
     flex-wrap: wrap;
     gap: 8px;
   }

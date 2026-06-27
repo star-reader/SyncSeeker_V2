@@ -8,15 +8,24 @@
   bottom: 0;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--sky-color-black) 30%, transparent);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--sky-color-black) 24%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   z-index: 1000;
   animation: fadeIn 0.2s ease-out;
+  opacity: 1;
+  transition: opacity 0.18s ease, backdrop-filter 0.18s ease, -webkit-backdrop-filter 0.18s ease;
 
   @include screen-down(md) {
     place-items: flex-end;
   }
+}
+
+.overlay[data-open="false"] {
+  opacity: 0;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
 }
 
 @keyframes fadeIn {
@@ -29,22 +38,35 @@
 }
 
 .panel {
-  width: min(420px, calc(100vw - 32px));
+  width: min(430px, calc(100vw - 32px));
   max-height: calc(100vh - 80px);
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
-  border: 1px solid var(--sky-border-color);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--sky-color-black) 15%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--sky-bg-color-base) 88%, transparent);
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--sky-color-black) 18%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  backdrop-filter: blur(24px) saturate(130%);
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 
   @include screen-down(md) {
     width: 100%;
     max-height: 85vh;
     border-radius: 20px 20px 0 0;
     animation: slideUpMobile 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.overlay[data-open="false"] .panel {
+  opacity: 0;
+  transform: translateY(14px) scale(0.985);
+}
+
+@include screen-down(md) {
+  .overlay[data-open="false"] .panel {
+    transform: translateY(100%);
   }
 }
 
@@ -73,41 +95,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--sky-border-color);
+  padding: 16px 18px 8px;
 }
 
 .title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--sky-text-color-primary);
 }
 
 .body {
   flex: 1;
-  padding: 12px;
+  padding: 4px 18px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 /* Section 样式 */
 .section {
-  background: color-mix(in srgb, var(--sky-fill-color) 40%, transparent);
-  border-radius: 10px;
-  border: 1px solid var(--sky-border-color);
-  overflow: hidden;
+  padding: 12px 0;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.section + .section {
+  border-top: 1px solid color-mix(in srgb, var(--sky-border-color) 44%, transparent);
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  background: color-mix(in srgb, var(--sky-fill-color) 60%, transparent);
-  border-bottom: 1px solid var(--sky-border-color);
+  padding: 0 0 10px;
+  background: transparent;
 }
 
 .sectionTitle {
@@ -123,10 +147,10 @@
 
 /* 颜色选择器布局 */
 .colorGrid {
-  padding: 10px 12px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .colorRow {
@@ -138,7 +162,7 @@
 
 .colorLabel {
   font-size: 12px;
-  color: var(--sky-text-color-secondary);
+  color: var(--sky-text-color-regular);
   min-width: 60px;
 }
 
@@ -155,6 +179,8 @@
   :global(.MuiInputBase-root) {
     height: 32px;
     font-size: 12px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--sky-bg-color-overlay) 56%, transparent);
   }
   
   :global(.MuiInputBase-input) {
@@ -167,7 +193,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 7px 0;
   gap: 12px;
 }
 
@@ -175,11 +201,12 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .optionName {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--sky-text-color-primary);
 }
 
@@ -199,7 +226,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 7px 0;
 }
 
 .dataInfo {
@@ -227,16 +254,17 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--sky-border-color);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 95%, transparent);
+  padding: 8px 18px 16px;
+  background: transparent;
 }
 
 .logSheetMask {
   position: fixed;
   inset: 0;
   z-index: 1100;
-  background: color-mix(in srgb, var(--sky-color-black) 36%, transparent);
+  background: color-mix(in srgb, var(--sky-color-black) 30%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -248,16 +276,16 @@
   margin-bottom: 12px;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid var(--sky-border-color);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 96%, transparent);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--sky-color-black) 20%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 92%, transparent);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--sky-color-black) 22%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  backdrop-filter: blur(24px) saturate(130%);
   display: flex;
   flex-direction: column;
 }
 
 .logSheetHeader {
   padding: 10px 14px;
-  border-bottom: 1px solid var(--sky-border-color);
   display: flex;
   justify-content: space-between;
   gap: 8px;
@@ -293,7 +321,6 @@
 
 .logActions {
   padding: 10px 12px;
-  border-top: 1px solid var(--sky-border-color);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
