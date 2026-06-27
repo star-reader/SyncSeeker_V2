@@ -7,31 +7,29 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import { useMemo, useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './PilotList.module.scss'
 import pubsub from 'pubsub-js'
 import type { OnlinePilot } from '../../types/fsd'
-import onlineTime from '../../utils/onlineTime'
-import getPilotStatusOf, { getPilotStatusOfTag } from '../../utils/getPilotStatusOf'
-import PilotDetailOverlay from './PilotDetailOverlay'
 import IconByName from '../common/IconByName'
 import { EVENTS } from '../../configs/constants'
 import { useOnlineDataStore } from '../../stores/useOnlineDataStore'
 import { getAirlineIcaoFromCallsign, getAirlineLogoUrl } from '../../utils/airlineLogo'
+import useClickOutside from '../../hooks/useClickOutside'
+import FloatingPanel from '../common/FloatingPanel/FloatingPanel'
 
 const EMPTY_FLIGHTS: OnlinePilot[] = []
+const CLOSE_ANIMATION_MS = 180
 
 export default () => {
   const [flights, setFlights] = useState<OnlinePilot[]>(EMPTY_FLIGHTS)
-  const [openId, setOpenId] = useState<string | null>(null)
+  const [open, setOpen] = useState(true)
+  const [expanded, setExpanded] = useState(true)
+  const sheetRef = useRef<HTMLDivElement | null>(null)
+  const listRef = useRef<HTMLDivElement | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
 
   const list = useMemo(() => flights, [flights])
-
-  const selected = useMemo(() => list.find(f => f.session_id === openId || f.cid === openId) || null, [list, openId])
-
-  const handleReturnBtnClick = () => {
-    pubsub.publish(EVENTS.RETURN_TO_MAP, 'pilot')
-  }
 
   useEffect(() => {
     const token = pubsub.subscribe(EVENTS.ONLINE_DATA_UPDATE, () => {
@@ -43,62 +41,98 @@ export default () => {
     }
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current)
+      }
+    }
+  }, [])
+
+  const closeSheet = useCallback(() => {
+    if (closeTimerRef.current) return
+    setOpen(false)
+    closeTimerRef.current = window.setTimeout(() => {
+      pubsub.publish(EVENTS.RETURN_TO_MAP, 'pilot')
+      closeTimerRef.current = null
+    }, CLOSE_ANIMATION_MS)
+  }, [])
+
+  const handlePilotClick = useCallback((pilot: OnlinePilot) => {
+    if (closeTimerRef.current) return
+    setOpen(false)
+    pubsub.publish(EVENTS.PILOT_ICON_CLICK, { id: pilot.session_id, callsign: pilot.callsign })
+    closeTimerRef.current = window.setTimeout(() => {
+      pubsub.publish(EVENTS.RETURN_TO_MAP, 'pilot')
+      closeTimerRef.current = null
+    }, CLOSE_ANIMATION_MS)
+  }, [])
+
+  useClickOutside(sheetRef, closeSheet, { enabled: open })
+
   return (
-    <div className={styles.container}>
-      <div className={styles.inner}>
+    <div className={styles.container} data-open={open ? 'true' : 'false'}>
+      <FloatingPanel
+        ref={sheetRef}
+        className={styles.sheet}
+        handleClassName={styles.handle}
+        open={open}
+        expanded={expanded}
+        dragIgnoreRef={listRef}
+        onExpandedChange={setExpanded}
+        onDismiss={closeSheet}
+      >
         <div className={styles.heading}>
-          <div className={styles.title}>机组列表</div>
-          <div className={styles.returnBtn} onClick={handleReturnBtnClick}>
-            <IconByName name="ArrowLeft" />
-            返回地图
+          <div>
+            <div className={styles.title}>在线机组</div>
+            <div className={styles.subtitle}>{list.length} 架在线 · 选择后回到地图查看详情</div>
           </div>
+          <button className={styles.closeBtn} onClick={closeSheet} aria-label="关闭机组列表">
+            <IconByName name="Close" />
+          </button>
         </div>
-        {!list.length && (
-          <div className={styles.empty}>
-            <div style={{ marginBottom: 8 }}><IconByName name="Sleep" size={32} /></div>
-            <div>暂无在线机组</div>
-          </div>
-        )}
-        <div className={styles.list}>
-          {list.map(p => {
-            const airlineLogoUrl = getAirlineLogoUrl(p.callsign)
-            const airlineIcao = getAirlineIcaoFromCallsign(p.callsign)
+        <div ref={listRef} className={styles.list} data-floating-panel-scroll="true">
+          {!list.length ? (
+            <div className={styles.empty}>
+              <IconByName name="Sleep" size={28} />
+              <div>暂无在线机组</div>
+            </div>
+          ) : list.map(p => {
+              const airlineLogoUrl = getAirlineLogoUrl(p.callsign)
+              const airlineIcao = getAirlineIcaoFromCallsign(p.callsign)
+              const departure = p.flight_plan?.departure || '-'
+              const arrival = p.flight_plan?.arrival || '-'
 
-            return (
-              <div key={p.session_id} className={styles.card} onClick={() => setOpenId(p.session_id)}>
-                <div className={styles.logoBox}>
-                  <span className={styles.logoFallback}>{airlineIcao || '---'}</span>
-                  {airlineLogoUrl && (
-                    <img
-                      src={airlineLogoUrl}
-                      alt={airlineIcao ? `${airlineIcao} logo` : 'Airline logo'}
-                      className={styles.airlineLogo}
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = 'none'
-                      }}
-                    />
-                  )}
-                </div>
-                <div className={styles.title}>
-                  <span className={styles.callsign}>{p.callsign}</span>
-                  <span className={styles.name}>{p.name}</span>
-                  <span className={`${styles.status} ${styles[`status--${getPilotStatusOfTag(p)}`]}`}>{getPilotStatusOf(p)}</span>
-                </div>
-                <div className={styles.meta}>
-                  <span className={styles.chip}><IconByName name="Airplane" /> {p.flight_plan?.aircraft || 'N/A'}</span>
-                  <span className={styles.chip}><IconByName name="LocalTwo" /> {p.flight_plan?.departure || '-'} → {p.flight_plan?.arrival || '-'}</span>
-                  <span className={styles.chip}><IconByName name="Speed" /> {Math.round(p.groundspeed)}kt</span>
-                  <span className={styles.chip}><IconByName name="SortAmountDown" /> {Math.round(p.altitude)} ft</span>
-                  <span className={styles.chip}><IconByName name="Time" /> {onlineTime(p.logon_time)}</span>
-                </div>
-              </div>
-            )
-          })}
+              return (
+                <button key={p.session_id} className={styles.card} onClick={() => handlePilotClick(p)}>
+                  <span className={styles.logoBox}>
+                    <span className={styles.logoFallback}>{airlineIcao || '---'}</span>
+                    {airlineLogoUrl && (
+                      <img
+                        src={airlineLogoUrl}
+                        alt={airlineIcao ? `${airlineIcao} logo` : 'Airline logo'}
+                        className={styles.airlineLogo}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none'
+                        }}
+                      />
+                    )}
+                  </span>
+                  <span className={styles.mainInfo}>
+                    <span className={styles.primaryLine}>
+                      <span className={styles.callsign}>{p.callsign}</span>
+                    </span>
+                    <span className={styles.name}>{p.name || 'Unknown Pilot'}</span>
+                    <span className={styles.routeLine}>
+                      <IconByName name="LocalTwo" />
+                      <span>{departure} → {arrival}</span>
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
         </div>
-
-        {/* 详情框 */}
-        <PilotDetailOverlay open={!!selected} pilot={selected} onClose={() => setOpenId(null)} />
-      </div>
+      </FloatingPanel>
     </div>
   )
 }

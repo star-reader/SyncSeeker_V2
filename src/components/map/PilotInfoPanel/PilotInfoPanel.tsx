@@ -23,6 +23,7 @@ import RouteCard from './RouteCard'
 import RealtimeStats from './RealtimeStats'
 import FlightPlanCard from './FlightPlanCard'
 import ConnectionInfo from './ConnectionInfo'
+import FloatingPanel from '../../common/FloatingPanel/FloatingPanel'
 
 export default function PilotInfoPanel() {
     const [open, setOpen] = useState(false)
@@ -45,10 +46,6 @@ export default function PilotInfoPanel() {
         altitudeArray: [],
         speedArray: []
     })
-    
-    const [dragging, setDragging] = useState(false)
-    const [translateY, setTranslateY] = useState(0)
-    const [startY, setStartY] = useState(0)
     const isNativeTrackingSupported = canUseIOSLiveActivity()
     const useLiquidGlass = shouldEnableLiquidGlass()
 
@@ -71,7 +68,6 @@ export default function PilotInfoPanel() {
             setOpen(true)
             setExpanded(false)
             setIsSharing(false)
-            setTranslateY(0)
             setShow3D(false)
             setTrackData({ altitudeArray: [], speedArray: [] })
             pubsub.publish(EVENTS.TOGGLE_3D_TRACK, false)
@@ -87,34 +83,6 @@ export default function PilotInfoPanel() {
         })
         return () => { pubsub.unsubscribe(token) }
     }, [isNativeTrackingSupported])
-
-    // Touch handlers
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        if (expanded && detailsRef.current?.contains(e.target as Node)) return
-        setDragging(true)
-        setStartY(e.touches[0].clientY)
-    }, [expanded])
-
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!dragging) return
-        setTranslateY(e.touches[0].clientY - startY)
-    }, [dragging, startY])
-
-    const handleTouchEnd = useCallback(() => {
-        setDragging(false)
-        const threshold = 60
-        
-        if (!expanded && translateY < -threshold) {
-            setExpanded(true)
-        } else if (expanded && translateY > threshold) {
-            setExpanded(false)
-        } else if (!expanded && translateY > threshold) {
-            setOpen(false)
-            setId(null)
-            pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
-        }
-        setTranslateY(0)
-    }, [expanded, translateY])
 
     const handleToggle3D = useCallback(() => {
         setShow3D(prev => {
@@ -217,6 +185,12 @@ export default function PilotInfoPanel() {
         pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
     }, [isTracking, stopCurrentLiveActivity])
 
+    const handlePanelDismiss = useCallback(() => {
+        setOpen(false)
+        setId(null)
+        pubsub.publish(EVENTS.PILOT_INFO_CLOSE)
+    }, [])
+
     const handleCopyRoute = useCallback(() => {
         const routeText = fp?.route
         if (!routeText || !navigator?.clipboard?.writeText) return
@@ -289,19 +263,16 @@ export default function PilotInfoPanel() {
     }, [expanded])
 
     return (
-        <div 
-            className={styles.container} 
-            data-open={open ? 'true' : 'false'}
-            data-expanded={expanded ? 'true' : 'false'}
-            data-dragging={dragging ? 'true' : 'false'}
-            data-liquid-glass={useLiquidGlass ? 'true' : 'false'}
-            style={{ '--drag-offset': `${translateY}px` } as React.CSSProperties}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+        <FloatingPanel
+            className={styles.container}
+            handleClassName={styles.handleBar}
+            open={open}
+            expanded={expanded}
+            liquidGlass={useLiquidGlass}
+            dragIgnoreRef={detailsRef}
+            onExpandedChange={setExpanded}
+            onDismiss={handlePanelDismiss}
         >
-            <div className={styles.handleBar} onClick={() => setExpanded(!expanded)} />
-            
             <div onClick={handleExpand}>
                 <PilotHeader
                     pilot={pilot}
@@ -328,7 +299,7 @@ export default function PilotInfoPanel() {
                     onExpand={handleExpand}
                 />
 
-                <div className={styles.detailsContent} ref={detailsRef}>
+                <div className={styles.detailsContent} ref={detailsRef} data-floating-panel-scroll="true">
                     <RealtimeStats
                         pilot={pilot}
                         show3D={show3D}
@@ -345,6 +316,6 @@ export default function PilotInfoPanel() {
                     <ConnectionInfo pilot={pilot} />
                 </div>
             </div>
-        </div>
+        </FloatingPanel>
     )
 }

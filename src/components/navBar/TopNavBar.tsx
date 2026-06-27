@@ -7,7 +7,7 @@
  * @author Jerry Jin
  * @date 2025-11-29
  */
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SettingTwo, Moon, SunOne, Info, 
   ListTop, RadarThree, Airplane, More, DownloadOne } from '@icon-park/react'
 import pubsub from 'pubsub-js'
@@ -18,6 +18,18 @@ import styles from './TopNavBar.module.scss'
 import { useSetCurrentTheme } from '../../hooks/theme/useTheme'
 import { useThemeStore } from '../../stores/useThemeStore'
 import { EVENTS } from '../../configs/constants'
+import useClickOutside from '../../hooks/useClickOutside'
+
+const COMMAND_TRIGGER_SELECTOR = '[data-command-trigger="true"]'
+const COMMAND_IGNORE_SELECTORS = [COMMAND_TRIGGER_SELECTOR]
+
+type CommandItem = {
+  key: string
+  title: string
+  description: string
+  icon: ReactNode
+  action: () => void
+}
 
 /**
  * 导航栏
@@ -59,28 +71,73 @@ export default function TopNavBar() {
   }
 
   useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (menuRef.current && moreBtnRef.current) {
-        if (menuRef.current.contains(target) || moreBtnRef.current.contains(target)) return
-      }
-      setMenuOpen(false)
-    }
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setMenuOpen(false)
     }
-    document.addEventListener('mousedown', onDocClick)
     document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.removeEventListener('mousedown', onDocClick)
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [])
 
-  const handleSelect = (key: string) => {
+  const handleSelect = useCallback((key: string) => {
     setMenuOpen(false)
     pubsub.publish(EVENTS.MENU_SELECT, key)
-  }
+  }, [])
+
+  useClickOutside(menuRef, () => setMenuOpen(false), {
+    enabled: menuOpen,
+    ignoreSelectors: COMMAND_IGNORE_SELECTORS
+  })
+
+  const commands = useMemo<CommandItem[]>(() => {
+    const items: CommandItem[] = [
+      {
+        key: 'pilot',
+        title: '在线机组',
+        description: '查看航班、机型、航路与在线时长',
+        icon: <ListTop size={18} />,
+        action: () => handleSelect('pilot')
+      },
+      {
+        key: 'controller',
+        title: '在线管制',
+        description: '查看席位、频率与覆盖范围',
+        icon: <RadarThree size={18} />,
+        action: () => handleSelect('controller')
+      },
+      {
+        key: 'board',
+        title: '机场大屏',
+        description: '按机场查看进离港动态',
+        icon: <Airplane size={18} />,
+        action: () => handleSelect('board')
+      }
+    ]
+
+    if (showInstallButton) {
+      items.push({
+        key: 'install',
+        title: '安装应用',
+        description: '添加到桌面，获得更沉浸的使用体验',
+        icon: <DownloadOne size={18} />,
+        action: () => {
+          setMenuOpen(false)
+          pubsub.publish(EVENTS.INSTALL_APP_CLICK)
+        }
+      })
+    }
+
+    items.push({
+      key: 'about',
+      title: '关于系统',
+      description: '版本、作者与项目说明',
+      icon: <Info size={18} />,
+      action: () => handleSelect('about')
+    })
+
+    return items
+  }, [handleSelect, showInstallButton])
 
   return (
     // <LiquidGlassWrapper
@@ -118,49 +175,37 @@ export default function TopNavBar() {
                 <button className={styles.iconButton} aria-label="settings" onClick={() => handleSelect('settings')}>
                   <SettingTwo size={18} />
                 </button>
-                <button ref={moreBtnRef} className={styles.iconButton} aria-label="more" onClick={() => setMenuOpen(v => !v)}>
+                <button
+                  ref={moreBtnRef}
+                  className={`${styles.iconButton} ${menuOpen ? styles.iconButtonActive : ''}`}
+                  aria-label="more"
+                  aria-haspopup="dialog"
+                  aria-expanded={menuOpen}
+                  data-command-trigger="true"
+                  onClick={() => setMenuOpen(v => !v)}
+                >
                   <More size={18} />
                 </button>
-                <div ref={menuRef} className={styles.menu} data-open={menuOpen ? 'true' : 'false'}>
-                  {/* 这个会用“返回地图”替换，所以取消显示“连飞地图”选项 */}
-                  {/* <button className={styles.menuItem} onClick={() => handleSelect('map')}>
-                    <span className={styles.menuIcon}>
-                      <MapDraw size={18} />
-                    </span>
-                    <span className={styles.menuLabel}>连飞地图</span>
-                  </button> */}
-                  <button className={styles.menuItem} onClick={() => handleSelect('pilot')}>
-                    <span className={styles.menuIcon}>
-                      <ListTop size={18} />
-                    </span>
-                    <span className={styles.menuLabel}>在线机组</span>
-                  </button>
-                  <button className={styles.menuItem} onClick={() => handleSelect('controller')}>
-                    <span className={styles.menuIcon}>
-                      <RadarThree size={18} />
-                    </span>
-                    <span className={styles.menuLabel}>在线管制</span>
-                  </button>
-                  <button className={styles.menuItem} onClick={() => handleSelect('board')}>
-                    <span className={styles.menuIcon}>
-                      <Airplane size={18} />
-                    </span>
-                    <span className={styles.menuLabel}>机场大屏</span>
-                  </button>
-                  {showInstallButton && (
-                    <button className={styles.menuItem} onClick={() => { setMenuOpen(false); pubsub.publish(EVENTS.INSTALL_APP_CLICK); }}>
-                      <span className={styles.menuIcon}>
-                        <DownloadOne size={18} />
-                      </span>
-                      <span className={styles.menuLabel}>安装应用</span>
-                    </button>
-                  )}
-                  <button className={styles.menuItem} onClick={() => handleSelect('about')}>
-                    <span className={styles.menuIcon}>
-                      <Info size={18} />
-                    </span>
-                    <span className={styles.menuLabel}>关于系统</span>
-                  </button>
+                <div className={styles.commandScrim} data-open={menuOpen ? 'true' : 'false'} />
+                <div ref={menuRef} className={styles.commandPanel} data-open={menuOpen ? 'true' : 'false'} role="dialog" aria-label="快捷操作">
+                  <div className={styles.commandHandle} aria-hidden="true" />
+                  <div className={styles.commandHeader}>
+                    <div>
+                      <div className={styles.commandTitle}>快捷操作</div>
+                      <div className={styles.commandSubtitle}>选择一个视图或系统操作</div>
+                    </div>
+                  </div>
+                  <div className={styles.commandList}>
+                    {commands.map(item => (
+                      <button key={item.key} className={styles.commandItem} onClick={item.action}>
+                        <span className={styles.commandIcon}>{item.icon}</span>
+                        <span className={styles.commandText}>
+                          <span className={styles.commandItemTitle}>{item.title}</span>
+                          <span className={styles.commandDesc}>{item.description}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
