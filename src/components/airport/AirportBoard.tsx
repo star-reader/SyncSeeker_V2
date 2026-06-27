@@ -16,17 +16,9 @@ import { getDepartures, getArrivals } from '../../services/airport/getAirportTra
 import syncSeekerDB from '../../services/localDB/indexedDB'
 import IconByName from '../common/IconByName'
 import type { OnlinePilot } from '../../types/fsd'
+import { getAirlineLogoUrl } from '../../utils/airlineLogo'
 
 type TabType = 'departures' | 'arrivals'
-
-const NAVDATA_URL = import.meta.env.VITE_PUBLIC_NAVDATA_URL
-
-// 获取航司Logo URL
-const getAirlineLogoUrl = (callsign: string): string | null => {
-  const match = callsign.match(/^[A-Z]{3}/)
-  if (!match) return null
-  return `${NAVDATA_URL}/airlines/${match[0]}.png`
-}
 
 // 格式化时间显示
 const formatTime = (logonTime: string): string => {
@@ -137,11 +129,13 @@ export default function AirportBoard() {
     const destination = activeTab === 'departures' ? pilot.flight_plan?.arrival : pilot.flight_plan?.departure
     
     return (
-      <div 
+      <button 
         key={pilot.session_id} 
+        type="button"
         className={styles.flightRow}
         style={{ animationDelay: `${index * 0.03}s` }}
         onClick={() => handleFlightClick(pilot)}
+        aria-label={`查看航班 ${pilot.callsign}`}
       >
         <div className={styles.logoCell}>
           {logoUrl ? (
@@ -168,7 +162,7 @@ export default function AirportBoard() {
         <div className={`${styles.statusCell} ${styles[`status--${status.type}`]}`}>
           {status.text}
         </div>
-      </div>
+      </button>
     )
   }
 
@@ -199,8 +193,15 @@ export default function AirportBoard() {
         {/* 顶部信息栏 */}
         <div className={styles.header}>
           <div className={styles.airportInfo}>
-            <div className={styles.icaoCode}>{selectedIcao}</div>
-            {airportName && <div className={styles.airportName}>{airportName}</div>}
+            <div className={styles.airportTitle}>
+              <div className={styles.icaoCode}>{selectedIcao}</div>
+              {airportName && <div className={styles.airportName}>{airportName}</div>}
+            </div>
+            <div className={styles.airportStats}>
+              <span><b>{departures.length}</b> 离港</span>
+              <span><b>{arrivals.length}</b> 到港</span>
+              <span><b>{departures.length + arrivals.length}</b> 活动</span>
+            </div>
           </div>
           <div className={styles.clock}>
             <div className={styles.timeDisplay}>
@@ -259,7 +260,10 @@ export default function AirportBoard() {
           ) : (
             <div className={styles.emptyState}>
               <IconByName name="Sleep" size={48} />
-              <span>暂无{activeTab === 'departures' ? '离港' : '到港'}航班</span>
+              <span className={styles.emptyTitle}>暂无{activeTab === 'departures' ? '离港' : '到港'}航班</span>
+              <span className={styles.emptyMeta}>
+                {selectedIcao} 当前没有可显示的{activeTab === 'departures' ? '离港' : '到港'}动态
+              </span>
             </div>
           )}
         </div>

@@ -6,9 +6,9 @@
   right: 20px;
   width: 360px;
   max-height: calc(100vh - 92px - var(--app-safe-top, env(safe-area-inset-top, 0px)) - 60px);
-  background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 70%, transparent);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
   box-shadow:
@@ -62,19 +62,47 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 20px 12px;
+  padding: 18px 20px 12px;
 }
 
 .title {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 7px;
   min-width: 0;
   flex: 1;
 }
 
+.airlineLogoHeader {
+  position: relative;
+  max-width: 150px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.airlineLogoHeader img {
+  position: absolute;
+  // inset: 6px 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 12px);
+  object-fit: contain;
+  object-position: left center;
+}
+
+.airlineLogoFallback {
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: var(--sky-text-color-secondary);
+}
+
 .callsign {
-  font-size: 28px;
+  font-size: 27px;
   font-weight: 800;
   letter-spacing: -0.5px;
   line-height: 1.1;
@@ -112,6 +140,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
+  min-height: 46px;
 }
 
 .status {
@@ -207,7 +236,7 @@
   padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   overscroll-behavior: contain;
 }
 
@@ -215,12 +244,19 @@
   display: none;
 }
 
+.detailsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
 /* Route Card */
 .routeCard {
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 50%, transparent);
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 42%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 34%, transparent);
   border-radius: 14px;
-  padding: 16px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -249,7 +285,7 @@
 }
 
 .airportBig {
-  font-size: 36px;
+  font-size: 35px;
   font-weight: 800;
   color: var(--sky-text-color-primary);
   line-height: 1;
@@ -325,10 +361,10 @@
 
 /* Panel Cards */
 .panelCard {
-  background: color-mix(in srgb, var(--sky-bg-color-base) 30%, transparent);
+  background: color-mix(in srgb, var(--sky-bg-color-base) 24%, transparent);
   border-radius: 14px;
-  padding: 14px;
-  border: 1px solid color-mix(in srgb, var(--sky-border-color) 40%, transparent);
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, var(--sky-border-color) 32%, transparent);
 }
 
 .panelTitle {
@@ -389,8 +425,8 @@
   gap: 4px;
   align-items: center;
   text-align: center;
-  padding: 10px 4px;
-  background: color-mix(in srgb, var(--sky-bg-color-overlay) 40%, transparent);
+  padding: 9px 4px;
+  background: color-mix(in srgb, var(--sky-bg-color-overlay) 34%, transparent);
   border-radius: 10px;
 }
 
@@ -407,7 +443,7 @@
 }
 
 .statValue {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--sky-text-color-primary);
   line-height: 1;

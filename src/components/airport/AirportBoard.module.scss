@@ -104,6 +104,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  --board-grid-columns:
+    78px
+    minmax(132px, 1.25fr)
+    minmax(88px, .9fr)
+    minmax(78px, .75fr)
+    minmax(78px, .75fr)
+    minmax(86px, .75fr)
+    minmax(70px, .65fr)
+    minmax(88px, .8fr);
+  --board-column-gap: clamp(12px, 1.2vw, 24px);
 }
 
 /* 顶部信息栏 */
@@ -118,8 +128,16 @@
 
 .airportInfo {
   display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.airportTitle {
+  display: flex;
   align-items: baseline;
   gap: 16px;
+  min-width: 0;
 }
 
 .icaoCode {
@@ -137,6 +155,32 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.airportStats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.airportStats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sky-fill-color) 62%, transparent);
+  color: var(--sky-text-color-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.airportStats b {
+  color: var(--sky-color-primary);
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 13px;
 }
 
 .clock {
@@ -238,8 +282,8 @@
 /* 表头 */
 .tableHeader {
   display: grid;
-  grid-template-columns: 60px 140px 90px 80px 70px 80px 60px 80px;
-  gap: 16px;
+  grid-template-columns: var(--board-grid-columns);
+  gap: var(--board-column-gap);
   padding: 12px 24px;
   background: color-mix(in srgb, var(--sky-fill-color) 40%, transparent);
   border-bottom: 1px solid var(--sky-border-color);
@@ -273,22 +317,39 @@
 }
 
 .flightRow {
+  appearance: none;
+  width: 100%;
   display: grid;
-  grid-template-columns: 60px 140px 90px 80px 70px 80px 60px 80px;
-  gap: 16px;
+  grid-template-columns: var(--board-grid-columns);
+  gap: var(--board-column-gap);
   padding: 12px 24px;
+  border: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--sky-border-color) 50%, transparent);
+  background: transparent;
   color: var(--sky-text-color-primary);
   font-size: 14px;
+  font-family: inherit;
+  text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   animation: fadeIn 0.3s ease forwards;
   opacity: 0;
   align-items: center;
 }
 
 .flightRow:hover {
-  background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+  background: color-mix(in srgb, var(--sky-color-primary) 7%, var(--sky-fill-color) 38%);
+}
+
+.flightRow:focus-visible {
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--sky-color-primary);
+  background: color-mix(in srgb, var(--sky-color-primary) 9%, var(--sky-fill-color) 42%);
+}
+
+.flightRow:active {
+  transform: scale(.998);
+  background: color-mix(in srgb, var(--sky-color-primary) 10%, var(--sky-fill-color) 45%);
 }
 
 @keyframes fadeIn {
@@ -298,21 +359,23 @@
 }
 
 .logoCell {
+  width: 78px;
+  min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .airlineLogo {
-  width: 70px;
-  height: 40px;
+  width: 66px;
+  height: 34px;
   object-fit: contain;
   border-radius: 4px;
 }
 
 .logoPlaceholder {
-  width: 70px;
-  height: 40px;
+  width: 66px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -345,6 +408,7 @@
   font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
   color: var(--sky-color-success);
   font-weight: 500;
+  text-align: center;
 }
 
 .altitudeCell {
@@ -367,6 +431,8 @@
   text-align: center;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  justify-self: start;
+  min-width: 72px;
 }
 
 .status--ground {
@@ -394,10 +460,28 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
+  min-height: 280px;
   padding: 80px 20px;
   color: var(--sky-text-color-secondary);
-  font-size: 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.emptyState svg {
+  margin-bottom: 6px;
+  opacity: .58;
+}
+
+.emptyTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--sky-text-color-primary);
+}
+
+.emptyMeta {
+  font-size: 13px;
+  color: var(--sky-text-color-secondary);
 }
 
 /* 平板 */
@@ -406,21 +490,36 @@
     width: 140px;
   }
 
+  .main {
+    --board-grid-columns:
+      62px
+      minmax(112px, 1.2fr)
+      minmax(76px, .9fr)
+      minmax(68px, .75fr)
+      minmax(64px, .72fr)
+      minmax(72px, .72fr)
+      minmax(54px, .6fr)
+      minmax(72px, .72fr);
+    --board-column-gap: 12px;
+  }
+
   .tableHeader,
   .flightRow {
-    grid-template-columns: 50px 120px 80px 70px 60px 70px 50px 70px;
-    gap: 12px;
     padding: 10px 16px;
   }
 
   .airlineLogo {
-    width: 50px;
-    height: 28px;
+    width: 54px;
+    height: 30px;
   }
 
   .logoPlaceholder {
-    width: 50px;
-    height: 28px;
+    width: 54px;
+    height: 30px;
+  }
+
+  .logoCell {
+    width: 62px;
   }
 
   .icaoCode {
@@ -447,6 +546,11 @@
     flex-direction: column;
   }
 
+  .main {
+    --board-grid-columns: 52px minmax(128px, 1fr) 78px 70px 72px;
+    --board-column-gap: 8px;
+  }
+
   /* 左侧变顶部横向滚动 */
   .sidebar {
     width: 100%;
@@ -464,8 +568,8 @@
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 7px;
+    padding: 8px 12px;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -476,7 +580,8 @@
   .airportItem {
     flex-shrink: 0;
     width: auto;
-    padding: 8px 14px;
+    min-height: 40px;
+    padding: 7px 13px;
     margin-bottom: 0;
   }
 
@@ -486,12 +591,16 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 9px 16px;
     flex-wrap: nowrap;
   }
 
   .airportInfo {
     flex: 0 0 auto;
+  }
+
+  .airportStats {
+    display: none;
   }
 
   .icaoCode {
@@ -564,14 +673,15 @@
 
   /* 标签简化 */
   .tabs {
-    padding: 0 16px;
+    padding: 0 14px;
     background: var(--sky-bg-color-base);
   }
 
   .tab {
     flex: 1;
     justify-content: center;
-    padding: 10px 8px;
+    min-height: 50px;
+    padding: 8px 8px;
     font-size: 13px;
     gap: 6px;
   }
@@ -583,9 +693,9 @@
   /* 移动端表头 */
   .tableHeader {
     display: grid;
-    grid-template-columns: 48px 1fr 70px 56px 56px;
-    gap: 6px;
-    padding: 10px 16px;
+    grid-template-columns: var(--board-grid-columns);
+    gap: var(--board-column-gap);
+    padding: 9px 16px;
     font-size: 11px;
     background: color-mix(in srgb, var(--sky-fill-color) 60%, transparent);
   }
@@ -608,9 +718,10 @@
 
   .flightRow {
     display: grid;
-    grid-template-columns: 48px 1fr 70px 56px 56px;
-    gap: 6px;
-    padding: 12px 16px;
+    grid-template-columns: var(--board-grid-columns);
+    gap: var(--board-column-gap);
+    min-height: 58px;
+    padding: 10px 16px;
     margin-bottom: 0;
     border-radius: 0;
     border: none;
@@ -619,21 +730,22 @@
   }
 
   .flightRow:active {
-    background: color-mix(in srgb, var(--sky-fill-color) 50%, transparent);
+    transform: none;
+    background: color-mix(in srgb, var(--sky-color-primary) 8%, var(--sky-fill-color) 44%);
   }
 
   .logoCell {
-    width: 48px;
+    width: 54px;
   }
 
   .airlineLogo {
-    width: 50px;
-    height: 28px;
+    width: 46px;
+    height: 26px;
   }
 
   .logoPlaceholder {
-    width: 50px;
-    height: 28px;
+    width: 46px;
+    height: 26px;
   }
 
   .callsignCell {
@@ -655,18 +767,25 @@
 
   .timeCell {
     font-size: 13px;
-    text-align: right;
+    text-align: center;
   }
 
   .statusCell {
     font-size: 10px;
-    padding: 4px 6px;
+    min-width: 66px;
+    padding: 4px 8px;
     text-align: center;
+    justify-self: end;
   }
 }
 
 /* 小屏手机 */
 @include screen-down(xs) {
+  .main {
+    --board-grid-columns: 46px minmax(104px, 1fr) 58px 60px 62px;
+    --board-column-gap: 6px;
+  }
+
   .header {
     padding: 8px 12px;
   }
@@ -690,30 +809,26 @@
   }
 
   .tableHeader {
-    grid-template-columns: 40px 1fr 60px 50px 50px;
-    gap: 4px;
     padding: 8px 12px;
     font-size: 10px;
   }
 
   .flightRow {
-    grid-template-columns: 40px 1fr 60px 50px 50px;
-    gap: 4px;
     padding: 10px 12px;
   }
 
   .logoCell {
-    width: 40px;
+    width: 48px;
   }
 
   .airlineLogo {
-    width: 40px;
-    height: 22px;
+    width: 42px;
+    height: 24px;
   }
 
   .logoPlaceholder {
-    width: 40px;
-    height: 22px;
+    width: 42px;
+    height: 24px;
   }
 
   .callsignCell {
@@ -730,6 +845,7 @@
 
   .statusCell {
     font-size: 9px;
-    padding: 3px 4px;
+    min-width: 58px;
+    padding: 3px 6px;
   }
 }
