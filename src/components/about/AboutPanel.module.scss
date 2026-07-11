@@ -6,8 +6,8 @@
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--sky-color-black) 40%, transparent);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   z-index: 1001;
   padding: 24px;
 }

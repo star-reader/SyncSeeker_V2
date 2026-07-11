@@ -7,8 +7,8 @@
   width: 360px;
   max-height: calc(100vh - 92px - var(--app-safe-top, env(safe-area-inset-top, 0px)) - 60px);
   background: color-mix(in srgb, var(--sky-bg-color-base) 75%, transparent);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-radius: 16px;
   border: 1px solid color-mix(in srgb, var(--sky-border-color) 60%, transparent);
   box-shadow: 

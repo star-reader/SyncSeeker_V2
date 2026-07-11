@@ -85,7 +85,7 @@ export default () => {
         <div className={styles.heading}>
           <div>
             <div className={styles.title}>在线机组</div>
-            <div className={styles.subtitle}>{list.length} 架在线 · 选择后回到地图查看详情</div>
+            <div className={styles.subtitle}>{list.length} 架在线</div>
           </div>
           <button className={styles.closeBtn} onClick={closeSheet} aria-label="关闭机组列表">
             <IconByName name="Close" />
@@ -106,7 +106,6 @@ export default () => {
               return (
                 <button key={p.session_id} className={styles.card} onClick={() => handlePilotClick(p)}>
                   <span className={styles.logoBox}>
-                    <span className={styles.logoFallback}>{airlineIcao || '---'}</span>
                     {airlineLogoUrl && (
                       <img
                         src={airlineLogoUrl}
