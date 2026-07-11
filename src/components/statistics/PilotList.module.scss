@@ -145,14 +145,14 @@
 .logoBox {
   grid-area: logo;
   position: relative;
-  width: 108px;
+  // width: 108px;
   height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--sky-bg-color-base) 74%, transparent);
+  // background: color-mix(in srgb, var(--sky-bg-color-base) 74%, transparent);
   align-self: center;
 }
 
